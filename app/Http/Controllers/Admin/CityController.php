@@ -8,7 +8,7 @@ use App\City;
 
 class CityController extends Controller
 {
-     public function store(Request $request)
+    public function store(Request $request)
     {
     	//dd($request->input('city_id'));
     	$this->validate($request, [
@@ -30,7 +30,7 @@ class CityController extends Controller
     	return 'successfully added';
     }
 
-    public function destroy(Request $request, City $city)
+    public function destroy(City $city)
     {
        
         $error = ['error' => 'No results found'];
