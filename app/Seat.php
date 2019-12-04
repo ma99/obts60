@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Stop extends Model
+class Seat extends Model
 {
     protected $guarded = [];
-
-    public function city()
+    
+    public function booking()
     {
-    	return $this->belongsTo(City::class);
+    	return $this->belongsTo(Booking::class);
     }
 }

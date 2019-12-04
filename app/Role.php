@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Stop extends Model
+class Role extends Model
 {
     protected $guarded = [];
-
-    public function city()
+    
+    public function users()
     {
-    	return $this->belongsTo(City::class);
+        return $this->belongsToMany(User::class); 
     }
 }

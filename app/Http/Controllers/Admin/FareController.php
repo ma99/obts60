@@ -9,29 +9,29 @@ use App\Fare;
 
 class FareController extends Controller
 {
-    
-	protected $request;
-	
-	public function __construct(Request $request)
-	{   
-	    $this->request = $request;
-	    //$this->middleware(['auth', 'admin']);
-	}
+    public function store()
+    {
+    	$attributes = $this->validateRequest();
+        Fare::create($attributes);  
+
+        return 'success';
+
+    }
 
     public function update(Fare $fare)
     {
-        //$routeId = $this->request->input('route_id');
-        $fareDetails = $this->request->input('fare');
+    	$attributes = $this->validateRequest();
 
-        /*Fare::updateOrCreate(
-            ['rout_id' => $routeId],
-            ['details' => $fareDetails]
-        );*/
- 
-        $fare->update([
-        	'details' => $fareDetails 
-        ]);
+        $fare->update($attributes);
 
         return 'success';
+    }
+
+    protected function validateRequest()
+    {
+        return request()->validate([
+           'route_id' => 'required',
+           'details' => 'required'
+        ]);
     }
 }

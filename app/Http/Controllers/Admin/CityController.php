@@ -11,35 +11,37 @@ class CityController extends Controller
     public function store(Request $request)
     {
     	//dd($request->input('city_id'));
-    	$this->validate($request, [
-            'city_name' => 'required|max:50',
-            'division_name' => 'required|max:50'
-            //'code' => 'required|max:25',
-        ]);
+    	// $this->validate($request, [
+     //        'city_name' => 'required|max:50',
+     //        'division_name' => 'required|max:50'
+     //        //'code' => 'required|max:25',
+     //    ]);
+        $attributes = $this->validateRequest();
 
     	//dd($request->input('city_id'));
 
-    	$cityCode = $request->input('city_id');
-    	$cityName = $request->input('city_name');
-        $divisionName = $request->input('division_name');
+    	// $cityCode = $request->input('city_id');
+    	// $cityName = $request->input('city_name');
+     //    $divisionName = $request->input('division_name');
 
         City::updateOrCreate(
-            ['code' => $cityCode],
-            ['name' => $cityName, 'division' => $divisionName]            
+            ['district_id' => $attributes['district_id']],
+            ['name' => $attributes['name']]            
         );
     	return 'successfully added';
     }
 
     public function destroy(City $city)
+    {        
+        $city->delete();
+        return 'deleted';                    
+    }
+
+    protected function validateRequest()
     {
-       
-        $error = ['error' => 'No results found'];
-        // $cityCode = $request->input('city_code');
-        // $city = City::where('code', $cityCode)->first();
-        if($city) {
-            $city->delete();
-            return 'success';            
-        }
-        return $error;
+        return request()->validate([
+           'district_id' => 'required',
+           'name'  => 'required'
+        ]);
     }
 }

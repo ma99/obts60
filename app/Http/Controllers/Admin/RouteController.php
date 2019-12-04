@@ -4,40 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Route;
 
 class RouteController extends Controller
 {
-	protected $request;
-    
-    public function __construct(Request $request)
-    {   
-        
-        $this->request = $request;
-
-        //$this->middleware(['auth', 'admin']);
-    }
-
-
-	public function store(Route $route)
+	
+	public function store()
     {        
-        $this->validate($this->request, [
-            'arrival_city' => 'required|max:50',
-            'departure_city' => 'required|max:50'
-        ]);
+    	$attributes = $this->validateRequest();
 
-        $arraivalCity = $this->request->input('arrival_city');
-        $departureCity = $this->request->input('departure_city');
-        $distance = $this->request->input('distance');
-      
-        $route = $route->addOrUpdateRoute($arraivalCity, $departureCity, $distance); 
-
-        $fare = $this->request->input('fare');
-
-        $route->addFareForRoute($route, $fare); 
+        Route::create($attributes);  
 
         return 'success';
+    }
+
+    public function update(Route $route)
+    {
+    	$attributes = $this->validateRequest();
+
+        $route->update($attributes);  
+
+        return 'success';	
     }
 
     public function destroy(Route $route)
@@ -50,6 +37,15 @@ class RouteController extends Controller
         }
 
         return $error;
+    }
+
+    protected function validateRequest()
+    {
+        return request()->validate([
+           'arrival_city' => 'required|max:50',
+           'departure_city' => 'required|max:50',
+           'distance' => 'nullable' 
+        ]);
     }
     
 }

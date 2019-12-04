@@ -4,32 +4,27 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Facades\Tests\Setup\UserRoleFactory;
 use Tests\TestCase;
 use App\City;
+use App\Stop;
 
 class ObtsTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
-
-    public function addCityInfo()
-    {
-      
-       return $attributes = [
-            'city_id' => strtoupper($this->faker->lexify('???')),
-            'city_name' => $this->faker->city,
-            'division_name' => $this->faker->state 
-        ];
-    }
+    use WithFaker, RefreshDatabase;    
 
     public function addStopsInfo()
     {
+        $city1 = factory('App\City')->create();
+        $city2 = factory('App\City')->create();
+
         $stops = [
             [
-                'city_id' => $this->faker->randomNumber($nbDigits = 3),
+                'city_id' => $city1->id,
                 'name' => $this->faker->streetName, 
             ],
             [
-                'city_id' => $this->faker->randomNumber($nbDigits = 3),
+                'city_id' => $city2->id,
                 'name' => $this->faker->streetName,
             ]
         ];
@@ -42,18 +37,21 @@ class ObtsTest extends TestCase
     /** @test */
     public function a_city_can_be_added()
     {
+       //$this->withoutExceptionHandling();
+
+       $district = factory('App\District')->create();       
         
-      // $this->withoutExceptionHandling();
+       $attributes = [
+            'district_id' => $district->id,
+            'name'  => $district->name,
+       ];
        
-        $attributes = $this->addCityInfo();
-       
-        $this->post('/cities', $attributes);
+        $userRole = UserRoleFactory::setAs('super_admin')->create();        
+
+        $response = $this->actingAs($userRole['user'])
+                        ->post('/cities', $attributes);
         
-        $this->assertDatabaseHas('cities', [  
-            'code' => $attributes['city_id'],
-            'name' => $attributes['city_name'],
-            'division' => $attributes['division_name'],
-        ]);
+        $this->assertDatabaseHas('cities', $attributes);
     }
     
     /** @test */
@@ -61,152 +59,53 @@ class ObtsTest extends TestCase
     {
         //$this->withoutExceptionHandling();
 
-        $attributes = $this->addCityInfo();
-        $this->post('/cities', $attributes);
+        factory('App\City', 3)->create();       
 
         $city = City::first();
-        //dd($city);
-        $response = $this->delete('/cities/'.$city->id);
-        //$response->assertOk();
-        //$response->dump();
+        
+        $userRole = UserRoleFactory::setAs('super_admin')->create();        
 
-        //dd($response->content());
-        $this->assertEquals('success', $response->getContent());
+        $response = $this->actingAs($userRole['user'])
+                        ->delete('/cities/'.$city->id);
+        
+        $this->assertDatabaseMissing('cities', $city->toArray());
     }
 
 
     /** @test */
     public function a_stop_can_be_added()
     {
-
-        $this->withoutExceptionHandling();
-
+        //$this->withoutExceptionHandling();
+        
         $attributes = $this->addStopsInfo();
          
-        $response = $this->post('/stops', $attributes);
-        $response->assertOk(); 
+        $userRole = UserRoleFactory::setAs('super_admin')->create();        
 
+        $response = $this->actingAs($userRole['user'])
+                        ->post('/stops', $attributes);
+        
+        $stop = Stop::first();
+
+        $this->assertNotNull($stop);        
+        $this->assertInstanceOf(Stop::class, $stop);
     }
 
     /** @test */
     public function a_stop_can_be_deleted()
     {
-
-        $this->withoutExceptionHandling();
-
-        $attributes = $this->addStopsInfo(); 
+        //$this->withoutExceptionHandling();
         
-        $this->post('/stops', $attributes); //saving
+        factory('App\Stop', 3)->create();
 
-        $stop = \App\Stop::first();
+        $stop = Stop::first();
 
-        $response = $this->delete('/stops/'.$stop->id);
+        $userRole = UserRoleFactory::setAs('super_admin')->create();        
 
-        //$response->assertOk(); 
-       $this->assertEquals('success', $response->getContent());
-
+        $response = $this->actingAs($userRole['user'])
+                        ->delete('/stops/'.$stop->id);
+        
+        $this->assertDatabaseMissing('stops', $stop->toArray());
     }
 
-    /** @test */
-    public function a_route_with_fare_can_be_added()
-    {
-        $this->withoutExceptionHandling();
-        
-        $fareDetails = [
-            'ac' => 800,
-            'non-ac' => 500,
-            'deluxe' => 1200 
-        ];
-
-        $attributes = [
-            'arrival_city' => $this->faker->city,
-            'departure_city' => $this->faker->city,
-            'distance' => $this->faker->randomNumber($nbDigits = 5),
-            'fare' => json_encode($fareDetails)
-        ];
-
-        $response = $this->post('/routes', $attributes);
-        //$response->assertOk(); 
-
-        $route = \App\Route::all();        
-        $this->assertEquals(1, $route->count());
-
-        $fare = \App\Fare::all();
-        $this->assertEquals(1, $fare->count());
-
-    }
-
-       /** @test */
-    public function a_route_can_be_deleted()
-    {
-        $this->withoutExceptionHandling();
-
-        $fareDetails = [
-            'ac' => 800,
-            'non-ac' => 500,
-            'deluxe' => 1200 
-        ];
-        
-        $attributes = [
-            'arrival_city' => $this->faker->city,
-            'departure_city' => $this->faker->city,
-            'distance' => $this->faker->randomNumber($nbDigits = 5),
-            'fare' => json_encode($fareDetails)
-        ];
-
-        $response = $this->post('/routes', $attributes);
-        //$response->assertOk();
-
-        $route = \App\Route::first();
-
-        $response = $this->delete('/routes/'.$route->id);         
-        
-        $this->assertEquals(0, $route->count());
-
-    }
-
-    /** @test */
-    public function a_fare_can_be_updated()
-    {
-        $this->withoutExceptionHandling();
-        
-        $fareDetails = [
-            'ac' => 800,
-            'non-ac' => 500,
-            'deluxe' => 1200 
-        ];
-        
-        $attributes = [
-            'arrival_city' => $this->faker->city,
-            'departure_city' => $this->faker->city,
-            'distance' => $this->faker->randomNumber($nbDigits = 5),
-            'fare' => json_encode($fareDetails)
-        ];        
-
-        $response = $this->post('/routes', $attributes);
-        $response->assertOk();
-
-        $fareDetails = [
-            'ac' => 900,
-            'non-ac' => 550,
-            'deluxe' => 1200 
-        ];
-
-        $attributes = [
-            'fare' => json_encode($fareDetails)
-        ];
-        
-        $fare = \App\Fare::first();
-
-        $this->patch('/fares/'.$fare->id, $attributes);
-        
-        $this->assertDatabaseHas('fares', [
-            'id' => $fare->id,
-            'route_id' => $fare->route_id,
-            'details' => serialize(json_encode($fareDetails))
-        ]);
-
-    }
-    
 }
 
