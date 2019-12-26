@@ -80,7 +80,7 @@ class BookingController extends Controller
        $travelDate = $booking->date;
        //$travelDate = date("d-m-Y", strtotime($booking->date)) ;
        $this->removeSeatBookedOrBuyingStatus($booking, $scheduleId, $travelDate);
-        return redirect('/');
+        return redirect('/home');
     }
 
     public function removeSeatBookedOrBuyingStatus($booking, $scheduleId, $travelDate)
@@ -104,6 +104,5 @@ class BookingController extends Controller
         }
         return;
     }
-
 
 }

@@ -3,14 +3,18 @@
 Route::get('/', function () {
 	
     return view('welcome');
-})->name('home');
+});
+
+Route::get('admin/{vue?}', function () {
+    return view('admin.admin');
+})->where('vue', '[\/\w\.-]*');//->middleware('auth', 'role:super_admin,admin');
 
 Route::group(['middleware' => ['auth', 'role:super_admin']], function () {	
 	//Route::delete('/bookings/{booking}', 'BookingController@destroy');    
 	Route::post('/users/{user}/roles/{role}', 'Admin\Super\UserRoleController@store');
 });
 
-Route::group(['middleware' => ['auth', 'role:super_admin,admin']], function () {
+//Route::group(['middleware' => ['auth', 'role:super_admin,admin']], function () {
 	
 	//bus
 	//Route::get('/bus/ids', 'Admin\BusController@busIds');
@@ -27,6 +31,10 @@ Route::group(['middleware' => ['auth', 'role:super_admin,admin']], function () {
 	//stop
 	Route::post('/stops', 'Admin\StopController@store');
 	Route::delete('/stops/{stop}', 'Admin\StopController@destroy');
+
+	//seat plan
+	Route::post('/seatplans', 'Admin\SeatPlanController@store');
+	Route::delete('/seatplans/{seatplan}', 'Admin\SeatPlanController@destroy');
 
 	//route
 	Route::post('/routes', 'Admin\RouteController@store');
@@ -47,7 +55,7 @@ Route::group(['middleware' => ['auth', 'role:super_admin,admin']], function () {
 
 	//bus schedule
 	Route::post('/bus-schedule/{bus}', 'Admin\BusScheduleController@store');
-});	
+//});	
 
 Route::group(['middleware' => ['auth']], function () {
 	// booking
@@ -58,3 +66,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::get('/search', 'SearchTicketController@searchTicket');
 Route::get('/viewseats/buses/{bus}', 'SearchTicketController@viewSeats');
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

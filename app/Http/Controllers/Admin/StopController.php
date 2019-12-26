@@ -12,7 +12,7 @@ class StopController extends Controller
     {
     	
         //dd($request->input('stop_list'));
-        //dd($request);
+        //d0d($request);
 
         // $this->validate($request, [            
         //     'stop_list.*.name' => 'required|max:50',       // array validation     
@@ -21,17 +21,9 @@ class StopController extends Controller
         // $stopList = $request->input('stop_list');    	
         //$cityCode = $request->input('city_id');
         $attributes = $this->validateRequest();
-        //dd($attributes); 
-        $stopList = $attributes['stop_list'];
-        //dd($stopList);
         
-        // foreach ($stopList as $stop) {                
-        //    Stop::updateOrCreate(
-        //         ['city_id' => $stop['city_id'], 'name' => $stop['name'] ],
-        //         ['name' => $stop['name']]            
-        //     );
-        // }
-        //Stop::insert($stopList);
+        $stopList = $attributes['stop_list'];
+        
         Stop::insert($attributes['stop_list']);
     	return 'successfully added';
     }
