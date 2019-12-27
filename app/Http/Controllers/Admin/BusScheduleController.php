@@ -12,7 +12,7 @@ class BusScheduleController extends Controller
     {
         $attributes = $this->validateRequest();
 
-        $bus->schedules()->attach($attributes['schedules']); //attach
+        $bus->schedules()->attach($attributes['schedules'], ['route_id' => $attributes['route_id']]); //attach
 
         return 'success';
     }
@@ -20,7 +20,7 @@ class BusScheduleController extends Controller
     protected function validateRequest()
     {
         return request()->validate([
-            //'route' => 'required',
+            'route_id' => 'required',
             'schedules' => 'required'
         ]);
     }

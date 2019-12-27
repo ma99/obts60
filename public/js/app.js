@@ -3697,6 +3697,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   // mounted() {
   //     console.log('Component mounted.')
@@ -3706,6 +3730,7 @@ __webpack_require__.r(__webpack_exports__);
       actionStatus: '',
       alertType: '',
       availableBusList: [],
+      availableSeatPlanList: [],
       disableShowButton: false,
       //disableSaveButton: true,
       disableSorting: true,
@@ -3719,6 +3744,8 @@ __webpack_require__.r(__webpack_exports__);
       numberOfSeat: '',
       busDescription: '',
       selectedBusType: '',
+      selectedSeatPlan: '',
+      selectedSeatPlanId: '',
       showAlert: false,
       show: false,
       options: [{
@@ -3741,14 +3768,22 @@ __webpack_require__.r(__webpack_exports__);
       var aa = this.isRegNumberAvailableInBusList(this.availableBusList, this.regNumber);
 
       if (aa) {
-        alert('Registration Number already exist');
+        alert('Registration Number is already exist');
       }
+    },
+    selectedSeatPlanId: function selectedSeatPlanId() {
+      var _this = this;
+
+      this.selectedSeatPlan = this.availableSeatPlanList.find(function (element) {
+        return element.id == _this.selectedSeatPlanId;
+      });
     }
   },
   mounted: function mounted() {
     // this.fetchBusIds();
     // this.createIndexList();  
     this.fetchAvailableBuses();
+    this.fetchAvailableSeatPlans();
   },
   computed: {
     isValid: function isValid() {
@@ -3795,6 +3830,17 @@ __webpack_require__.r(__webpack_exports__);
         vm.loading = false;
       });
     },
+    fetchAvailableSeatPlans: function fetchAvailableSeatPlans() {
+      this.loading = true;
+      this.availableSeatPlanList = [];
+      var vm = this;
+      axios.get('/api/seatplans') //--> api/bus?q=xyz        (right)
+      .then(function (response) {
+        response.data.error ? vm.error = response.data.error : vm.availableSeatPlanList = response.data; //vm.sortByBusId(vm.availableSeatPlanList);                       
+
+        vm.loading = false;
+      });
+    },
     isRegNumberAvailableInBusList: function isRegNumberAvailableInBusList(arr, val) {
       //var vm = this;
       return arr.some(function (bus) {
@@ -3834,113 +3880,6 @@ __webpack_require__.r(__webpack_exports__);
         return 0;
       });
     },
-
-    /*removeBus(bus) {  // role id of user/staff in roles table
-        var vm = this;            
-        //this.routeName = route.departure_city + ' to ' + route.arrival_city;
-        swal({
-              title: "Are you sure?",
-              text: "This BUS will be Removed!",
-              //type: "warning",
-              icon: "warning",
-              // showCancelButton: true,
-              // confirmButtonColor: "#DD6B55",
-              // confirmButtonText: "Yes, Remove!",
-              //closeOnConfirm: false,
-              //closeOnCancel: false 
-              cancel: {
-                text: "Cancel",
-                // value: null,
-                // visible: false,
-                // className: "",
-                // closeModal: true,
-              },
-              confirm: {
-                text: "Yes, Remove!",
-                value: true,
-                visible: true,
-                className: "",
-                //closeModal: true
-              }        
-             },
-            function() {                       
-                    vm.loading = true;
-                    vm.response = '';
-                    vm.showAlert = false;
-                    axios.post('/delete/bus', {    
-                        bus_id: bus.id, 
-                    })          
-                    .then(function (response) {                 
-                       
-                        response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                         if (vm.response) {                                
-                            vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
-                            vm.loading = false;
-                            vm.actionStatus = 'Removed';
-                            vm.alertType = 'danger';
-                            vm.showAlert= true;
-                            return;                                                      
-                        }                            
-                        vm.loading = false;
-                     });    
-                    //swal("Deleted!", "Staff has been Removed.", "success");                      
-                
-            });
-    },*/
-
-    /*removeBus(bus) {  // role id of user/staff in roles table
-                var vm = this;            
-                //this.routeName = route.departure_city + ' to ' + route.arrival_city;
-                //swal("This BUS will be Removed!", {
-                swal({
-                    title: "Are you sure?",
-                    text: "This BUS will be Removed!",
-                    icon: "warning",
-                    dangerMode: true,
-                    buttons: {
-                        cancel: "cancel",
-                        confirm: {
-                          text: "Remove It!",
-                          value: "remove",
-                        },                                
-                    },
-                
-                })
-                .then((value) => {
-                    switch (value) {
-                   
-                      case "cancel":
-                        break;                             
-                   
-                      case "remove":        
-                        vm.loading = true;
-                        vm.response = '';
-                        vm.showAlert = false;
-                         axios.post('/delete/bus', {    
-                            bus_id: bus.id, 
-                        })          
-                        .then(function (response) {                 
-                           
-                            response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                             if (vm.response) {                                
-                                vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
-                                vm.loading = false;
-                                vm.actionStatus = 'Removed';
-                                vm.alertType = 'danger';
-                                vm.showAlert= true;
-                                return;                                                      
-                            }                            
-                            vm.loading = false;
-                         });   
-                          
-                        break;
-                   
-                      default:
-                        // swal("Got away safely!");
-                        break;
-                    }
-                });                           
-            },*/
     removeBus: function removeBus(bus) {
       var vm = this;
       swal({
@@ -11469,7 +11408,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".view-available-info .card-heading span[data-v-7b68fe22] {\n  background-color: yellow;\n  font-weight: 600;\n  float: right;\n  padding: 2px 6px;\n  color: royalblue;\n}\n.route-info[data-v-7b68fe22] {\n  border: 1px dashed lightblue;\n  padding: 25px 10px;\n  margin: 25px 25px 50px 25px;\n  position: relative;\n  text-align: center;\n}\n.route-info span[data-v-7b68fe22] {\n  /* background-color: lightblue; */\n  display: block;\n  font-weight: 600;\n  letter-spacing: 1px;\n  left: 14px;\n  top: -16px;\n  position: absolute;\n  padding: 5px 10px;\n  width: 90px;\n}\n.route-distance[data-v-7b68fe22] {\n  margin: -15px 10px 10px 15px;\n}\n#scroll-routes span[data-v-7b68fe22] {\n  cursor: pointer;\n  margin-left: 5px;\n}\n#scroll-routes span[disabled][data-v-7b68fe22] {\n  cursor: not-allowed;\n  opacity: 0.65;\n}", ""]);
+exports.push([module.i, ".view-button button[data-v-7b68fe22] {\n  margin: 1.9rem auto;\n}\n.route-info[data-v-7b68fe22] {\n  border: 1px dashed lightblue;\n  padding: 25px 10px;\n  margin: 25px 25px 50px 25px;\n  position: relative;\n}\n.route-info span[data-v-7b68fe22] {\n  background-color: lightblue;\n  display: block;\n  font-weight: 600;\n  letter-spacing: 1px;\n  left: 14px;\n  top: -16px;\n  position: absolute;\n  padding: 5px 10px;\n  width: 125px;\n}\n.route-distance[data-v-7b68fe22] {\n  margin: -15px 10px 10px 15px;\n}\n#scrollbar span[data-v-7b68fe22] {\n  cursor: pointer;\n  margin-left: 5px;\n}\n#scrollbar span[disabled][data-v-7b68fe22] {\n  cursor: not-allowed;\n  opacity: 0.65;\n}", ""]);
 
 // exports
 
@@ -51494,242 +51433,347 @@ var render = function() {
             [
               _vm._v(" "),
               _c("form", [
-                _c("div", { staticClass: "form-row" }, [
-                  _c("div", { staticClass: "col-sm-4" }, [
-                    _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "regNumber" } }, [
-                        _vm._v("Registration #")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
+                _c(
+                  "div",
+                  { staticClass: "form-row justify-content-center route-info" },
+                  [
+                    _c("span", [_vm._v("Seat Plan Info")]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-4" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "seatPlan" } }, [
+                          _vm._v("Seat Plan#")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "select",
                           {
-                            name: "model",
-                            rawName: "v-model.lazy",
-                            value: _vm.regNumber,
-                            expression: "regNumber",
-                            modifiers: { lazy: true }
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "text",
-                          id: "regNumber",
-                          placeholder: "Registration Number"
-                        },
-                        domProps: { value: _vm.regNumber },
-                        on: {
-                          change: function($event) {
-                            _vm.regNumber = $event.target.value
-                          }
-                        }
-                      })
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-3" }, [
-                    _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "numberPlate" } }, [
-                        _vm._v("Number plate #")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.numberPlate,
-                            expression: "numberPlate"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "text",
-                          id: "numberPlate",
-                          placeholder: "Number Plate",
-                          disabled: _vm.isDisabled
-                        },
-                        domProps: { value: _vm.numberPlate },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.selectedSeatPlanId,
+                                expression: "selectedSeatPlanId"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { id: "seatPlan" },
+                            on: {
+                              change: function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.selectedSeatPlanId = $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              }
                             }
-                            _vm.numberPlate = $event.target.value
-                          }
-                        }
-                      })
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-2" }, [
-                    _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "numberOfSeat" } }, [
-                        _vm._v("Total Seat #")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.numberOfSeat,
-                            expression: "numberOfSeat"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "number",
-                          min: "1",
-                          max: "50",
-                          value: "36",
-                          id: "numberOfSeat",
-                          placeholder: "Number of Seat",
-                          disabled: _vm.isDisabled
-                        },
-                        domProps: { value: _vm.numberOfSeat },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.numberOfSeat = $event.target.value
-                          }
-                        }
-                      })
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-3" }, [
-                    _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "busType" } }, [
-                        _vm._v("Bus Type #")
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "select",
-                        {
+                          },
+                          [
+                            _c(
+                              "option",
+                              { attrs: { disabled: "", value: "" } },
+                              [_vm._v("Please select one")]
+                            ),
+                            _vm._v(" "),
+                            _vm._l(_vm.availableSeatPlanList, function(seat) {
+                              return _c(
+                                "option",
+                                { domProps: { value: seat.id } },
+                                [
+                                  _vm._v(
+                                    "                          \n                            " +
+                                      _vm._s(seat.id) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            })
+                          ],
+                          2
+                        )
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-2" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "numberOfSeat" } }, [
+                          _vm._v("Total Seat #")
+                        ]),
+                        _vm._v(" "),
+                        _c("input", {
                           directives: [
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: _vm.selectedBusType,
-                              expression: "selectedBusType"
+                              value: _vm.selectedSeatPlan.total_seats,
+                              expression: "selectedSeatPlan.total_seats"
                             }
                           ],
                           staticClass: "form-control",
-                          attrs: { id: "busType" },
+                          attrs: {
+                            type: "number",
+                            min: "1",
+                            max: "50",
+                            value: "36",
+                            id: "numberOfSeat",
+                            placeholder: "Number of Seat",
+                            disabled: ""
+                          },
+                          domProps: { value: _vm.selectedSeatPlan.total_seats },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.selectedSeatPlan,
+                                "total_seats",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-4" }, [
+                      _c("div", { staticClass: "view-button" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary",
+                            attrs: {
+                              type: "button",
+                              "data-toggle": "modal",
+                              "data-target": "#modalComponent"
+                            },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.view(_vm.seatplan)
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-eye fa-fw" }),
+                            _vm._v("View\n                  ")
+                          ]
+                        )
+                      ])
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "form-row justify-content-center route-info" },
+                  [
+                    _c("div", { staticClass: "col-sm-4" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "regNumber" } }, [
+                          _vm._v("Registration #")
+                        ]),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model.lazy",
+                              value: _vm.regNumber,
+                              expression: "regNumber",
+                              modifiers: { lazy: true }
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            type: "text",
+                            id: "regNumber",
+                            placeholder: "Registration Number"
+                          },
+                          domProps: { value: _vm.regNumber },
                           on: {
                             change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.selectedBusType = $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
+                              _vm.regNumber = $event.target.value
                             }
                           }
-                        },
-                        [
-                          _c("option", { attrs: { disabled: "", value: "" } }, [
-                            _vm._v("Please select one")
-                          ]),
-                          _vm._v(" "),
-                          _vm._l(_vm.options, function(option) {
-                            return _c(
-                              "option",
-                              { domProps: { value: option.value } },
-                              [
-                                _vm._v(
-                                  "\n                          " +
-                                    _vm._s(option.text) +
-                                    "\n                      "
-                                )
-                              ]
-                            )
-                          })
-                        ],
-                        2
-                      )
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-5" }, [
-                    _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "busDescription" } }, [
-                        _vm._v("Description")
-                      ]),
-                      _vm._v(" "),
-                      _c("textarea", {
-                        directives: [
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-3" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "numberPlate" } }, [
+                          _vm._v("Number plate #")
+                        ]),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.numberPlate,
+                              expression: "numberPlate"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            type: "text",
+                            id: "numberPlate",
+                            placeholder: "Number Plate",
+                            disabled: _vm.isDisabled
+                          },
+                          domProps: { value: _vm.numberPlate },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.numberPlate = $event.target.value
+                            }
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-3" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "busType" } }, [
+                          _vm._v("Bus Type #")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "select",
                           {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.busDescription,
-                            expression: "busDescription"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "text",
-                          min: "1",
-                          max: "50",
-                          value: "36",
-                          id: "busDescription",
-                          placeholder: "Description",
-                          disabled: _vm.isDisabled
-                        },
-                        domProps: { value: _vm.busDescription },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.selectedBusType,
+                                expression: "selectedBusType"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { id: "busType" },
+                            on: {
+                              change: function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.selectedBusType = $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              }
                             }
-                            _vm.busDescription = $event.target.value
-                          }
-                        }
-                      })
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-4" }, [
-                    _c("div", { staticClass: "button-group" }, [
-                      _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-primary",
-                          attrs: { disabled: !_vm.isValid },
+                          },
+                          [
+                            _c(
+                              "option",
+                              { attrs: { disabled: "", value: "" } },
+                              [_vm._v("Please select one")]
+                            ),
+                            _vm._v(" "),
+                            _vm._l(_vm.options, function(option) {
+                              return _c(
+                                "option",
+                                { domProps: { value: option.value } },
+                                [
+                                  _vm._v(
+                                    "\n                            " +
+                                      _vm._s(option.text) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            })
+                          ],
+                          2
+                        )
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-10" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "busDescription" } }, [
+                          _vm._v("Description")
+                        ]),
+                        _vm._v(" "),
+                        _c("textarea", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.busDescription,
+                              expression: "busDescription"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            type: "text",
+                            min: "1",
+                            max: "50",
+                            value: "36",
+                            id: "busDescription",
+                            placeholder: "Description",
+                            disabled: _vm.isDisabled
+                          },
+                          domProps: { value: _vm.busDescription },
                           on: {
-                            click: function($event) {
-                              $event.preventDefault()
-                              return _vm.addBus()
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.busDescription = $event.target.value
                             }
                           }
-                        },
-                        [_vm._v("Add")]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-primary",
-                          on: {
-                            click: function($event) {
-                              $event.preventDefault()
-                              return _vm.reset()
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-4" }, [
+                      _c("div", { staticClass: "button-group" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary",
+                            attrs: { disabled: !_vm.isValid },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.addBus()
+                              }
                             }
-                          }
-                        },
-                        [_vm._v("Reset")]
-                      )
+                          },
+                          [_vm._v("Add")]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary",
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.reset()
+                              }
+                            }
+                          },
+                          [_vm._v("Reset")]
+                        )
+                      ])
                     ])
-                  ])
-                ])
+                  ]
+                )
               ])
             ]
           ),

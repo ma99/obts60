@@ -17,6 +17,7 @@ class CreateBusScheduleTable extends Migration
             $table->bigIncrements('id');
              $table->unsignedBigInteger('bus_id');
             $table->unsignedBigInteger('schedule_id');            
+            $table->unsignedBigInteger('route_id');            
             $table->timestamps();
 
             $table->foreign('bus_id')
@@ -25,6 +26,9 @@ class CreateBusScheduleTable extends Migration
             $table->foreign('schedule_id')
                   ->references('id')->on('schedules')
                   ->onDelete('cascade');
+            // $table->foreign('route_id')
+            //       ->references('id')->on('routes')
+            //       ->onDelete('cascade');
         });
     }
 

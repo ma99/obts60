@@ -28,13 +28,10 @@ class SearchTicketController extends Controller
 	 	if ($route->buses->count())  {
 		 	
 		 	foreach ($route->buses as $bus) {
-		 		//dd($bus->schedules);
-		 		//dd($bus->schedulesBy($route->id)->get());
-		 		$schedules = $bus->schedulesBy($route->id)->get();
+		 		
+		 		if ($bus->schedules->count()) {
 
-		 		if ($schedules->count()) {
-
-			 		foreach ($schedules as $schedule) {
+			 		foreach ($bus->schedules as $schedule) {
 
 				 		if ($schedule->bookings->count()) {
 							

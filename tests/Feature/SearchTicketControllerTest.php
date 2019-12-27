@@ -15,10 +15,14 @@ class SearchTicketControllerTest extends TestCase
         $user = factory('App\User')->create();
         $routes = factory('App\Route', 2)->create();
         $buses = factory('App\Bus', 3)->create();
+
+        $route2 = factory('App\Route')->create();
         
         $schedule1 = factory('App\Schedule')->create();
         $schedule2 = factory('App\Schedule')->create();
         $schedule3 = factory('App\Schedule')->create();
+        $schedule4 = factory('App\Schedule')->create();
+        $schedule5 = factory('App\Schedule')->create();
 
         $route = \App\Route::first();
         $bus = \App\Bus::first();
@@ -29,9 +33,20 @@ class SearchTicketControllerTest extends TestCase
         ]);
                 
         $bus->routes()->attach([$route->id]);
+        
+        $bus->routes()->attach([$route2->id]);
+        // $bus->schedules()->attach(
+        //     [$schedule1->id, $schedule2->id, $schedule3->id], 
+        //     ['route_id' => $route->id]
+        // );
         $bus->schedules()->attach(
-            [$schedule1->id, $schedule2->id, $schedule3->id] 
-            //['route_id' => $route->id]
+            [$schedule1->id, $schedule2->id, $schedule3->id], 
+            ['route_id' => $route->id]
+        );
+
+        $bus->schedules()->attach(
+            [$schedule4->id, $schedule5->id], 
+            ['route_id' => $route2->id]
         );
 
         $bus1 = factory('App\Bus')->create();
@@ -42,7 +57,7 @@ class SearchTicketControllerTest extends TestCase
             'creator_id' => $user->id,
             'bus_id' => $bus->id,          
             'schedule_id' => $schedule2->id,
-            'date' => '20-12-2019'
+            'date' => '20-10-2022'
         ]);
 
         return json_decode(json_encode([
@@ -52,6 +67,8 @@ class SearchTicketControllerTest extends TestCase
                 's1' => $schedule1,
                 's2' => $schedule2,
                 's3' => $schedule3,
+                's4' => $schedule4,
+                's5' => $schedule5,
             ]
         ]));
     }
@@ -68,7 +85,7 @@ class SearchTicketControllerTest extends TestCase
         $attributes = [
             'from' => $route->departure_city,
             'to'   => $route->arrival_city,
-            'date' => '20-12-2019'
+            'date' => '20-10-2022'
         ];
 
         //$response = $this->get('/search', $attributes)->assertStatus(200);

@@ -12,10 +12,11 @@ class BusScheduleControllerTest extends TestCase
    use RefreshDatabase;
 
     /** @test */
-    public function it_can_add_schedule_for_bus()
+    public function it_can_add_schedule_for_bus_by_route()
     {
         //$this->withoutExceptionHandling();     
 
+        $route = factory('App\Route')->create();
         $bus = factory('App\Bus')->create();
 
         $schedules = factory('App\Schedule', 3)->create(); 
@@ -25,7 +26,8 @@ class BusScheduleControllerTest extends TestCase
         }
 
         $attributes = [          
-            'schedules' => $scheduleIds
+            'schedules' => $scheduleIds,
+            'route_id'  => $route->id
         ];        
 
         $userRole = UserRoleFactory::setAs('admin')->create();        
@@ -34,7 +36,9 @@ class BusScheduleControllerTest extends TestCase
                         ->post('/bus-schedule/'.$bus->id, $attributes);        
         
         $schedule = $schedules->first();
+        $routeId = $bus->schedules()->first()->pivot->route_id;
 
         $this->assertEquals($schedule->id, $bus->schedules()->first()->id);
+        $this->assertEquals($route->id, $routeId);
     }
 }

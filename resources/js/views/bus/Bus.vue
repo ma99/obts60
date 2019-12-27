@@ -1,4 +1,4 @@
-<template>
+.<template>
   <div>    
     <div class="content-header">
       <div class="container-fluid">
@@ -28,56 +28,80 @@
           </template>
 
           <form> 
-            <div class="form-row">
-              <div class="col-sm-4">
-                <div class="form-group">
-                  <label for="regNumber">Registration #</label>
-                  <input v-model.lazy="regNumber" type="text" class="form-control" id="regNumber" placeholder="Registration Number">
+            <!-- <div class="form-row"> -->
+              <div class="form-row justify-content-center route-info">
+                <span>Seat Plan Info</span>
+                <div class="col-sm-4">
+                  <div class="form-group">
+                    <label for="seatPlan">Seat Plan#</label>
+                      <select v-model="selectedSeatPlanId" class="form-control" id="seatPlan">
+                          <option disabled value="">Please select one</option>
+                          <option v-for="seat in availableSeatPlanList" v-bind:value="seat.id">                          
+                              {{ seat.id }}
+                          </option>                                              
+                      </select>                      
+                  </div>
                 </div>
+
+                <div class="col-sm-2">
+                  <div class="form-group">
+                    <label for="numberOfSeat">Total Seat #</label>
+                    <input v-model="selectedSeatPlan.total_seats" type="number" min="1" max="50" value="36" class="form-control" id="numberOfSeat" placeholder="Number of Seat" disabled>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="view-button">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalComponent" v-on:click.prevent="view(seatplan)">    
+                      <i class="fa fa-eye fa-fw"></i>View
+                    </button>
+                  </div>                     
+                </div>  
+
               </div>
 
-              <div class="col-sm-3">
-                <div class="form-group">
-                  <label for="numberPlate">Number plate #</label>
-                  <input v-model="numberPlate" type="text" class="form-control" id="numberPlate" placeholder="Number Plate" :disabled="isDisabled">
+              <div class="form-row justify-content-center route-info">  
+                <div class="col-sm-4">
+                  <div class="form-group">
+                    <label for="regNumber">Registration #</label>
+                    <input v-model.lazy="regNumber" type="text" class="form-control" id="regNumber" placeholder="Registration Number">
+                  </div>
+                </div>
+
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <label for="numberPlate">Number plate #</label>
+                    <input v-model="numberPlate" type="text" class="form-control" id="numberPlate" placeholder="Number Plate" :disabled="isDisabled">
+                  </div>
+                </div>
+                
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <label for="busType">Bus Type #</label>
+                      <select v-model="selectedBusType" class="form-control" id="busType">
+                          <option disabled value="">Please select one</option>
+                          <option v-for="option in options" v-bind:value="option.value">
+                              {{ option.text }}
+                          </option>                                              
+                      </select>                      
+                  </div>
+                </div>
+
+                <div class="col-sm-10">
+                  <div class="form-group">
+                    <label for="busDescription">Description</label>
+                    <textarea v-model="busDescription" type="text" min="1" max="50" value="36" class="form-control" id="busDescription" placeholder="Description" :disabled="isDisabled"></textarea>
+                  </div>
+                </div>
+
+                <div class="col-sm-4">
+                  <div class="button-group">
+                    <!-- <button v-on:click.prevent="createList()" class="btn btn-primary" :disabled="disableShowButton">Show</button> -->
+                    <button v-on:click.prevent="addBus()" class="btn btn-primary" :disabled="!isValid">Add</button>
+                    <button v-on:click.prevent="reset()" class="btn btn-primary">Reset</button>
+                  </div>
                 </div>
               </div>
-
-              <div class="col-sm-2">
-                <div class="form-group">
-                  <label for="numberOfSeat">Total Seat #</label>
-                  <input v-model="numberOfSeat" type="number" min="1" max="50" value="36" class="form-control" id="numberOfSeat" placeholder="Number of Seat" :disabled="isDisabled">
-                </div>
-              </div>
-
-              <div class="col-sm-3">
-                <div class="form-group">
-                  <label for="busType">Bus Type #</label>
-                    <select v-model="selectedBusType" class="form-control" id="busType">
-                        <option disabled value="">Please select one</option>
-                        <option v-for="option in options" v-bind:value="option.value">
-                            {{ option.text }}
-                        </option>                                              
-                    </select>                      
-                </div>
-              </div>
-
-              <div class="col-sm-5">
-                <div class="form-group">
-                  <label for="busDescription">Description</label>
-                  <textarea v-model="busDescription" type="text" min="1" max="50" value="36" class="form-control" id="busDescription" placeholder="Description" :disabled="isDisabled"></textarea>
-                </div>
-              </div>
-
-
-              <div class="col-sm-4">
-                <div class="button-group">
-                  <!-- <button v-on:click.prevent="createList()" class="btn btn-primary" :disabled="disableShowButton">Show</button> -->
-                  <button v-on:click.prevent="addBus()" class="btn btn-primary" :disabled="!isValid">Add</button>
-                  <button v-on:click.prevent="reset()" class="btn btn-primary">Reset</button>
-                </div>
-              </div>
-            </div>
+            <!-- </div> -->
           </form>            
 
           <template v-slot:footer>
@@ -166,6 +190,7 @@
                     actionStatus: '',
                     alertType: '',
                     availableBusList: [],
+                    availableSeatPlanList: [],
                     disableShowButton: false,
                     //disableSaveButton: true,
                     disableSorting: true,
@@ -179,6 +204,8 @@
                     numberOfSeat: '',
                     busDescription: '',
                     selectedBusType: '',
+                    selectedSeatPlan: '',
+                    selectedSeatPlanId: '',
                     showAlert: false,
                     show: false,                    
                     options: [
@@ -195,15 +222,19 @@
                     regNumber() {
                         var aa = this.isRegNumberAvailableInBusList(this.availableBusList, this.regNumber);
                         if (aa) {
-                             alert('Registration Number already exist');
+                             alert('Registration Number is already exist');
                         }
+                    },
 
-                    }
+                    selectedSeatPlanId() {
+                      this.selectedSeatPlan = this.availableSeatPlanList.find(element => element.id == this.selectedSeatPlanId);
+                    },
                 },      
                 mounted() {
                     // this.fetchBusIds();
                     // this.createIndexList();  
-                    this.fetchAvailableBuses();                
+                    this.fetchAvailableBuses();
+                    this.fetchAvailableSeatPlans();                
                 },
                 computed: {
                     isValid() {
@@ -256,6 +287,18 @@
                                vm.loading = false;
                         });
                     },
+
+                    fetchAvailableSeatPlans() {
+                      this.loading = true;
+                      this.availableSeatPlanList= [];            
+                      var vm = this;                
+                      axios.get('/api/seatplans')  //--> api/bus?q=xyz        (right)
+                          .then(function (response) {                  
+                             response.data.error ? vm.error = response.data.error : vm.availableSeatPlanList = response.data;
+                             //vm.sortByBusId(vm.availableSeatPlanList);                       
+                             vm.loading = false;
+                      });
+                    },
                     
                     isRegNumberAvailableInBusList(arr, val){
                         //var vm = this;
@@ -293,119 +336,7 @@
                             return 0;
                         });
                     },
-                    /*removeBus(bus) {  // role id of user/staff in roles table
-                        var vm = this;            
-                        //this.routeName = route.departure_city + ' to ' + route.arrival_city;
-                        swal({
-                              title: "Are you sure?",
-                              text: "This BUS will be Removed!",
-                              //type: "warning",
-                              icon: "warning",
-                              // showCancelButton: true,
-                              // confirmButtonColor: "#DD6B55",
-                              // confirmButtonText: "Yes, Remove!",
-                              //closeOnConfirm: false,
-                              //closeOnCancel: false 
-                              cancel: {
-                                text: "Cancel",
-                                // value: null,
-                                // visible: false,
-                                // className: "",
-                                // closeModal: true,
-                              },
-                              confirm: {
-                                text: "Yes, Remove!",
-                                value: true,
-                                visible: true,
-                                className: "",
-                                //closeModal: true
-                              }        
-
-                            },
-                            function() {                       
-                                    vm.loading = true;
-                                    vm.response = '';
-                                    vm.showAlert = false;
-                                    axios.post('/delete/bus', {    
-                                        bus_id: bus.id, 
-                                    })          
-                                    .then(function (response) {                 
-                                       
-                                        response.data.error ? vm.error = response.data.error : vm.response = response.data;
-
-                                        if (vm.response) {                                
-                                            vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
-                                            vm.loading = false;
-                                            vm.actionStatus = 'Removed';
-                                            vm.alertType = 'danger';
-                                            vm.showAlert= true;
-                                            return;                                                      
-                                        }                            
-                                        vm.loading = false;
-
-                                    });    
-                                    //swal("Deleted!", "Staff has been Removed.", "success");                      
-                                
-                            });
-                    },*/
-
-            /*removeBus(bus) {  // role id of user/staff in roles table
-                        var vm = this;            
-                        //this.routeName = route.departure_city + ' to ' + route.arrival_city;
-                        //swal("This BUS will be Removed!", {
-                        swal({
-                            title: "Are you sure?",
-                            text: "This BUS will be Removed!",
-                            icon: "warning",
-                            dangerMode: true,
-                            buttons: {
-                                cancel: "cancel",
-                                confirm: {
-                                  text: "Remove It!",
-                                  value: "remove",
-                                },                                
-                            },
-                        
-                        })
-                        .then((value) => {
-                            switch (value) {
-                           
-                              case "cancel":
-                                break;                             
-                           
-                              case "remove":        
-                                vm.loading = true;
-                                vm.response = '';
-                                vm.showAlert = false;
-
-                                axios.post('/delete/bus', {    
-                                    bus_id: bus.id, 
-                                })          
-                                .then(function (response) {                 
-                                   
-                                    response.data.error ? vm.error = response.data.error : vm.response = response.data;
-
-                                    if (vm.response) {                                
-                                        vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
-                                        vm.loading = false;
-                                        vm.actionStatus = 'Removed';
-                                        vm.alertType = 'danger';
-                                        vm.showAlert= true;
-                                        return;                                                      
-                                    }                            
-                                    vm.loading = false;
-
-                                });   
-                                  
-                                break;
-                           
-                              default:
-                                // swal("Got away safely!");
-                                break;
-                            }
-                        });                           
-                    },*/
-
+                    
 
             removeBus(bus) { 
                 var vm = this;
@@ -470,23 +401,26 @@
     }
 </script>
 <style lang="scss" scoped>
+    .view-button button {
+      margin: 1.9rem auto; 
+    }    
     // .view-route-info .card-heading span {
-    .view-available-info .card-heading span {
-      background-color: yellow;
-      font-weight: 600;
-      float: right;
-      padding: 2px 6px;
-      color: royalblue;
-    }
+    // .view-available-info .card-heading span {
+    //   background-color: yellow;
+    //   font-weight: 600;
+    //   float: right;
+    //   padding: 2px 6px;
+    //   color: royalblue;
+    // }
     .route-info {
       border: 1px dashed lightblue;
       padding: 25px 10px;
       margin: 25px 25px 50px 25px;
       position: relative;
-      text-align: center;      
+      //text-align: center;      
 
       span {
-        /* background-color: lightblue; */
+        background-color: lightblue; 
         display: block;
         font-weight: 600;
         letter-spacing: 1px;        
@@ -494,15 +428,14 @@
         top: -16px;
         position: absolute;
         padding: 5px 10px;
-        width: 90px;
-      }
-      
+        width: 125px;
+      }      
     }
    
     .route-distance {
       margin: -15px 10px 10px 15px;
     }     
-    #scroll-routes {
+    #scrollbar {
         span {
             cursor: pointer;
             margin-left: 5px;

@@ -15,8 +15,15 @@ class Bus extends Model
 
     public function schedules()
     {
-    	return $this->belongsToMany(Schedule::class);
-                //->withPivot('route_id');
+    	return $this->belongsToMany(Schedule::class)
+                    ->withPivot('route_id');
+    }
+
+    public function schedulesBy($routeId)
+    {
+        //return $this->belongsToMany(Schedule::class)
+        return $this->schedules()
+                    ->wherePivot('route_id', $routeId);
     }
 
     public function seat_plan()
