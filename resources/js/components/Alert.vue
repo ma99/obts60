@@ -35,8 +35,7 @@
           .slideUp(500, function(){
               $("#status-alert").slideUp(500);
           }); 
-        },
-        
+        },        
         close() {
           this.$emit('update:show', false);          
         },
@@ -48,7 +47,8 @@
       },
       watch: {
         show() {            
-            this.showAlert();                              
+            this.showAlert();
+            setTimeout(this.close, 5000); // 5s                               
         },
         type() {
           this.alertType = this.type;          

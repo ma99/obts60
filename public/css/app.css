@@ -1,33 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Nunito);@import url(https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css);@charset "UTF-8";
 
-section.content {
-  padding-left: 30px;
-  padding-right: 30px;
-}
-
-#scrollbar {
-  height: 25rem;
-  /*400px;*/
-}
-
-#scrollbar span {
-  cursor: pointer;
-  margin-left: 5px;
-}
-
-#scrollbar span[disabled] {
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
-div.card-header span {
-  background-color: #F2B705;
-  font-weight: 600;
-  float: right;
-  padding: 2px 6px;
-  color: #F24405;
-}
-
 /*!
  * Bootstrap v4.4.1 (https://getbootstrap.com/)
  * Copyright 2011-2019 The Bootstrap Authors
@@ -11382,5 +11354,79 @@ a.text-dark:focus {
     color: inherit;
     border-color: #dee2e6;
   }
+}
+
+body {
+  color: #525252;
+}
+
+section.content {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+#scrollbar {
+  height: 25rem;
+  /*400px;*/
+}
+
+#scrollbar span {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+#scrollbar span[disabled] {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+div.card-header span {
+  background-color: #F2B705;
+  font-weight: 600;
+  float: right;
+  padding: 2px 6px;
+  color: #F24405;
+}
+
+/* Colored Dotted Box */
+
+.dashed-border-orange-yellow,
+.dashed-border-pigment-green,
+.dashed-border-eastern-blue,
+.dashed-border-navy-blue {
+  padding: 25px 10px;
+  margin: 25px 25px 50px 25px;
+  position: relative;
+}
+
+.dashed-border-orange-yellow span,
+.dashed-border-pigment-green span,
+.dashed-border-eastern-blue span,
+.dashed-border-navy-blue span {
+  background-color: lightblue;
+  display: block;
+  font-weight: 600;
+  letter-spacing: 1px;
+  left: 14px;
+  top: -16px;
+  position: absolute;
+  padding: 5px 10px;
+  width: 125px;
+}
+
+.dashed-border-navy-blue {
+  border: 1px dashed #0477BF;
+}
+
+.dashed-border-eastern-blue {
+  border: 1px dashed #0396A6;
+}
+
+.dashed-border-pigment-green {
+  border: 1px dashed #04BF55;
+}
+
+.dashed-border-orange-yellow {
+  border: 1px dashed #F2B705;
 }
 

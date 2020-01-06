@@ -16,7 +16,7 @@ class BusController extends Controller
         
         $bus = Bus::create($attributes);
 
-        return 'success';
+        return $bus;
     }
 
     public function update(Bus $bus)

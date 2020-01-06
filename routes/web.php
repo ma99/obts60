@@ -69,3 +69,15 @@ Route::get('/viewseats/buses/{bus}', 'SearchTicketController@viewSeats');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/sp', function() {
+	// DB::listen(function($query){
+ //        	dump($query->sql);
+ //        });
+
+        //$seatPlan = SeatPlan::latest()->get();
+        $seatPlan = App\SeatPlan::cursor();
+        dump($seatPlan);
+
+        return 'Done';
+});

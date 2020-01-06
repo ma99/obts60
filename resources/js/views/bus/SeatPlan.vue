@@ -188,36 +188,36 @@
         // mounted() {
         //     console.log('Component mounted.')
         // }
-      data() {
-                return {                    
-                    actionStatus: '',
-                    disableSorting: true,
-                    alertType: '',
-                    availableSeatPlanList: [],
-                    disableShowButton: false,
-                    disableSaveButton: true,
-                    error: '',
-                    numberOfCol: 4,                            
-                    numberOfRow: 4,                            
-                    response: '',
-                    seatChar:["A","B", "C" , "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"],
-                    seatList: [],
-                    seatListCloned: [],                    
-                    seatListLength: '',
-                    selectedSeatPlan: [],      
-                    show: false,
-                    showSeatPlan: false,
-                    showAlert: false,              
-                    isDisabled: false,
-                    index: 2, // empty space strating for this index then index+4
-                    indexList: [],
-                    loading: false,
-                    fiveColValue: '',
-                    modal: false,
-                    totalSeats: '',
-                }
+                data() {
+                          return {                    
+                              actionStatus: '',
+                              disableSorting: true,
+                              alertType: '',
+                              availableSeatPlanList: [],
+                              disableShowButton: false,
+                              disableSaveButton: true,
+                              error: '',
+                              numberOfCol: 4,                            
+                              numberOfRow: 4,                            
+                              response: '',
+                              seatChar:["A","B", "C" , "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"],
+                              seatList: [],
+                              seatListCloned: [],                    
+                              seatListLength: '',
+                              selectedSeatPlan: [],      
+                              show: false,
+                              showSeatPlan: false,
+                              showAlert: false,              
+                              isDisabled: false,
+                              index: 2, // empty space strating for this index then index+4
+                              indexList: [],
+                              loading: false,
+                              fiveColValue: '',
+                              modal: false,
+                              totalSeats: '',
+                          }
 
-      },
+                },
                 mounted() {
                     this.createIndexList();
                     this.fetchAvailableSeatPlans();
@@ -494,7 +494,7 @@
                         if (!indexExist) {                     
                           this.seatList[index+1].no = seat.no; 
                           while (!rightColIndexList.includes(index)) {
-                            console.log('newindex='+index);                            
+                            //console.log('newindex='+index);                            
                             if (index == this.seatListLength-2) { 
                               return;
                             }                             

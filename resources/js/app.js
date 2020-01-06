@@ -12,12 +12,14 @@ import { routes } from './routes';
 
 //Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('seat-display', require('./components/SeatDisplay.vue').default);
+Vue.component('seat-layout', require('./components/SeatLayout.vue').default);
 Vue.component('modal', require('./components/Modal.vue').default);
 Vue.component('show-alert', require('./components/Alert.vue').default);
 Vue.component('high-light', require('./components/Highlighter.vue').default);
 Vue.component('loader', require('./components/Loader.vue').default);
 Vue.component('expand', require('./components/ExpandButton.vue').default);
 Vue.component('add-section', require('./components/AddSection.vue').default);
+Vue.component('border', require('./components/Border.vue').default);
 
 
 const router = new VueRouter({

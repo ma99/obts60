@@ -28,6 +28,18 @@ class Bus extends Model
 
     public function seat_plan()
     {
-    	return $this->belongsTo(SeatPlan::class);
+    	return $this->belongsTo(SeatPlan::class);//->latest();
     }
+
+    /*public function getBusesWithSeatPlan()
+    {
+        $buses = $this::with('seat_plan')->get();
+        foreach ($buses as $bus) {           
+            $busList[] = [
+                'bus'   => $bus,
+                'total_seats' => $bus->seat_plan->total_seats
+            ];
+        }
+        return $busList;
+    }*/
 }

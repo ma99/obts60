@@ -11,10 +11,10 @@ class SearchSeatPlanController extends Controller
 {
    public function seatPlanList()
    {
-        
         $error = ['error' => 'No results found'];
 
-        $seatPlan = SeatPlan::latest()->cursor();
+        //$seatPlan = SeatPlan::latest()->get();
+        $seatPlan = SeatPlan::cursor();
         return $seatPlan->count() ? $seatPlan : $error;        
         
    }

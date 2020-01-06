@@ -41,9 +41,17 @@ class SearchBusController extends Controller
         
         $error = ['error' => 'No results found'];
 
-        $buses = Bus::all();
-        return $buses->count() ? $buses : $error;        
+        //$buses = $bus->getBusesWithSeatPlan();
+        $buses = Bus::with('seat_plan')->get();
+
+        foreach ($buses as $bus) {           
+            $busList[] = [
+                'bus'   => $bus,
+                'total_seats' => $bus->seat_plan->total_seats
+            ];
+        }        
         
+        return count($busList) ? $busList : $error;       
    }
 
    public function routeList()
