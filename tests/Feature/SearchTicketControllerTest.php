@@ -15,6 +15,8 @@ class SearchTicketControllerTest extends TestCase
         $user = factory('App\User')->create();
         $routes = factory('App\Route', 2)->create();
         $buses = factory('App\Bus', 3)->create();
+        $cities = factory('App\City', 3)->create();
+        $fares = factory('App\Fare', 3)->create();
 
         $route2 = factory('App\Route')->create();
         
@@ -26,14 +28,22 @@ class SearchTicketControllerTest extends TestCase
 
         $route = \App\Route::first();
         $bus = \App\Bus::first();
+        $city = \App\City::first();
+
+        $route->cities()->attach($cities);
+
+        $fare = factory('App\Fare')->create([
+            'city_id' => $city->id, 
+            'route_id' => $route->id, 
+        ]);
+
         //dd($route);
         $booking1 = factory('App\Booking')->create([
             'schedule_id' => $schedule1->id,
             'bus_id' => $bus->id,
         ]);
                 
-        $bus->routes()->attach([$route->id]);
-        
+        $bus->routes()->attach([$route->id]);        
         $bus->routes()->attach([$route2->id]);
         // $bus->schedules()->attach(
         //     [$schedule1->id, $schedule2->id, $schedule3->id], 
@@ -52,7 +62,6 @@ class SearchTicketControllerTest extends TestCase
         $bus1 = factory('App\Bus')->create();
         $bus1->routes()->attach([$route->id]);
 
-
         $booking2 = factory('App\Booking')->create([
             'creator_id' => $user->id,
             'bus_id' => $bus->id,          
@@ -63,6 +72,7 @@ class SearchTicketControllerTest extends TestCase
         return json_decode(json_encode([
             'route' => $route, 
             'bus'   => $bus,
+            'arrival_city' => $city->name,
             'schedules' => [
                 's1' => $schedule1,
                 's2' => $schedule2,
@@ -84,7 +94,7 @@ class SearchTicketControllerTest extends TestCase
 
         $attributes = [
             'from' => $route->departure_city,
-            'to'   => $route->arrival_city,
+            'to'   => $data->arrival_city,
             'date' => '20-10-2022'
         ];
 

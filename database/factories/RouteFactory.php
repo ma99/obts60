@@ -15,6 +15,6 @@ $factory->define(Route::class, function (Faker $faker) {
 });
 
 
-$factory->afterCreating(Route::class, function ($route, $faker) {
-    $route->fare()->save(factory(Fare::class)->make());
-});
+// $factory->afterCreating(Route::class, function ($route, $faker) {
+//     $route->fare()->save(factory(Fare::class)->make());
+// });

@@ -9,14 +9,19 @@ class Route extends Model
  
     protected $guarded = [];
 
-    public function fare()
-    {
-    	return $this->hasOne(Fare::class); 
-    }
+    // public function fare()
+    // {
+    // 	return $this->hasOne(Fare::class); 
+    // }
 
     public function buses()
     {
     	return $this->belongsToMany(Bus::class); 
+    }
+
+    public function cities()
+    {
+        return $this->belongsToMany(City::class); 
     }
 
     public function schedules()

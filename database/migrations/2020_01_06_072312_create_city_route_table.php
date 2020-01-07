@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFaresTable extends Migration
+class CreateCityRouteTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,21 +13,18 @@ class CreateFaresTable extends Migration
      */
     public function up()
     {
-        Schema::create('fares', function (Blueprint $table) {
+        Schema::create('city_route', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('route_id');
-            $table->text('details');
             $table->timestamps();
 
             $table->foreign('city_id')
                   ->references('id')->on('cities')
-                  ->onDelete('cascade');
-
+                  ->onDelete('cascade');            
             $table->foreign('route_id')
                   ->references('id')->on('routes')
                   ->onDelete('cascade');
-
         });
     }
 
@@ -38,6 +35,6 @@ class CreateFaresTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fares');
+        Schema::dropIfExists('city_route');
     }
 }

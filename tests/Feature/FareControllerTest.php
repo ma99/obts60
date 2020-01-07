@@ -17,6 +17,7 @@ class FareControllerTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
+        $city = factory('App\City')->create();
         $route = factory('App\Route')->create();
 
         $fareDetails = [ 
@@ -26,6 +27,7 @@ class FareControllerTest extends TestCase
         ]; 
 
         $attributes = [
+            'city_id' => $city->id,
             'route_id' => $route->id,
             'details' => json_encode($fareDetails),
         ];
@@ -50,6 +52,8 @@ class FareControllerTest extends TestCase
         $route = factory('App\Route')->create();
         $fare = $route->fare;
         
+        $city = factory('App\City')->create();
+        
 
         $fareDetails = [ 
             'ac' => $this->faker->numerify('7##'),
@@ -58,6 +62,7 @@ class FareControllerTest extends TestCase
         ]; 
 
         $attributes = [
+            'city_id' => $city->id,
             'route_id' => $fare->route_id,
             'details' => json_encode($fareDetails),
         ];
@@ -71,6 +76,5 @@ class FareControllerTest extends TestCase
         $attributes['details'] = serialize(json_encode($fareDetails));
 
         $this->assertDatabaseHas('fares', $attributes);
-
     }
 }

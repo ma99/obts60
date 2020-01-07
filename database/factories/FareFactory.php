@@ -7,7 +7,8 @@ use Faker\Generator as Faker;
 
 $factory->define(Fare::class, function (Faker $faker) {
     return [
-    	//'route_id' => factory('App\Route'),
+    	'route_id' => factory('App\Route'),
+    	'city_id' => factory('App\City'),
     	'details' => json_encode([
 		    'ac' => $faker->numerify('8##'),
 		    'non-ac' => $faker->numerify('5##'),

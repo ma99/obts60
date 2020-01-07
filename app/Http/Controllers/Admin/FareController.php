@@ -30,6 +30,7 @@ class FareController extends Controller
     protected function validateRequest()
     {
         return request()->validate([
+           'city_id' => 'required',
            'route_id' => 'required',
            'details' => 'required'
         ]);

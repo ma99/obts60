@@ -13,12 +13,17 @@ class SearchTicketController extends Controller
 		$error = ['error' => 'No results found'];
 		
 		$departure_city  = request()->input('from');
-		$arrival_city = request()->input('to');
+		$arrival_city = request()->input('to');		
+		//dd($arrival_city);
+		//$arrival_city = $city['name'];		
 		$date = request()->input('date');
 
 		$date = date("Y-m-d", strtotime($date)); //wk if input date is dd-mm-yyyy format in vue script
 
 		$route = $this->getRouteBy($departure_city, $arrival_city);
+		//dd($route);
+		//dd($route->cities()->first());
+		$arrival_city = $route->cities()->first();
 		
 		$route = $route->load([
 			'buses.schedules.bookings' => function($query) use ($date) {
@@ -51,7 +56,7 @@ class SearchTicketController extends Controller
 				 			$availableSeats = $bus->seat_plan->total_seats;
 				 		}
 
-				 		$fare = $route->getFareByBus($bus->type);
+				 		$fare = $arrival_city->cityFareBy($route)->getFareByBus($bus->type); 
 
 				        $buses[] = [
 				        	//'route_id'	=> $route->id,
@@ -75,11 +80,15 @@ class SearchTicketController extends Controller
 
     public function getRouteBy($departure_city, $arrival_city)
     {
+		// return Route::where('departure_city', $departure_city)
+		// 			->where( 'arrival_city', $arrival_city)
+		// 			->first();
+		//$city_name = $arrival_city->name;
 		return Route::where('departure_city', $departure_city)
-					->where( 'arrival_city', $arrival_city)
-					->first();
+					->with(['cities' => function ($query) use ($arrival_city) {
+    					$query->where('name', $arrival_city);
+				}])->first();			
     }
-
 
     public function viewSeats(Bus $bus)
     {
