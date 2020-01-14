@@ -37,11 +37,9 @@ class SearchBusController extends Controller
    // }
 
    public function busList()
-   {
-        
+   {        
         $error = ['error' => 'No results found'];
 
-        //$buses = $bus->getBusesWithSeatPlan();
         $buses = Bus::with('seat_plan')->get();
 
         foreach ($buses as $bus) {           
@@ -52,19 +50,7 @@ class SearchBusController extends Controller
         }        
         
         return count($busList) ? $busList : $error;       
-   }
-
-   public function routeList()
-   {
-        $error = ['error' => 'Route Not Found']; 
-
-        //$divisionId = $this->request->input('q');
-        //$routes = Rout::all();
-        //$routes = Rout::all();
-        $routes = Rout::with('fare')->get();
-        return $routes->count() ? $routes : $error;
-   }   
-
+   } 
 
    public function stopList()
    {

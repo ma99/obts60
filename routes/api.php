@@ -24,21 +24,24 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 //bus
 //Route::get('/bus', 'Api\SearchBusController@busInfo');
-Route::get('/buses', 'Api\SearchBusController@busList');
-Route::get('/routes', 'Api\SearchBusController@routeList');
+Route::get('/buses', 'Api\SearchBusController@index');
+Route::get('/routes', 'Api\SearchRoutesController@index');
 Route::get('/stops', 'Api\SearchBusController@stopList');
 
 //schedule
-Route::get('/schedule', 'Api\SearchScheduleController@scheduleList');
+Route::get('/schedule', 'Api\SearchScheduleController@index');
 
 //seat plan
-Route::get('/seatplans', 'Api\SearchSeatPlanController@seatPlanList');
+Route::get('/seatplans', 'Api\SearchSeatPlanController@index');
+
+Route::get('/divisions', 'Api\SearchDivisionsController@index');
+Route::get('/districts', 'Api\SearchDistrictsController@index');
+Route::get('/upazilas', 'Api\SearchUpazilasController@index');
+Route::get('/cities', 'Api\SearchCitiesController@index');
 
 //city
+
 Route::get('/city', 'Api\SearchCitiesController@cityTo');
-Route::get('/divisions', 'Api\SearchCitiesController@divisionList');
-Route::get('/districts', 'Api\SearchCitiesController@districtList');
-Route::get('/cities', 'Api\SearchCitiesController@cityList');
 Route::get('/pickup', 'Api\SearchCitiesController@pickupPoints');
 Route::get('/dropping', 'Api\SearchCitiesController@droppingPoints');
 

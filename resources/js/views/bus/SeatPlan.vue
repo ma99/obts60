@@ -27,10 +27,10 @@
             <strong>Add Seat Plan</strong>
           </template>
           <form> 
-            <div class="form-row">                                        
+            <div class="form-row">                
               <div class="col-1"></div>
               <div class="col">
-                <div class="row">                                        
+                <div class="row">                       
                   <div class="form-group col-sm-3">
                     <label for="numberOfCol">Column #</label>
                     <input v-model="numberOfCol" type="number" min="1" max="4" value="4" class="form-control" id="numberOfCol" placeholder="Column Number" disabled>
@@ -94,7 +94,7 @@
           </div>              
         </div>
 
-        <div class="row justify-content-center view-available-info">          
+        <div class="row justify-content-center">          
             <div class="col">
               <div class="card card-info">
                 <div class="card-header">Seat Plan Info <span> [ {{ availableSeatPlanList.length }} ]</span></div>

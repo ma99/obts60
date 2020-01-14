@@ -102,7 +102,6 @@
 
                     <div class="col-sm-4">
                       <div class="button-group">
-                        <!-- <button v-on:click.prevent="createList()" class="btn btn-primary" :disabled="disableShowButton">Show</button> -->
                         <button v-on:click.prevent="save()"  type="button" class="btn btn-primary" :disabled="!isValid" v-show="!editMode">Save</button>
                         <button v-on:click.prevent="update()"  type="button" class="btn btn-success" :disabled="!isValid" v-show="editMode">Update</button>
                         <button v-on:click.prevent="reset()"  type="button" class="btn btn-primary">Cancel</button>
@@ -451,13 +450,13 @@
                     axios.delete('/buses/'+bus.id)
                     .then(function (response) {               
                         response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                        if (vm.response) {                                
+                        if (vm.response) {               
                             vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
                             vm.loading = false;
                             vm.actionStatus = 'Removed';
                             vm.alertType = 'danger';
                             vm.showAlert= true;
-                            return;                                                      
+                            return;                      
                         }                            
                         vm.loading = false;
                     });                     

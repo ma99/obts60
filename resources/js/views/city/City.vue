@@ -1,133 +1,145 @@
 <template>
-  <div>    
-     <section class="content-header">
-      <h1>
-       Add new city
-        <!-- <small>Optional description</small> -->
-      </h1>
-      <ol class="breadcrumb">
-        <li>
-          <router-link to="/dashboard" exact>
-            <i class="fa fa-dashboard"></i>Dashboard
-          </router-link>
-        </li>
-        <li class="active">city</li>
-      </ol>
-    </section>
+  <div>         
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">City</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item">
+                <router-link to="/dashboard">
+                  <i class="fa fa-tachometer nav-icon"></i> Dashboard
+                </router-link>
+              </li>
+              <li class="breadcrumb-item active">City</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
 
-    <section class="content">      
-      <div class="row">
-          <div class="panel panel-default">
-              <div class="panel-heading">
-                <!-- Add New City -->
-                <span class="input-group-btn">
-                    <button class="btn btn-success" type="button" @click="expandAddCityPanel" v-show="!show">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                    </button>
-                    <button class="btn btn-warning" type="button" @click="expandAddCityPanel" v-show="show">
-                        <i class="fa fa-minus" aria-hidden="true"></i>
-                    </button>
-                </span>
-                
+    <section class="content">
+      <div class="container-fluid">
+        <add-section :show.sync="show">
+          <template v-slot:heading>
+            <strong>Add City</strong>
+          </template>
+
+          <form> 
+            <div class="form-row justify-content-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label for="divisionName">Division</label>
+                  <select v-model="selectedDivision" class="form-control" id="divisionName">
+                      <option disabled value="">Please select one</option>
+                      <option v-for="division in divisionList" v-bind:value="{ id: division.id, name: division.name }">
+                        {{ division.name }}
+                      </option>                             
+                  </select>
+                </div>
               </div>
-              <div class="panel-body" v-show="show">
-                <form>
-                    <div class="col-sm-3">
-                      <div class="form-group">
-                        <label for="divisionName">Division Name</label>
-                        <select v-model="selectedDivision" class="form-control" id="divisionName">
-                            <option disabled value="">Please select one</option>
-                            <option v-for="division in divisionList" v-bind:value="{ id: division.id, name: division.name }">
-                              {{ division.name }}
-                            </option>                             
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                      <div class="form-group">
-                        <label for="cityName">City Name </label>                       
-                        <select v-model="selectedCity" class="form-control" id="cityName">
-                            <option disabled value="">Please select one</option>                          
-                            <option v-for="city in cityList" v-bind:value="{ id: city.id, name: city.name }">
-                              {{ city.name }}
-                            </option> 
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-2">
-                      <div class="form-group">
-                        <label for="cityCode">City Code</label>
-                        <input v-model="selectedCity.id" type="text" class="form-control" name="code" id="cityCode" placeholder="City Code" disabled>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-4">
-                      <div class="button-group">
-                        <button v-on:click.prevent="saveCities()" class="btn btn-primary" :disabled="disableSaveButton">Save</button>
-                        <button v-on:click.prevent="reset()" class="btn btn-primary" :disabled="disableResetButton">Reset</button>
-                      </div>
-                    </div>                      
-                </form>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label for="districtName">District</label>                       
+                  <select v-model="selectedDistrict" class="form-control" id="districtName">
+                      <option disabled value="">Please select one</option>                          
+                      <option v-for="district in districtListByDivision" v-bind:value="{ id: district.id, name: district.name }">
+                        {{ district.name }}
+                      </option> 
+                  </select>
+                </div>
               </div>
-          </div>
-      </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label for="upazilaName">Upazila</label>                       
+                  <select v-model="selectedUpazila" class="form-control" id="upazilaName">
+                      <option disabled value="">Please select one</option>                          
+                      <option v-for="upazila in upazilaListByDistrict" v-bind:value="{ id: upazila.id, name: upazila.name }">
+                        {{ upazila.name }}
+                      </option> 
+                  </select>
+                </div>
+              </div>              
+            </div>
+            <div class="form-row">
+              <div class="col-sm-4 offset-sm-3">
+                <div class="form-group">
+                  <label for="cityName">City Name</label>
+                  <input v-model="selectedCity.name" type="text" class="form-control" name="city_name" id="cityName" placeholder="City Name" disabled>
+                </div>
+              </div>
+              <div class="col-sm-5"></div>
+              <div class="col-sm-4 offset-sm-3">
+                <div class="button-group">
+                  <button v-on:click.prevent="save()" class="btn btn-primary" :disabled="!isValid">Save</button>
+                  <button v-on:click.prevent="reset()" class="btn btn-primary" :disabled="!isValid">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </form>            
+          <!-- <template v-slot:footer>
+            <show-alert :show.sync="showAlert" :type="alertType"> 
+              altert type can be success/info/warning/danger/dark
+              <strong> City </strong> has been <strong>{{ actionStatus }} </strong>
+            </show-alert>
+          </template> -->
+        </add-section>
+        <loader :show="loading"></loader>
       
-      <loader :show="loading"></loader>
-
-      <div class="row">
-        <div class="panel panel-info">
-          <div class="panel-heading">Service Available City Info</div>
-          <div class="panel-body">
-              <div id="scroll-cities">
-                <table class="table table-striped table-hover">
+        <div class="row justify-content-center">
+          <div class="card card-info w-100">
+            <div class="card-header">Service Available City Info<span> {{ busAvailableToCityList.length }} </span></div>
+            <div class="card-body">
+                <div id="scrollbar">
+                  <table class="table table-striped table-hover">
                     <thead>
                       <tr>
                         <th>Sl. No.</th>
-                        <th>Name
+                        <th>District ID
+                          <span type="button" @click="isSortingAvailableBy('district')" :disabled="!disableSorting">
+                            <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                          </span>
+                        </th>
+                        <th>City ID</th>
+                        <th>City
                              <span type="button" @click="isSortingAvailableBy('name')" :disabled="disableSorting">
                                 <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
                             </span>
-                        </th>
-                        <th>Code</th>
-                        <th>Division                            
-                             <span type="button" @click="isSortingAvailableBy('division')" :disabled="!disableSorting">
-                                <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
-                            </span>
-                        </th>
-                        <th>Action</th>                                                         
-                        <!-- <th>&nbsp;</th> -->
+                        </th>                        
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr  v-for="(city, index) in busAvailableToCityList" >                              
+                      <tr  v-for="(city, index) in busAvailableToCityList">
                         <td>{{ index+1 }}</td>                              
+                        <td>
+                          <span data-toggle="tooltip" data-placement="top" :title="district.name" @mouseover="getNameOf(city)">
+                            <high-light color="#4eb3f3" value="5"> {{ city.district_id }} </high-light>
+                          </span>
+                        </td>                              
+                        <td>{{ city.id }}</td>                              
                         <td>{{ city.name }}</td>                              
-                        <td>{{ city.code }}</td>                              
-                        <td>{{ city.division }}</td>
                         <td> 
-                            <button v-on:click.prevent="removeCity(city)" class="btn btn-danger">
+                            <button v-on:click.prevent="remove(city)" class="btn btn-danger">
                               <i class="fa fa-trash fa-fw"></i>Remove
                             </button>  
                         </td>                        
                       </tr>                            
                     </tbody>
-                </table>      
-              </div>
+                </table>                        
+                </div>
+            </div>
+            <div class="card-footer">                                
+              <show-alert :show.sync="showAlert" :type="alertType">
+                <strong>{{ cityName }} </strong> has been 
+                <strong> {{ actionStatus }} </strong> successfully!
+              </show-alert>
+            </div>
           </div>
-          <!-- {{-- panel-footer --}} -->
-          <div class="panel-footer">                    
-            <!-- <show-alert :show="showAlert" :type="alertType" @cancel="showAlert=false">  -->
-            <show-alert :show.sync="showAlert" :type="alertType"> 
-              <!-- altert type can be info/warning/danger -->
-              <strong>{{ cityName }} </strong> has been 
-              <strong> {{ actionStatus }} </strong> successfully!
-            </show-alert>
-          </div>
-        </div>
-      </div>
-       
+        </div>           
+      </div> <!-- container fluid -->     
     </section>        
   </div>      
 </template>
@@ -137,67 +149,111 @@
           return {
             actionStatus: '',
             alertType: '',
-            cityList: [],
+            districtListByDivision: [],
+            upazilaListByDistrict: [],
             cityName: '',
+            district: '',
             busAvailableToCityList: [], //bus service availble to the cities
             divisionList: [],
-            disableSaveButton: true,
-            disableResetButton: true,
+            districtList: [],
+            upazilaList: [],            
             disableSorting: true,
             error: '',
             loading: false,
             response: '',
             //selectedCityId: '',
-            selectedCity: '',
-            //selectedDivisionId: '',
+            selectedCity: {
+              districtId: '',
+              name: ''
+            },            
             selectedDivision: '',
+            selectedDistrict: '',
+            selectedUpazila: '',
             show: false,
             showAlert: false,  
           }
         },
         mounted() {           
            this.fetchDivisions();
+           this.fetchDistricts();
+           this.fetchUpazilas();
            this.fetchBusAvailableToCities();           
-           this.enableSlimScroll();
+           this.enableScroll();
         },
         watch: {
             selectedDivision() {
                 this.fetchCitiesByDivision(this.selectedDivision.id); // this.selectedDivisionId
             },
-            cityList() {                
-                this.disableSaveButton = (this.cityList.length < 1) ? true : false; 
+            selectedDistrict() {
+                this.fetchCitiesByDistrict(this.selectedDistrict.id);
+                this.cityToBeAdded();
             },
+            selectedUpazila() {
+              this.cityToBeAdded();
+            }
+        },
+        computed: {
+          isValid() {
+            return this.selectedCity != '' &&
+              this.selectedDistrict != ''
+              this.selectedDivision != ''
+          },
         },
         methods: {
-          enableSlimScroll() {
-                $('#scroll-cities').slimScroll({
-                  color: '#00f',
-                  size: '8px',
-                  height: '500px', //300px
-                  //height: auto,
-                  wheelStep: 10                  
-                });
+          cityToBeAdded() {
+            this.selectedCity.districtId = this.selectedDistrict.id;
+            if (this.selectedUpazila != '') {
+              this.selectedCity.name = this.selectedUpazila.name;
+              return;
+            }
+            this.selectedCity.name = this.selectedDistrict.name;
           },
-          expandAddCityPanel() {
-            this.show = !this.show;
-          },
+          enableScroll() {
+            $('#scrollbar').overlayScrollbars({ /* your options */ 
+              sizeAutoCapable: true,
+              scrollbars: {
+                autoHide: "never",
+                clickScrolling: true
+              }
+            });                 
+          },                    
           fetchCitiesByDivision(divisionId) {
             this.loading = true;
-            //this.cityList= [];            
+            this.districtListByDivision= [];     
+            this.districtListByDivision =  this.districtList.filter(district => district.division_id == divisionId);
+            this.loading = false;
+          },
+          fetchCitiesByDistrict(districtId) {
+            this.loading = true;
+            this.upazilaListByDistrict= [];     
+            this.upazilaListByDistrict =  this.upazilaList.filter(upazila => upazila.district_id == districtId);
+            this.loading = false;
+          },
+          fetchDistricts() {
+            this.loading = true;
+            this.districtList= [];            
             var vm = this;                      
-            //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
-            axios.get('/api/districts?q=' + divisionId)  //--> api/bus?q=xyz        (right)
+            axios.get('/api/districts')  
                 .then(function (response) {                  
-                   response.data.error ? vm.error = response.data.error : vm.cityList = response.data;
+                   response.data.error ? vm.error = response.data.error : vm.districtList = response.data;
+                   vm.loading = false;                  
+            });
+          },
+          fetchUpazilas() {
+            this.loading = true;
+            this.upazilaList= [];            
+            var vm = this;                      
+            axios.get('/api/upazilas')  
+                .then(function (response) {                  
+                   response.data.error ? vm.error = response.data.error : vm.upazilaList = response.data;
                    vm.loading = false;                  
             });
           },
           fetchDivisions() {
             this.loading = true;
             this.divisionList= [];            
-            var vm = this;                      
-            //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
-            axios.get('/api/divisions')  //--> api/bus?q=xyz        (right)
+            var vm = this;                                  
+            axios.get('/api/divisions')  
                 .then(function (response) {                  
                    response.data.error ? vm.error = response.data.error : vm.divisionList = response.data;
                    vm.loading = false;                  
@@ -207,24 +263,26 @@
             this.loading = true;
             this.busAvailableToCityList= [];            
             var vm = this;                
-            axios.get('/api/cities')  //--> api/bus?q=xyz        (right)
+            axios.get('/api/cities')  
                 .then(function (response) {                  
                    response.data.error ? vm.error = response.data.error : vm.busAvailableToCityList = response.data;
                    vm.loading = false;
-                   vm.SortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);                  
+                   vm.sortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
             });
+          },
+          getNameOf(city) {
+            this.district = this.districtList.find(element => element.id == city.district_id);            
           },
           isSortingAvailableBy(val) {
             if (val== 'name') {
-                this.SortByCityNameBusAvailableToCityList(this.busAvailableToCityList);
+                this.sortByCityNameBusAvailableToCityList(this.busAvailableToCityList);
                 this.disableSorting = true;
                 return;
             }
-            this.SortByDivisionBusAvailableToCityList(this.busAvailableToCityList);
+            this.sortByDistrictBusAvailableToCityList(this.busAvailableToCityList);
             this.disableSorting = false;
           },
-
-          removeCity(city) {  // role id of user/staff in roles table
+          remove(city) {  
             var vm = this;
             this.cityName = city.name; 
             swal({
@@ -246,70 +304,64 @@
                 vm.loading = true;
                 vm.response = '';
                 vm.showAlert = false;
-                axios.post('/delete/city', {                            
-                    city_code: city.code, 
-                })          
-                .then(function (response) {                                           
-                    // response.data.error ? vm.error = response.data.error : vm.busAvailableToCityList = response.data;
+                axios.delete('/cities/'+city.id)          
+                .then(function (response) { 
                     response.data.error ? vm.error = response.data.error : vm.response = response.data;
 
-                    if (vm.response) {                                
-                        vm.removeCityFromBusAvailableToCityList(city.code); // update the array after removing
+                    if (vm.response) {               
+                        vm.removeCityFromBusAvailableToCityList(city.id); // update the array after removing
                         vm.loading = false;
                         vm.actionStatus = 'Removed';
                         vm.alertType = 'danger';
                         vm.showAlert= true;
-                        return;                                                      
+                        return;                    
                     }                            
                     vm.loading = false;
-
-                });       
-                
-              } 
-              
+                });                       
+              }               
             }); 
-          },
-         
-          removeCityFromBusAvailableToCityList(cityCode) {
+          },         
+          removeCityFromBusAvailableToCityList(cityid) {
             var indx = this.busAvailableToCityList.findIndex(function(city){ 
                 // here 'city' is array object 
-                 return city.code == cityCode;
+                 return city.id == cityid;
             });        
             this.busAvailableToCityList.splice(indx, 1);
             //return;
           },
-          saveCities() {
+          save() {
             var vm = this;
-            //this.loading = true;
-            console.log('cityId',this.selectedCity.id);
-            console.log('cityName',this.selectedCity.name);
+            //this.loading = true;            
             axios.post('/cities', {
-                city_id: this.selectedCity.id,
-                city_name: this.selectedCity.name,
-                division_name: this.selectedDivision.name,
+                district_id: this.selectedCity.districtId,
+                name: this.selectedCity.name,                
             })          
             .then(function (response) {
                 //console.log(response.data);
                 response.data.error ? vm.error = response.data.error : vm.response = response.data;
                 if (vm.response) {
                    //console.log(vm.response);
-                   vm.fetchBusAvailableToCities();
-                   vm.SortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
+                   //vm.fetchBusAvailableToCities();
+                   vm.busAvailableToCityList.push(vm.response);
+                   vm.sortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
                    vm.loading = false;
-                   vm.disableSaveButton = true;
-                   vm.cityAddedAlert(vm.selectedCity.name);
+                   vm.actionAlert(vm.selectedCity.name);
                    vm.reset();
                    return;                   
                 }
-                vm.loading = false;
-                vm.disableSaveButton = true;
+                vm.loading = false;                
             });
           },
           reset() {
-            this.selectedCity = '';
+            this.selectedCity = {
+              districtId: '',
+              name:  ''
+            };
+            this.selectedDistrict = '';
+            this.selectedUpazila = '';
             this.selectedDivision = '';
           },
-          SortByCityNameBusAvailableToCityList(arr) {
+          sortByCityNameBusAvailableToCityList(arr) {
             // sort by name            
                 arr.sort(function(a, b) {
                   var nameA = a.name.toUpperCase(); // ignore upper and lowercase
@@ -325,31 +377,15 @@
                   return 0;
                 });
           },
-          SortByDivisionBusAvailableToCityList(arr) {
-            // sort by name            
-                arr.sort(function(a, b) {
-                  var nameA = a.division.toUpperCase(); // ignore upper and lowercase
-                  var nameB = b.division.toUpperCase(); // ignore upper and lowercase
-                  if (nameA < nameB) {
-                    return -1;
-                  }
-                  if (nameA > nameB) {
-                    return 1;
-                  }
-
-                  // names must be equal
-                  return 0;
-                });
+          sortByDistrictBusAvailableToCityList(arr) {
+            arr.sort((a, b) => {
+              return a.district_id - b.district_id;
+            });                            
           },
-          cityAddedAlert(cityName) {
-              swal({
-                //title: "Sorry! Not Available",
-                //title: '<span style="color:#A5DC86"> <strong>'+cityName+'</strong></span></br> Added successfully!',
+          actionAlert(cityName) {
+              swal({           
                 title: cityName,
-                text: 'Added successfully!', 
-                //text: '<span style="color:#F8BB86"> <strong>'+val+'</strong></span> Not Available.',
-                //html: true,
-                //type: "info",
+                text: 'Added successfully!',
                 icon: "success",
                 timer: 2000,
                 closeOnClickOutside: false,
@@ -358,17 +394,5 @@
         }
     }
 </script>
-
-<style lang="scss" scoped>
-    #scroll-cities {
-        span {
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        span[disabled] {
-            cursor: not-allowed;
-            opacity: 0.65;
-        }
-    } 
-
+<style lang="scss" scoped>  
 </style>

@@ -13,9 +13,7 @@ class RouteController extends Controller
     {        
     	$attributes = $this->validateRequest();
 
-        Route::create($attributes);  
-
-        return 'success';
+        return $route = Route::create($attributes);
     }
 
     public function update(Route $route)

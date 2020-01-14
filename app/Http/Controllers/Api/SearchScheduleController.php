@@ -16,7 +16,7 @@ class SearchScheduleController extends Controller
         $this->request = $request;  
    } 
 
-   public function scheduleList()
+   public function index()
    {
         
         $error = ['error' => 'No results found'];

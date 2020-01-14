@@ -8,27 +8,11 @@ use App\City;
 
 class CityController extends Controller
 {
-    public function store(Request $request)
-    {
-    	//dd($request->input('city_id'));
-    	// $this->validate($request, [
-     //        'city_name' => 'required|max:50',
-     //        'division_name' => 'required|max:50'
-     //        //'code' => 'required|max:25',
-     //    ]);
+    public function store()
+    {   
         $attributes = $this->validateRequest();
 
-    	//dd($request->input('city_id'));
-
-    	// $cityCode = $request->input('city_id');
-    	// $cityName = $request->input('city_name');
-     //    $divisionName = $request->input('division_name');
-
-        City::updateOrCreate(
-            ['district_id' => $attributes['district_id']],
-            ['name' => $attributes['name']]            
-        );
-    	return 'successfully added';
+        return $city = City::create($attributes);    	 
     }
 
     public function destroy(City $city)

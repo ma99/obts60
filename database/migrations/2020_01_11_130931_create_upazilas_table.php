@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSchedulesTable extends Migration
+class CreateUpazilasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateSchedulesTable extends Migration
      */
     public function up()
     {
-        Schema::create('schedules', function (Blueprint $table) {
+        Schema::create('upazilas', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->time('departure_time')->unique();
-            $table->time('arrival_time')->nullable();
+            $table->unsignedBigInteger('district_id');
+            $table->string('name');
+            $table->string('bn_name')->nullable();
+            $table->string('url')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateSchedulesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('schedules');
+        Schema::dropIfExists('upazilas');
     }
 }

@@ -1987,7 +1987,7 @@ __webpack_require__.r(__webpack_exports__);
         borderStyle: 'dashed',
         //border-color: lightblue,
         padding: '35px 10px 15px',
-        margin: '25px auto 50px',
+        margin: '25px auto 35px',
         position: 'relative'
       },
       heading: {
@@ -3916,7 +3916,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   // mounted() {
   //     console.log('Component mounted.')
@@ -4452,101 +4451,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -4555,24 +4459,17 @@ __webpack_require__.r(__webpack_exports__);
       arrivalCityList: [],
       availableRouteList: [],
       departureCityList: [],
-      disableSaveButton: true,
-      disableResetButton: true,
       disableSorting: true,
+      districtList: [],
       divisionList: [],
       error: '',
-      fare: {},
-      fareId: '',
       loading: false,
-      lastUpdatedAt: '',
-      modal: false,
       tempCityList: [],
       response: '',
       routeDistance: '',
       routeId: '',
       routeName: '',
-      //selectedCityId: '',
       selectedArrivalCity: '',
-      //selectedDivisionForDepartureId: '',
       selectedDepartureCity: '',
       selectedDivisionForArrival: '',
       selectedDivisionForDeparture: '',
@@ -4581,107 +4478,94 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
+    this.fetchDistricts();
     this.fetchDivisions();
     this.fetchAvailableRoutes();
-    this.enableSlimScroll();
+    this.enableScroll();
   },
   watch: {
     selectedDivisionForDeparture: function selectedDivisionForDeparture() {
-      this.fetchCitiesByDivision(this.selectedDivisionForDeparture.id, 'departure'); // this.selectedDivisionForDepartureId
+      this.fetchCitiesByDivision(this.selectedDivisionForDeparture.id, 'departure');
     },
     selectedDivisionForArrival: function selectedDivisionForArrival() {
-      this.fetchCitiesByDivision(this.selectedDivisionForArrival.id, 'arrival'); // this.selectedDivisionForDepartureId
-    },
-    arrivalCityList: function arrivalCityList() {
-      this.isSaveButtonEnable();
-    },
-    departureCityList: function departureCityList() {
-      this.isSaveButtonEnable();
+      this.fetchCitiesByDivision(this.selectedDivisionForArrival.id, 'arrival');
+    }
+  },
+  computed: {
+    isValid: function isValid() {
+      return this.selectedDepartureCity != '' && this.selectedArrivalCity != '';
     }
   },
   methods: {
-    addRoute: function addRoute() {
-      var vm = this; //this.loading = true;
-      // console.log('cityId',this.selectedCity.id);
-      // console.log('cityName',this.selectedCity.name);
-
-      axios.post('/route', {
+    actionAlert: function actionAlert(routeName) {
+      swal({
+        title: routeName,
+        text: 'Added successfully!',
+        icon: "success",
+        timer: 2000,
+        closeOnClickOutside: false
+      });
+    },
+    setRouteName: function setRouteName() {
+      this.routeName = this.selectedDepartureCity + ' - ' + this.selectedArrivalCity;
+    },
+    save: function save() {
+      this.setRouteName();
+      var vm = this;
+      axios.post('/routes', {
         departure_city: this.selectedDepartureCity,
         arrival_city: this.selectedArrivalCity,
-        distance: this.routeDistance,
-        fare: this.fare
+        distance: this.routeDistance
       }).then(function (response) {
         //console.log(response.data);
         response.data.error ? vm.error = response.data.error : vm.response = response.data;
-
-        if (vm.response) {
-          //console.log(vm.response);
-          vm.fetchAvailableRoutes(); //vm.SortByCityNameAvailableRouteList(vm.availableRouteList);
-
-          vm.loading = false;
-          vm.disableSaveButton = true;
-          vm.routeAddedAlert(vm.selectedDepartureCity, vm.selectedArrivalCity);
-          vm.reset();
-          return;
-        }
-
+        vm.availableRouteList.push(vm.response);
         vm.loading = false;
-        vm.disableSaveButton = true;
+        vm.actionAlert(vm.routeName); //vm.actionStatus = 'Added';
+
+        vm.reset(); //vm.alertType = 'success';
+        //vm.showAlert = true;              
       });
     },
-    cancelEdit: function cancelEdit() {
-      this.fare = '';
-      this.modal = false;
-    },
-    editRoute: function editRoute(route) {
-      // role id of user/staff in roles table
-      console.log('route fare=', route.fare.details); //this.fare = route.fare.details;
-
-      this.routeId = route.id;
-      this.lastUpdatedAt = route.fare.updated_at;
-      this.fareId = route.fare.id;
-      this.fare = _.clone(route.fare.details); //cloning or coppy                
-
-      this.modal = true;
-    },
-    enableSlimScroll: function enableSlimScroll() {
-      $('#scroll-routes').slimScroll({
-        color: '#00f',
-        size: '8px',
-        height: '500px',
-        //height: auto,
-        wheelStep: 10
+    enableScroll: function enableScroll() {
+      $('#scrollbar').overlayScrollbars({
+        /* your options */
+        sizeAutoCapable: true,
+        scrollbars: {
+          autoHide: "never",
+          clickScrolling: true
+        }
       });
-    },
-    expandAddRoutePanel: function expandAddRoutePanel() {
-      this.show = !this.show;
     },
     fetchCitiesByDivision: function fetchCitiesByDivision(divisionId, status) {
       this.loading = true;
-      this.tempCityList = []; //this.departureCityList = [] ;
+      this.tempCityList = [];
+      this.tempCityList = this.districtList.filter(function (district) {
+        return district.division_id == divisionId;
+      });
 
-      var vm = this; //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
+      if (status == 'arrival') {
+        this.arrivalCityList = this.tempCityList;
+        this.loading = false;
+        return;
+      }
 
-      axios.get('/api/districts?q=' + divisionId) //--> api/bus?q=xyz        (right)
-      .then(function (response) {
-        //response.data.error ? vm.error = response.data.error : vm.departureCityList = response.data;
-        response.data.error ? vm.error = response.data.error : vm.tempCityList = response.data;
-
-        if (status == 'arrival') {
-          vm.arrivalCityList = vm.tempCityList;
-          vm.loading = false;
-          return;
-        }
-
-        vm.departureCityList = vm.tempCityList;
+      this.departureCityList = this.tempCityList;
+      this.loading = false;
+    },
+    fetchDistricts: function fetchDistricts() {
+      this.loading = true;
+      this.districtList = [];
+      var vm = this;
+      axios.get('/api/districts').then(function (response) {
+        response.data.error ? vm.error = response.data.error : vm.districtList = response.data;
         vm.loading = false;
       });
     },
     fetchDivisions: function fetchDivisions() {
       this.loading = true;
       this.divisionList = [];
-      var vm = this; //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
-
+      var vm = this;
       axios.get('/api/divisions') //--> api/bus?q=xyz        (right)
       .then(function (response) {
         response.data.error ? vm.error = response.data.error : vm.divisionList = response.data;
@@ -4692,28 +4576,23 @@ __webpack_require__.r(__webpack_exports__);
       this.loading = true;
       this.availableRouteList = [];
       var vm = this;
-      axios.get('/api/routes') //--> api/bus?q=xyz        (right)
-      .then(function (response) {
-        response.data.error ? vm.error = response.data.error : vm.availableRouteList = response.data; //vm.tempAvailableRouteList = response.data;
-
+      axios.get('/api/routes').then(function (response) {
+        response.data.error ? vm.error = response.data.error : vm.availableRouteList = response.data;
         vm.loading = false;
-        vm.SortByCityNameAvailableRouteList(vm.availableRouteList);
+        vm.sortByCityNameAvailableRouteList(vm.availableRouteList);
       });
-    },
-    isSaveButtonEnable: function isSaveButtonEnable() {
-      this.disableSaveButton = this.departureCityList.length < 1 || this.arrivalCityList.length < 1 ? true : false;
     },
     isSortingAvailableBy: function isSortingAvailableBy(val) {
       if (val == 'name') {
-        this.SortByCityNameAvailableRouteList(this.availableRouteList);
+        this.sortByCityNameAvailableRouteList(this.availableRouteList);
         this.disableSorting = true;
         return;
       }
 
-      this.SortByDistanceAvailableRouteList(this.availableRouteList);
+      this.sortByDistanceAvailableRouteList(this.availableRouteList);
       this.disableSorting = false;
     },
-    removeRoute: function removeRoute(route) {
+    remove: function remove(route) {
       // role id of user/staff in roles table
       var vm = this;
       this.routeName = route.departure_city + ' to ' + route.arrival_city;
@@ -4734,10 +4613,7 @@ __webpack_require__.r(__webpack_exports__);
           vm.loading = true;
           vm.response = '';
           vm.showAlert = false;
-          axios.post('/delete/route', {
-            route_id: route.id
-          }).then(function (response) {
-            // response.data.error ? vm.error = response.data.error : vm.availableRouteList = response.data;
+          axios["delete"]('/routes/' + route.id).then(function (response) {
             response.data.error ? vm.error = response.data.error : vm.response = response.data;
 
             if (vm.response) {
@@ -4759,7 +4635,7 @@ __webpack_require__.r(__webpack_exports__);
       var indx = this.availableRouteList.findIndex(function (route) {
         return route.id == routeId;
       });
-      this.availableRouteList.splice(indx, 1); //return;
+      this.availableRouteList.splice(indx, 1);
     },
     reset: function reset() {
       this.selectedArrivalCity = '';
@@ -4768,7 +4644,7 @@ __webpack_require__.r(__webpack_exports__);
       this.selectedDivisionForDeparture = '';
       this.routeDistance = '';
     },
-    SortByCityNameAvailableRouteList: function SortByCityNameAvailableRouteList(arr) {
+    sortByCityNameAvailableRouteList: function sortByCityNameAvailableRouteList(arr) {
       // sort by name            
       arr.sort(function (a, b) {
         var nameA = a.departure_city.toUpperCase(); // ignore upper and lowercase
@@ -4787,59 +4663,11 @@ __webpack_require__.r(__webpack_exports__);
         return 0;
       });
     },
-    SortByDistanceAvailableRouteList: function SortByDistanceAvailableRouteList(arr) {
+    sortByDistanceAvailableRouteList: function sortByDistanceAvailableRouteList(arr) {
       // sort by distance 
       arr.sort(function (a, b) {
         return a.distance - b.distance;
       });
-    },
-    routeAddedAlert: function routeAddedAlert(depatureCity, arrivalCity) {
-      swal({
-        //title: "Sorry! Not Available",
-        //title: '<span style="color:#A5DC86"> <strong>'+ depatureCity + '&nbsp;' +' to '+ '&nbsp;' + arrivalCity +'</strong></span></br> Route Added successfully!',
-        title: depatureCity + '' + ' to ' + ' ' + arrivalCity,
-        text: 'Route Added successfully!',
-        //text: '<span style="color:#F8BB86"> <strong>'+depatureCity+'</strong></span> Not Available.',
-        //html: true,
-        //type: "info",
-        //type: "success",
-        //content: html,
-        icon: "success",
-        timer: 2000,
-        //showConfirmButton: false,
-        closeOnClickOutside: true
-      });
-    },
-    updateRouteFare: function updateRouteFare() {
-      var vm = this;
-      this.response = '';
-      this.showAlert = false; //this.staffName = staff.name;                
-
-      this.loading = true;
-      axios.patch('/fares/' + this.fareId, {
-        //route_id: this.routeId,
-        fare: this.fare
-      }).then(function (response) {
-        //response.data.error ? vm.error = response.data.error : vm.staffs = response.data;
-        response.data.error ? vm.error = response.data.error : vm.response = response.data;
-
-        if (vm.response) {
-          vm.updateFareAtAvailableRouteList(vm.routeId, vm.fare);
-          vm.loading = false;
-          vm.modal = false;
-          vm.actionStatus = 'Udated';
-          vm.alertType = 'info';
-          vm.showAlert = true;
-        }
-      });
-    },
-    updateFareAtAvailableRouteList: function updateFareAtAvailableRouteList(routeId, fare) {
-      var indx = this.availableRouteList.findIndex(function (route) {
-        return route.id == routeId;
-      });
-      this.availableRouteList[indx].fare.details = fare;
-      this.routeName = this.availableRouteList[indx].departure_city + ' to ' + this.availableRouteList[indx].arrival_city;
-      this.fare = '';
     }
   }
 });
@@ -6070,75 +5898,133 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       actionStatus: '',
       alertType: '',
-      cityList: [],
+      districtListByDivision: [],
+      upazilaListByDistrict: [],
       cityName: '',
+      district: '',
       busAvailableToCityList: [],
       //bus service availble to the cities
       divisionList: [],
-      disableSaveButton: true,
-      disableResetButton: true,
+      districtList: [],
+      upazilaList: [],
       disableSorting: true,
       error: '',
       loading: false,
       response: '',
       //selectedCityId: '',
-      selectedCity: '',
-      //selectedDivisionId: '',
+      selectedCity: {
+        districtId: '',
+        name: ''
+      },
       selectedDivision: '',
+      selectedDistrict: '',
+      selectedUpazila: '',
       show: false,
       showAlert: false
     };
   },
   mounted: function mounted() {
     this.fetchDivisions();
+    this.fetchDistricts();
+    this.fetchUpazilas();
     this.fetchBusAvailableToCities();
-    this.enableSlimScroll();
+    this.enableScroll();
   },
   watch: {
     selectedDivision: function selectedDivision() {
       this.fetchCitiesByDivision(this.selectedDivision.id); // this.selectedDivisionId
     },
-    cityList: function cityList() {
-      this.disableSaveButton = this.cityList.length < 1 ? true : false;
+    selectedDistrict: function selectedDistrict() {
+      this.fetchCitiesByDistrict(this.selectedDistrict.id);
+      this.cityToBeAdded();
+    },
+    selectedUpazila: function selectedUpazila() {
+      this.cityToBeAdded();
+    }
+  },
+  computed: {
+    isValid: function isValid() {
+      return this.selectedCity != '' && this.selectedDistrict != '';
+      this.selectedDivision != '';
     }
   },
   methods: {
-    enableSlimScroll: function enableSlimScroll() {
-      $('#scroll-cities').slimScroll({
-        color: '#00f',
-        size: '8px',
-        height: '500px',
-        //300px
-        //height: auto,
-        wheelStep: 10
+    cityToBeAdded: function cityToBeAdded() {
+      this.selectedCity.districtId = this.selectedDistrict.id;
+
+      if (this.selectedUpazila != '') {
+        this.selectedCity.name = this.selectedUpazila.name;
+        return;
+      }
+
+      this.selectedCity.name = this.selectedDistrict.name;
+    },
+    enableScroll: function enableScroll() {
+      $('#scrollbar').overlayScrollbars({
+        /* your options */
+        sizeAutoCapable: true,
+        scrollbars: {
+          autoHide: "never",
+          clickScrolling: true
+        }
       });
     },
-    expandAddCityPanel: function expandAddCityPanel() {
-      this.show = !this.show;
-    },
     fetchCitiesByDivision: function fetchCitiesByDivision(divisionId) {
-      this.loading = true; //this.cityList= [];            
-
-      var vm = this; //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
-
-      axios.get('/api/districts?q=' + divisionId) //--> api/bus?q=xyz        (right)
-      .then(function (response) {
-        response.data.error ? vm.error = response.data.error : vm.cityList = response.data;
+      this.loading = true;
+      this.districtListByDivision = [];
+      this.districtListByDivision = this.districtList.filter(function (district) {
+        return district.division_id == divisionId;
+      });
+      this.loading = false;
+    },
+    fetchCitiesByDistrict: function fetchCitiesByDistrict(districtId) {
+      this.loading = true;
+      this.upazilaListByDistrict = [];
+      this.upazilaListByDistrict = this.upazilaList.filter(function (upazila) {
+        return upazila.district_id == districtId;
+      });
+      this.loading = false;
+    },
+    fetchDistricts: function fetchDistricts() {
+      this.loading = true;
+      this.districtList = [];
+      var vm = this;
+      axios.get('/api/districts').then(function (response) {
+        response.data.error ? vm.error = response.data.error : vm.districtList = response.data;
+        vm.loading = false;
+      });
+    },
+    fetchUpazilas: function fetchUpazilas() {
+      this.loading = true;
+      this.upazilaList = [];
+      var vm = this;
+      axios.get('/api/upazilas').then(function (response) {
+        response.data.error ? vm.error = response.data.error : vm.upazilaList = response.data;
         vm.loading = false;
       });
     },
     fetchDivisions: function fetchDivisions() {
       this.loading = true;
       this.divisionList = [];
-      var vm = this; //axios.get('api/bus?q=' + busId) //--> admin/api/bus?q=xyz  (wrong)
-
-      axios.get('/api/divisions') //--> api/bus?q=xyz        (right)
-      .then(function (response) {
+      var vm = this;
+      axios.get('/api/divisions').then(function (response) {
         response.data.error ? vm.error = response.data.error : vm.divisionList = response.data;
         vm.loading = false;
       });
@@ -6147,25 +6033,28 @@ __webpack_require__.r(__webpack_exports__);
       this.loading = true;
       this.busAvailableToCityList = [];
       var vm = this;
-      axios.get('/api/cities') //--> api/bus?q=xyz        (right)
-      .then(function (response) {
+      axios.get('/api/cities').then(function (response) {
         response.data.error ? vm.error = response.data.error : vm.busAvailableToCityList = response.data;
         vm.loading = false;
-        vm.SortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
+        vm.sortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
+      });
+    },
+    getNameOf: function getNameOf(city) {
+      this.district = this.districtList.find(function (element) {
+        return element.id == city.district_id;
       });
     },
     isSortingAvailableBy: function isSortingAvailableBy(val) {
       if (val == 'name') {
-        this.SortByCityNameBusAvailableToCityList(this.busAvailableToCityList);
+        this.sortByCityNameBusAvailableToCityList(this.busAvailableToCityList);
         this.disableSorting = true;
         return;
       }
 
-      this.SortByDivisionBusAvailableToCityList(this.busAvailableToCityList);
+      this.sortByDistrictBusAvailableToCityList(this.busAvailableToCityList);
       this.disableSorting = false;
     },
-    removeCity: function removeCity(city) {
-      // role id of user/staff in roles table
+    remove: function remove(city) {
       var vm = this;
       this.cityName = city.name;
       swal({
@@ -6185,14 +6074,11 @@ __webpack_require__.r(__webpack_exports__);
           vm.loading = true;
           vm.response = '';
           vm.showAlert = false;
-          axios.post('/delete/city', {
-            city_code: city.code
-          }).then(function (response) {
-            // response.data.error ? vm.error = response.data.error : vm.busAvailableToCityList = response.data;
+          axios["delete"]('/cities/' + city.id).then(function (response) {
             response.data.error ? vm.error = response.data.error : vm.response = response.data;
 
             if (vm.response) {
-              vm.removeCityFromBusAvailableToCityList(city.code); // update the array after removing
+              vm.removeCityFromBusAvailableToCityList(city.id); // update the array after removing
 
               vm.loading = false;
               vm.actionStatus = 'Removed';
@@ -6206,46 +6092,47 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     },
-    removeCityFromBusAvailableToCityList: function removeCityFromBusAvailableToCityList(cityCode) {
+    removeCityFromBusAvailableToCityList: function removeCityFromBusAvailableToCityList(cityid) {
       var indx = this.busAvailableToCityList.findIndex(function (city) {
         // here 'city' is array object 
-        return city.code == cityCode;
+        return city.id == cityid;
       });
       this.busAvailableToCityList.splice(indx, 1); //return;
     },
-    saveCities: function saveCities() {
-      var vm = this; //this.loading = true;
+    save: function save() {
+      var vm = this; //this.loading = true;            
 
-      console.log('cityId', this.selectedCity.id);
-      console.log('cityName', this.selectedCity.name);
       axios.post('/cities', {
-        city_id: this.selectedCity.id,
-        city_name: this.selectedCity.name,
-        division_name: this.selectedDivision.name
+        district_id: this.selectedCity.districtId,
+        name: this.selectedCity.name
       }).then(function (response) {
         //console.log(response.data);
         response.data.error ? vm.error = response.data.error : vm.response = response.data;
 
         if (vm.response) {
           //console.log(vm.response);
-          vm.fetchBusAvailableToCities();
-          vm.SortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
+          //vm.fetchBusAvailableToCities();
+          vm.busAvailableToCityList.push(vm.response);
+          vm.sortByCityNameBusAvailableToCityList(vm.busAvailableToCityList);
           vm.loading = false;
-          vm.disableSaveButton = true;
-          vm.cityAddedAlert(vm.selectedCity.name);
+          vm.actionAlert(vm.selectedCity.name);
           vm.reset();
           return;
         }
 
         vm.loading = false;
-        vm.disableSaveButton = true;
       });
     },
     reset: function reset() {
-      this.selectedCity = '';
+      this.selectedCity = {
+        districtId: '',
+        name: ''
+      };
+      this.selectedDistrict = '';
+      this.selectedUpazila = '';
       this.selectedDivision = '';
     },
-    SortByCityNameBusAvailableToCityList: function SortByCityNameBusAvailableToCityList(arr) {
+    sortByCityNameBusAvailableToCityList: function sortByCityNameBusAvailableToCityList(arr) {
       // sort by name            
       arr.sort(function (a, b) {
         var nameA = a.name.toUpperCase(); // ignore upper and lowercase
@@ -6264,34 +6151,15 @@ __webpack_require__.r(__webpack_exports__);
         return 0;
       });
     },
-    SortByDivisionBusAvailableToCityList: function SortByDivisionBusAvailableToCityList(arr) {
-      // sort by name            
+    sortByDistrictBusAvailableToCityList: function sortByDistrictBusAvailableToCityList(arr) {
       arr.sort(function (a, b) {
-        var nameA = a.division.toUpperCase(); // ignore upper and lowercase
-
-        var nameB = b.division.toUpperCase(); // ignore upper and lowercase
-
-        if (nameA < nameB) {
-          return -1;
-        }
-
-        if (nameA > nameB) {
-          return 1;
-        } // names must be equal
-
-
-        return 0;
+        return a.district_id - b.district_id;
       });
     },
-    cityAddedAlert: function cityAddedAlert(cityName) {
+    actionAlert: function actionAlert(cityName) {
       swal({
-        //title: "Sorry! Not Available",
-        //title: '<span style="color:#A5DC86"> <strong>'+cityName+'</strong></span></br> Added successfully!',
         title: cityName,
         text: 'Added successfully!',
-        //text: '<span style="color:#F8BB86"> <strong>'+val+'</strong></span> Not Available.',
-        //html: true,
-        //type: "info",
         icon: "success",
         timer: 2000,
         closeOnClickOutside: false
@@ -11727,25 +11595,6 @@ exports.push([module.i, ".view-button button[data-v-7b68fe22] {\n  margin: 1.9re
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, ".view-available-info .panel-heading span[data-v-0b5bea2a], .view-available-info .panel-heading .route-info .departure[data-v-0b5bea2a], .route-info .view-available-info .panel-heading .departure[data-v-0b5bea2a], .view-available-info .panel-heading .route-info .arrival[data-v-0b5bea2a], .route-info .view-available-info .panel-heading .arrival[data-v-0b5bea2a] {\n  background-color: yellow;\n  font-weight: 600;\n  float: right;\n  padding: 2px 6px;\n  color: royalblue;\n}\n.route-info[data-v-0b5bea2a] {\n  border: 1px dashed lightblue;\n  padding: 25px 10px;\n  margin: 25px 25px 50px 25px;\n  position: relative;\n  text-align: center;\n}\n.route-info span[data-v-0b5bea2a], .route-info .departure[data-v-0b5bea2a], .route-info .arrival[data-v-0b5bea2a] {\n  /* background-color: lightblue; */\n  display: block;\n  font-weight: 600;\n  letter-spacing: 1px;\n  left: 14px;\n  top: -16px;\n  position: absolute;\n  padding: 5px 10px;\n  width: 90px;\n}\n.route-info .arrival[data-v-0b5bea2a] {\n  background-color: lightblue;\n}\n.route-info .departure[data-v-0b5bea2a] {\n  background-color: lightgreen;\n}\nform label[data-v-0b5bea2a] {\n  padding: 0 5px 0 15px;\n}\n.route-distance[data-v-0b5bea2a] {\n  margin: -15px 10px 10px 15px;\n}\n#scroll-routes span[data-v-0b5bea2a], #scroll-routes .route-info .arrival[data-v-0b5bea2a], .route-info #scroll-routes .arrival[data-v-0b5bea2a], #scroll-routes .route-info .departure[data-v-0b5bea2a], .route-info #scroll-routes .departure[data-v-0b5bea2a] {\n  cursor: pointer;\n  margin-left: 5px;\n}\n#scroll-routes span[disabled][data-v-0b5bea2a], #scroll-routes .route-info [disabled].arrival[data-v-0b5bea2a], .route-info #scroll-routes [disabled].arrival[data-v-0b5bea2a], #scroll-routes .route-info [disabled].departure[data-v-0b5bea2a], .route-info #scroll-routes [disabled].departure[data-v-0b5bea2a] {\n  cursor: not-allowed;\n  opacity: 0.65;\n}", ""]);
-
-// exports
-
-
-/***/ }),
-
 /***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Schedule.vue?vue&type=style&index=0&id=3890aae5&lang=scss&scoped=true&":
 /*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/bus/Schedule.vue?vue&type=style&index=0&id=3890aae5&lang=scss&scoped=true& ***!
@@ -11778,25 +11627,6 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 // module
 exports.push([module.i, ".seat-layout .active[data-v-5864679c] {\n  background-color: #f4e542;\n  position: relative;\n}\n.inactive[data-v-5864679c] {\n  background-color: #c4c0c0;\n}\n.tickmark[data-v-5864679c] {\n  /*background-color: green;*/\n  color: green;\n  /*padding: 5px;*/\n}\n.crossmark[data-v-5864679c] {\n  /*background-color: red;*/\n  /*padding: 5px;*/\n  color: red;\n}\n\n/*#app button {               \n    height: 50px;\n    margin: 10px 10px 0 0;\n}*/\n.seat-layout button[data-v-5864679c] {\n  height: 50px;\n  margin: 10px 10px 0 0;\n}\n#app button.col-xs-2[data-v-5864679c] {\n  width: 16.76666667%;\n}\n#app button.col-xs-offset-2[data-v-5864679c] {\n  margin-left: 17.666667%;\n}\n#app .seat-layout[data-v-5864679c] {\n  padding-left: 50px;\n}\n#app .button-group[data-v-5864679c] {\n  margin: 1.9rem auto;\n}\ndiv.row.driver-seat[data-v-5864679c] {\n  height: 4rem;\n  position: relative;\n}\ndiv.row.driver-seat > button[data-v-5864679c] {\n  position: absolute;\n  top: 0;\n  right: 10%;\n}\n.empty[data-v-5864679c] {\n  background-color: white;\n  border-width: 0;\n  color: white;\n}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, "#scroll-cities span[data-v-24e0e240] {\n  cursor: pointer;\n  margin-left: 5px;\n}\n#scroll-cities span[disabled][data-v-24e0e240] {\n  cursor: not-allowed;\n  opacity: 0.65;\n}", ""]);
 
 // exports
 
@@ -49611,36 +49441,6 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&":
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(false) {}
-
-/***/ }),
-
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Schedule.vue?vue&type=style&index=0&id=3890aae5&lang=scss&scoped=true&":
 /*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/bus/Schedule.vue?vue&type=style&index=0&id=3890aae5&lang=scss&scoped=true& ***!
@@ -49680,36 +49480,6 @@ if(false) {}
 
 
 var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./SeatPlan.vue?vue&type=style&index=0&id=5864679c&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/SeatPlan.vue?vue&type=style&index=0&id=5864679c&lang=scss&scoped=true&");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(false) {}
-
-/***/ }),
-
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&":
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -52726,944 +52496,509 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("section", { staticClass: "content-header" }, [
-      _c("h1", [_vm._v("\n     Add new route\n      ")]),
-      _vm._v(" "),
-      _c("ol", { staticClass: "breadcrumb" }, [
-        _c(
-          "li",
-          [
-            _c("router-link", { attrs: { to: "/dashboard", exact: "" } }, [
-              _c("i", { staticClass: "fa fa-dashboard" }),
-              _vm._v("Dashboard\n        ")
+    _c("div", { staticClass: "content-header" }, [
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "row mb-2" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-6" }, [
+            _c("ol", { staticClass: "breadcrumb float-sm-right" }, [
+              _c(
+                "li",
+                { staticClass: "breadcrumb-item" },
+                [
+                  _c("router-link", { attrs: { to: "/dashboard" } }, [
+                    _c("i", { staticClass: "fa fa-tachometer nav-icon" }),
+                    _vm._v(" Dashboard\n              ")
+                  ])
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("li", { staticClass: "breadcrumb-item active" }, [
+                _vm._v("Route")
+              ])
             ])
-          ],
-          1
-        ),
-        _vm._v(" "),
-        _c("li", { staticClass: "active" }, [_vm._v("route")])
+          ])
+        ])
       ])
     ]),
     _vm._v(" "),
-    _c(
-      "section",
-      { staticClass: "content" },
-      [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "panel panel-default" }, [
-            _c("div", { staticClass: "panel-heading" }, [
-              _c("span", { staticClass: "input-group-btn" }, [
-                _c(
-                  "button",
-                  {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: !_vm.show,
-                        expression: "!show"
-                      }
-                    ],
-                    staticClass: "btn btn-success",
-                    attrs: { type: "button" },
-                    on: { click: _vm.expandAddRoutePanel }
-                  },
-                  [
-                    _c("i", {
-                      staticClass: "fa fa-plus",
-                      attrs: { "aria-hidden": "true" }
-                    })
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: _vm.show,
-                        expression: "show"
-                      }
-                    ],
-                    staticClass: "btn btn-warning",
-                    attrs: { type: "button" },
-                    on: { click: _vm.expandAddRoutePanel }
-                  },
-                  [
-                    _c("i", {
-                      staticClass: "fa fa-minus",
-                      attrs: { "aria-hidden": "true" }
-                    })
-                  ]
-                )
-              ])
-            ]),
-            _vm._v(" "),
-            _c(
-              "div",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: _vm.show,
-                    expression: "show"
-                  }
-                ],
-                staticClass: "panel-body"
+    _c("section", { staticClass: "content" }, [
+      _c(
+        "div",
+        { staticClass: "container-fluid" },
+        [
+          _c(
+            "add-section",
+            {
+              attrs: { show: _vm.show },
+              on: {
+                "update:show": function($event) {
+                  _vm.show = $event
+                }
               },
-              [
-                _c("div", { staticClass: "col-sm-12" }, [
-                  _c("div", { staticClass: "panel panel-warning" }, [
-                    _c("div", { staticClass: "panel-heading" }, [
-                      _vm._v("Enter Route Info")
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "panel-body" }, [
-                      _c("div", { staticClass: "row" }, [
-                        _c("div", { staticClass: "route-info" }, [
-                          _c("span", { staticClass: "departure" }, [
-                            _vm._v("Departure")
-                          ]),
-                          _vm._v(" "),
-                          _c("form", { staticClass: "form-inline" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "divisionName" } }, [
-                                _vm._v("Division ")
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "select",
-                                {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.selectedDivisionForDeparture,
-                                      expression: "selectedDivisionForDeparture"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: { id: "divisionName" },
-                                  on: {
-                                    change: function($event) {
-                                      var $$selectedVal = Array.prototype.filter
-                                        .call($event.target.options, function(
-                                          o
-                                        ) {
-                                          return o.selected
-                                        })
-                                        .map(function(o) {
-                                          var val =
-                                            "_value" in o ? o._value : o.value
-                                          return val
-                                        })
-                                      _vm.selectedDivisionForDeparture = $event
-                                        .target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    }
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "option",
-                                    { attrs: { disabled: "", value: "" } },
-                                    [_vm._v("Please select one")]
-                                  ),
-                                  _vm._v(" "),
-                                  _vm._l(_vm.divisionList, function(division) {
-                                    return _c(
-                                      "option",
-                                      {
-                                        domProps: {
-                                          value: {
-                                            id: division.id,
-                                            name: division.name
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _vm._v(
-                                          "\n                                        " +
-                                            _vm._s(division.name) +
-                                            "\n                                      "
-                                        )
-                                      ]
-                                    )
-                                  })
-                                ],
-                                2
-                              )
-                            ]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "departureCity" } }, [
-                                _vm._v("City")
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "select",
-                                {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.selectedDepartureCity,
-                                      expression: "selectedDepartureCity"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: { id: "departureCity" },
-                                  on: {
-                                    change: function($event) {
-                                      var $$selectedVal = Array.prototype.filter
-                                        .call($event.target.options, function(
-                                          o
-                                        ) {
-                                          return o.selected
-                                        })
-                                        .map(function(o) {
-                                          var val =
-                                            "_value" in o ? o._value : o.value
-                                          return val
-                                        })
-                                      _vm.selectedDepartureCity = $event.target
-                                        .multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    }
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "option",
-                                    { attrs: { disabled: "", value: "" } },
-                                    [_vm._v("Please select one")]
-                                  ),
-                                  _vm._v(" "),
-                                  _vm._l(_vm.departureCityList, function(city) {
-                                    return _c("option", [
-                                      _vm._v(
-                                        "\n                                        " +
-                                          _vm._s(city.name) +
-                                          "\n                                      "
-                                      )
-                                    ])
-                                  })
-                                ],
-                                2
-                              )
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "route-info" }, [
-                          _c("span", { staticClass: "arrival" }, [
-                            _vm._v("Arrival")
-                          ]),
-                          _vm._v(" "),
-                          _c("form", { staticClass: "form-inline" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "divisionName" } }, [
-                                _vm._v("Division")
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "select",
-                                {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.selectedDivisionForArrival,
-                                      expression: "selectedDivisionForArrival"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: { id: "divisionName" },
-                                  on: {
-                                    change: function($event) {
-                                      var $$selectedVal = Array.prototype.filter
-                                        .call($event.target.options, function(
-                                          o
-                                        ) {
-                                          return o.selected
-                                        })
-                                        .map(function(o) {
-                                          var val =
-                                            "_value" in o ? o._value : o.value
-                                          return val
-                                        })
-                                      _vm.selectedDivisionForArrival = $event
-                                        .target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    }
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "option",
-                                    { attrs: { disabled: "", value: "" } },
-                                    [_vm._v("Please select one")]
-                                  ),
-                                  _vm._v(" "),
-                                  _vm._l(_vm.divisionList, function(division) {
-                                    return _c(
-                                      "option",
-                                      {
-                                        domProps: {
-                                          value: {
-                                            id: division.id,
-                                            name: division.name
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _vm._v(
-                                          "\n                                      " +
-                                            _vm._s(division.name) +
-                                            "\n                                    "
-                                        )
-                                      ]
-                                    )
-                                  })
-                                ],
-                                2
-                              )
-                            ]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "arrivalCity" } }, [
-                                _vm._v("City")
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "select",
-                                {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.selectedArrivalCity,
-                                      expression: "selectedArrivalCity"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: { id: "arrivalCity" },
-                                  on: {
-                                    change: function($event) {
-                                      var $$selectedVal = Array.prototype.filter
-                                        .call($event.target.options, function(
-                                          o
-                                        ) {
-                                          return o.selected
-                                        })
-                                        .map(function(o) {
-                                          var val =
-                                            "_value" in o ? o._value : o.value
-                                          return val
-                                        })
-                                      _vm.selectedArrivalCity = $event.target
-                                        .multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    }
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "option",
-                                    { attrs: { disabled: "", value: "" } },
-                                    [_vm._v("Please select one")]
-                                  ),
-                                  _vm._v(" "),
-                                  _vm._l(_vm.arrivalCityList, function(city) {
-                                    return _c("option", [
-                                      _vm._v(
-                                        "\n                                      " +
-                                          _vm._s(city.name) +
-                                          "\n                                    "
-                                      )
-                                    ])
-                                  })
-                                ],
-                                2
-                              )
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "route-distance" }, [
-                          _c("form", { staticClass: "form-inline" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "routeDistance" } }, [
-                                _vm._v("Route Distance")
-                              ]),
-                              _vm._v(" "),
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.routeDistance,
-                                    expression: "routeDistance"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: {
-                                  type: "text",
-                                  name: "route_distance",
-                                  id: "routeDistance",
-                                  placeholder: "Distance"
-                                },
-                                domProps: { value: _vm.routeDistance },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.routeDistance = $event.target.value
-                                  }
-                                }
-                              })
-                            ])
-                          ])
-                        ])
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-12" }, [
-                  _c("div", { staticClass: "panel panel-success" }, [
-                    _c("div", { staticClass: "panel-heading" }, [
-                      _vm._v("Enter Fare Info")
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "panel-body" }, [
-                      _c("div", { staticClass: "row col-sm-offset-2" }, [
-                        _c("form", [
-                          _c("div", { staticClass: "col-sm-3" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "fareAC" } }, [
-                                _vm._v("AC")
-                              ]),
-                              _vm._v(" "),
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.fare.ac,
-                                    expression: "fare.ac"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: {
-                                  type: "text",
-                                  id: "fareAC",
-                                  placeholder: "AC"
-                                },
-                                domProps: { value: _vm.fare.ac },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.$set(
-                                      _vm.fare,
-                                      "ac",
-                                      $event.target.value
-                                    )
-                                  }
-                                }
-                              })
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "col-sm-3" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "fareAC" } }, [
-                                _vm._v("Non AC")
-                              ]),
-                              _vm._v(" "),
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.fare.non_ac,
-                                    expression: "fare.non_ac"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: {
-                                  type: "text",
-                                  id: "fareAC",
-                                  placeholder: "Non AC"
-                                },
-                                domProps: { value: _vm.fare.non_ac },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.$set(
-                                      _vm.fare,
-                                      "non_ac",
-                                      $event.target.value
-                                    )
-                                  }
-                                }
-                              })
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "col-sm-3" }, [
-                            _c("div", { staticClass: "form-group" }, [
-                              _c("label", { attrs: { for: "fareDeluxe" } }, [
-                                _vm._v("Deluxe")
-                              ]),
-                              _vm._v(" "),
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.fare.deluxe,
-                                    expression: "fare.deluxe"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: {
-                                  type: "text",
-                                  id: "fareDeluxe",
-                                  placeholder: "Deluxe"
-                                },
-                                domProps: { value: _vm.fare.deluxe },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.$set(
-                                      _vm.fare,
-                                      "deluxe",
-                                      $event.target.value
-                                    )
-                                  }
-                                }
-                              })
-                            ])
-                          ])
-                        ])
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-4" }, [
-                  _c("div", { staticClass: "button-group" }, [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { disabled: _vm.disableSaveButton },
-                        on: {
-                          click: function($event) {
-                            $event.preventDefault()
-                            return _vm.addRoute()
-                          }
-                        }
-                      },
-                      [_vm._v("Add")]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { disabled: _vm.disableResetButton },
-                        on: {
-                          click: function($event) {
-                            $event.preventDefault()
-                            return _vm.reset()
-                          }
-                        }
-                      },
-                      [_vm._v("Reset")]
-                    )
-                  ])
-                ])
-              ]
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _c("loader", { attrs: { show: _vm.loading } }),
-        _vm._v(" "),
-        _c("div", { staticClass: "row view-available-info" }, [
-          _c("div", { staticClass: "panel panel-info" }, [
-            _c("div", { staticClass: "panel-heading" }, [
-              _vm._v("Route Info "),
-              _c("span", [
-                _vm._v(" " + _vm._s(_vm.availableRouteList.length) + " ")
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "panel-body" }, [
-              _c("div", { attrs: { id: "scroll-routes" } }, [
-                _c(
-                  "table",
-                  { staticClass: "table table-striped table-hover" },
-                  [
-                    _c("thead", [
-                      _c("tr", [
-                        _c("th", [_vm._v("Sl. No.")]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v("From\n                            "),
-                          _c(
-                            "span",
-                            {
-                              attrs: {
-                                type: "button",
-                                disabled: _vm.disableSorting
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.isSortingAvailableBy("name")
-                                }
-                              }
-                            },
-                            [
-                              _c("i", {
-                                staticClass: "fa fa-sort-amount-asc",
-                                attrs: { "aria-hidden": "true" }
-                              })
-                            ]
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v(
-                            "To                      \n                           "
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v("Distance\n                        "),
-                          _c(
-                            "span",
-                            {
-                              attrs: {
-                                type: "button",
-                                disabled: !_vm.disableSorting
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.isSortingAvailableBy("distance")
-                                }
-                              }
-                            },
-                            [
-                              _c("i", {
-                                staticClass: "fa fa-sort-amount-asc",
-                                attrs: { "aria-hidden": "true" }
-                              })
-                            ]
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v(
-                            "\n                        Fare\n                      "
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v(
-                            "\n                        Route ID\n                      "
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [_vm._v("Action")])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "tbody",
-                      _vm._l(_vm.availableRouteList, function(route, index) {
-                        return _c("tr", [
-                          _c("td", [_vm._v(_vm._s(index + 1))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(route.departure_city))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(route.arrival_city))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(route.distance))]),
-                          _vm._v(" "),
-                          route.fare == null
-                            ? _c("td", [_vm._v("N/A")])
-                            : _c("td", [
-                                _vm._v(
-                                  " \n                        AC: " +
-                                    _vm._s(route.fare.details.ac) +
-                                    " "
-                                ),
-                                _c("br"),
-                                _vm._v(
-                                  "\n                        Non-AC: " +
-                                    _vm._s(route.fare.details.non_ac) +
-                                    " "
-                                ),
-                                _c("br"),
-                                _vm._v(
-                                  " \n                        Deluxe: " +
-                                    _vm._s(route.fare.details.deluxe) +
-                                    " "
-                                ),
-                                _c("br")
-                              ]),
-                          _vm._v(" "),
-                          _c("td", [_c("strong", [_vm._v(_vm._s(route.id))])]),
-                          _vm._v(" "),
-                          _c("td", [
-                            _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-primary",
-                                attrs: { disabled: route.fare == null },
-                                on: {
-                                  click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.editRoute(route)
-                                  }
-                                }
-                              },
-                              [
-                                _c("i", { staticClass: "fa fa-edit fa-fw" }),
-                                _vm._v("Edit\n                          ")
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-danger",
-                                on: {
-                                  click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.removeRoute(route)
-                                  }
-                                }
-                              },
-                              [
-                                _c("i", { staticClass: "fa fa-trash fa-fw" }),
-                                _vm._v("Remove\n                          ")
-                              ]
-                            )
-                          ])
-                        ])
-                      }),
-                      0
-                    )
-                  ]
-                )
-              ])
-            ]),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "panel-footer" },
-              [
-                _c(
-                  "show-alert",
-                  {
-                    attrs: { show: _vm.showAlert, type: _vm.alertType },
-                    on: {
-                      "update:show": function($event) {
-                        _vm.showAlert = $event
-                      }
-                    }
-                  },
-                  [
-                    _c("strong", [_vm._v(_vm._s(_vm.routeName) + " ")]),
-                    _vm._v(" has been \n            "),
-                    _c("strong", [
-                      _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
-                    ]),
-                    _vm._v(" successfully!\n          ")
-                  ]
-                )
-              ],
-              1
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _c(
-          "modal",
-          {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.modal,
-                expression: "modal"
-              }
-            ],
-            on: { close: _vm.cancelEdit }
-          },
-          [
-            _c("div", { staticClass: "row" }, [
-              _c(
-                "div",
+              scopedSlots: _vm._u([
                 {
-                  staticClass: "col-sm-8 col-sm-offset-2",
-                  attrs: { id: "edit-route" }
+                  key: "heading",
+                  fn: function() {
+                    return [_c("strong", [_vm._v("Add Route")])]
+                  },
+                  proxy: true
                 },
-                [
-                  _c("div", { staticClass: "panel panel-default" }, [
-                    _c("div", { staticClass: "panel-heading" }, [
-                      _vm._v("Edit Fare Info.")
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "panel-body" }, [
-                      _c("span", [
-                        _vm._v(" Last Updated: "),
-                        _c("strong", [_vm._v(_vm._s(_vm.lastUpdatedAt) + " ")])
+                {
+                  key: "footer",
+                  fn: function() {
+                    return [
+                      _c(
+                        "show-alert",
+                        {
+                          attrs: { show: _vm.showAlert, type: _vm.alertType },
+                          on: {
+                            "update:show": function($event) {
+                              _vm.showAlert = $event
+                            }
+                          }
+                        },
+                        [
+                          _c("strong", [_vm._v(" Route ")]),
+                          _vm._v(" has been "),
+                          _c("strong", [_vm._v(_vm._s(_vm.actionStatus) + " ")])
+                        ]
+                      )
+                    ]
+                  },
+                  proxy: true
+                }
+              ])
+            },
+            [
+              _vm._v(" "),
+              _c("form", [
+                _c("div", { staticClass: "row" }, [
+                  _c(
+                    "div",
+                    { staticClass: "col" },
+                    [
+                      _c(
+                        "border",
+                        {
+                          attrs: {
+                            color: "navy-blue",
+                            pattern: "dashed",
+                            width: "1",
+                            "heading-background": "#FBDB7B",
+                            "heading-width": "180",
+                            "heading-show": "true"
+                          },
+                          scopedSlots: _vm._u([
+                            {
+                              key: "heading",
+                              fn: function() {
+                                return [_vm._v("Departure City Info")]
+                              },
+                              proxy: true
+                            }
+                          ])
+                        },
+                        [
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "form-row justify-content-center" },
+                            [
+                              _c("div", { staticClass: "col-sm-5" }, [
+                                _c("div", { staticClass: "form-group" }, [
+                                  _c(
+                                    "label",
+                                    { attrs: { for: "divisionName" } },
+                                    [_vm._v("Division ")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value:
+                                            _vm.selectedDivisionForDeparture,
+                                          expression:
+                                            "selectedDivisionForDeparture"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { id: "divisionName" },
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.selectedDivisionForDeparture = $event
+                                            .target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "option",
+                                        { attrs: { disabled: "", value: "" } },
+                                        [_vm._v("Please select one")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm._l(_vm.divisionList, function(
+                                        division
+                                      ) {
+                                        return _c(
+                                          "option",
+                                          {
+                                            domProps: {
+                                              value: {
+                                                id: division.id,
+                                                name: division.name
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n                            " +
+                                                _vm._s(division.name) +
+                                                "\n                          "
+                                            )
+                                          ]
+                                        )
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-5" }, [
+                                _c("div", { staticClass: "form-group" }, [
+                                  _c(
+                                    "label",
+                                    { attrs: { for: "departureCity" } },
+                                    [_vm._v("City")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.selectedDepartureCity,
+                                          expression: "selectedDepartureCity"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { id: "departureCity" },
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.selectedDepartureCity = $event
+                                            .target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "option",
+                                        { attrs: { disabled: "", value: "" } },
+                                        [_vm._v("Please select one")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm._l(_vm.departureCityList, function(
+                                        city
+                                      ) {
+                                        return _c("option", [
+                                          _vm._v(
+                                            "\n                            " +
+                                              _vm._s(city.name) +
+                                              "\n                          "
+                                          )
+                                        ])
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ])
+                              ])
+                            ]
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col" },
+                    [
+                      _c(
+                        "border",
+                        {
+                          attrs: {
+                            color: "eastern-blue",
+                            pattern: "dashed",
+                            width: "1",
+                            "heading-background": "lightgreen",
+                            "heading-width": "180",
+                            "heading-show": "true"
+                          },
+                          scopedSlots: _vm._u([
+                            {
+                              key: "heading",
+                              fn: function() {
+                                return [_vm._v("Arrival City Info")]
+                              },
+                              proxy: true
+                            }
+                          ])
+                        },
+                        [
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "form-row justify-content-center" },
+                            [
+                              _c("div", { staticClass: "col-sm-5" }, [
+                                _c("div", { staticClass: "form-group" }, [
+                                  _c(
+                                    "label",
+                                    { attrs: { for: "divisionName" } },
+                                    [_vm._v("Division")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.selectedDivisionForArrival,
+                                          expression:
+                                            "selectedDivisionForArrival"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { id: "divisionName" },
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.selectedDivisionForArrival = $event
+                                            .target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "option",
+                                        { attrs: { disabled: "", value: "" } },
+                                        [_vm._v("Please select one")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm._l(_vm.divisionList, function(
+                                        division
+                                      ) {
+                                        return _c(
+                                          "option",
+                                          {
+                                            domProps: {
+                                              value: {
+                                                id: division.id,
+                                                name: division.name
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n                            " +
+                                                _vm._s(division.name) +
+                                                "\n                          "
+                                            )
+                                          ]
+                                        )
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-5" }, [
+                                _c("div", { staticClass: "form-group" }, [
+                                  _c(
+                                    "label",
+                                    { attrs: { for: "arrivalCity" } },
+                                    [_vm._v("City")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.selectedArrivalCity,
+                                          expression: "selectedArrivalCity"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { id: "arrivalCity" },
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.selectedArrivalCity = $event
+                                            .target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "option",
+                                        { attrs: { disabled: "", value: "" } },
+                                        [_vm._v("Please select one")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm._l(_vm.arrivalCityList, function(
+                                        city
+                                      ) {
+                                        return _c("option", [
+                                          _vm._v(
+                                            "\n                            " +
+                                              _vm._s(city.name) +
+                                              "\n                          "
+                                          )
+                                        ])
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ])
+                              ])
+                            ]
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-row" }, [
+                  _c("div", { staticClass: "col-sm-4 offset-sm-3" }, [
+                    _c("div", { staticClass: "form-group" }, [
+                      _c("label", { attrs: { for: "routeDistance" } }, [
+                        _vm._v("Route Distance")
                       ]),
                       _vm._v(" "),
-                      _c("br"),
-                      _c("br"),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "row" }, [
-                        _c("div", { staticClass: "col-sm-3" }, [
-                          _c("div", { staticClass: "form-group" }, [
-                            _c("label", { attrs: { for: "fareAC" } }, [
-                              _vm._v("AC")
-                            ]),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.fare.ac,
-                                  expression: "fare.ac"
-                                }
-                              ],
-                              staticClass: "form-control",
-                              attrs: {
-                                type: "text",
-                                id: "fareAC",
-                                placeholder: "AC"
-                              },
-                              domProps: { value: _vm.fare.ac },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(_vm.fare, "ac", $event.target.value)
-                                }
-                              }
-                            })
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col-sm-3" }, [
-                          _c("div", { staticClass: "form-group" }, [
-                            _c("label", { attrs: { for: "fareAC" } }, [
-                              _vm._v("Non AC")
-                            ]),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.fare.non_ac,
-                                  expression: "fare.non_ac"
-                                }
-                              ],
-                              staticClass: "form-control",
-                              attrs: {
-                                type: "text",
-                                id: "fareAC",
-                                placeholder: "Non AC"
-                              },
-                              domProps: { value: _vm.fare.non_ac },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(
-                                    _vm.fare,
-                                    "non_ac",
-                                    $event.target.value
-                                  )
-                                }
-                              }
-                            })
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col-sm-3" }, [
-                          _c("div", { staticClass: "form-group" }, [
-                            _c("label", { attrs: { for: "fareDeluxe" } }, [
-                              _vm._v("Deluxe")
-                            ]),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.fare.deluxe,
-                                  expression: "fare.deluxe"
-                                }
-                              ],
-                              staticClass: "form-control",
-                              attrs: {
-                                type: "text",
-                                id: "fareDeluxe",
-                                placeholder: "Deluxe"
-                              },
-                              domProps: { value: _vm.fare.deluxe },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(
-                                    _vm.fare,
-                                    "deluxe",
-                                    $event.target.value
-                                  )
-                                }
-                              }
-                            })
-                          ])
-                        ])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "panel-footer" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.routeDistance,
+                            expression: "routeDistance"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "number",
+                          name: "route_distance",
+                          id: "routeDistance",
+                          placeholder: "Distance"
+                        },
+                        domProps: { value: _vm.routeDistance },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.routeDistance = $event.target.value
+                          }
+                        }
+                      })
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-5" }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-4 offset-sm-3" }, [
+                    _c("div", { staticClass: "button-group" }, [
                       _c(
                         "button",
                         {
                           staticClass: "btn btn-primary",
+                          attrs: { disabled: !_vm.isValid },
                           on: {
                             click: function($event) {
                               $event.preventDefault()
-                              return _vm.updateRouteFare()
+                              return _vm.save()
                             }
                           }
                         },
@@ -53674,10 +53009,11 @@ var render = function() {
                         "button",
                         {
                           staticClass: "btn btn-primary",
+                          attrs: { disabled: !_vm.isValid },
                           on: {
                             click: function($event) {
                               $event.preventDefault()
-                              return _vm.cancelEdit()
+                              return _vm.reset()
                             }
                           }
                         },
@@ -53685,17 +53021,183 @@ var render = function() {
                       )
                     ])
                   ])
-                ]
+                ])
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c("loader", { attrs: { show: _vm.loading } }),
+          _vm._v(" "),
+          _c("div", { staticClass: "row justify-content-center" }, [
+            _c("div", { staticClass: "card card-info w-100" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _vm._v("Route Info "),
+                _c("span", [
+                  _vm._v(" " + _vm._s(_vm.availableRouteList.length) + " ")
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { attrs: { id: "scrollbar" } }, [
+                  _c(
+                    "table",
+                    { staticClass: "table table-striped table-hover" },
+                    [
+                      _c("thead", [
+                        _c("tr", [
+                          _c("th", [_vm._v("Sl. No.")]),
+                          _vm._v(" "),
+                          _c("th", [
+                            _vm._v("From\n                              "),
+                            _c(
+                              "span",
+                              {
+                                attrs: {
+                                  type: "button",
+                                  disabled: _vm.disableSorting
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.isSortingAvailableBy("name")
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", {
+                                  staticClass: "fa fa-sort-amount-asc",
+                                  attrs: { "aria-hidden": "true" }
+                                })
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [
+                            _vm._v(
+                              "To                      \n                        "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [
+                            _vm._v("Distance\n                          "),
+                            _c(
+                              "span",
+                              {
+                                attrs: {
+                                  type: "button",
+                                  disabled: !_vm.disableSorting
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.isSortingAvailableBy("distance")
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", {
+                                  staticClass: "fa fa-sort-amount-asc",
+                                  attrs: { "aria-hidden": "true" }
+                                })
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [
+                            _vm._v(
+                              "\n                          Route ID\n                        "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [_vm._v("Action")])
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "tbody",
+                        _vm._l(_vm.availableRouteList, function(route, index) {
+                          return _c("tr", [
+                            _c("td", [_vm._v(_vm._s(index + 1))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(route.departure_city))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(route.arrival_city))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(route.distance))]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _c("strong", [_vm._v(_vm._s(route.id))])
+                            ]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-danger",
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.remove(route)
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("i", { staticClass: "fa fa-trash fa-fw" }),
+                                  _vm._v("Remove\n                            ")
+                                ]
+                              )
+                            ])
+                          ])
+                        }),
+                        0
+                      )
+                    ]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "card-footer" },
+                [
+                  _c(
+                    "show-alert",
+                    {
+                      attrs: { show: _vm.showAlert, type: _vm.alertType },
+                      on: {
+                        "update:show": function($event) {
+                          _vm.showAlert = $event
+                        }
+                      }
+                    },
+                    [
+                      _c("strong", [_vm._v(_vm._s(_vm.routeName) + " ")]),
+                      _vm._v(" has been \n              "),
+                      _c("strong", [
+                        _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
+                      ]),
+                      _vm._v(" successfully!\n            ")
+                    ]
+                  )
+                ],
+                1
               )
             ])
-          ]
-        )
-      ],
-      1
-    )
+          ])
+        ],
+        1
+      )
+    ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-6" }, [
+      _c("h1", { staticClass: "m-0 text-dark" }, [_vm._v("Route")])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -54900,202 +54402,194 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "row justify-content-center view-available-info" },
-              [
-                _c("div", { staticClass: "col" }, [
-                  _c("div", { staticClass: "card card-info" }, [
-                    _c("div", { staticClass: "card-header" }, [
-                      _vm._v("Seat Plan Info "),
-                      _c("span", [
-                        _vm._v(
-                          " [ " +
-                            _vm._s(_vm.availableSeatPlanList.length) +
-                            " ]"
-                        )
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "card-body" }, [
-                      _c("div", { attrs: { id: "scrollbar" } }, [
-                        _c(
-                          "table",
-                          { staticClass: "table table-striped table-hover" },
-                          [
-                            _c("thead", [
-                              _c("tr", [
-                                _c("th", [_vm._v("Sl. No.")]),
+            _c("div", { staticClass: "row justify-content-center" }, [
+              _c("div", { staticClass: "col" }, [
+                _c("div", { staticClass: "card card-info" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _vm._v("Seat Plan Info "),
+                    _c("span", [
+                      _vm._v(
+                        " [ " + _vm._s(_vm.availableSeatPlanList.length) + " ]"
+                      )
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("div", { attrs: { id: "scrollbar" } }, [
+                      _c(
+                        "table",
+                        { staticClass: "table table-striped table-hover" },
+                        [
+                          _c("thead", [
+                            _c("tr", [
+                              _c("th", [_vm._v("Sl. No.")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("Seat Plan ID")]),
+                              _vm._v(" "),
+                              _c("th", [
+                                _vm._v(
+                                  "Total Seats\n                              "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    attrs: {
+                                      type: "button",
+                                      disabled: !_vm.disableSorting
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.sortByIdOf("totalSeats")
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", {
+                                      staticClass: "fa fa-sort-amount-asc",
+                                      attrs: { "aria-hidden": "true" }
+                                    })
+                                  ]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("th", [
+                                _vm._v(
+                                  "Created On\n                              "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    attrs: {
+                                      type: "button",
+                                      disabled: _vm.disableSorting
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.sortByIdOf("dateCreated")
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", {
+                                      staticClass: "fa fa-sort-amount-asc",
+                                      attrs: { "aria-hidden": "true" }
+                                    })
+                                  ]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("Action")])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(_vm.availableSeatPlanList, function(
+                              seatplan,
+                              index
+                            ) {
+                              return _c("tr", [
+                                _c("td", [_vm._v(_vm._s(index + 1))]),
                                 _vm._v(" "),
-                                _c("th", [_vm._v("Seat Plan ID")]),
+                                _c("td", [_vm._v(_vm._s(seatplan.id))]),
                                 _vm._v(" "),
-                                _c("th", [
+                                _c("td", [
+                                  _vm._v(_vm._s(seatplan.total_seats))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
                                   _vm._v(
-                                    "Total Seats\n                              "
-                                  ),
+                                    _vm._s(_vm.dateCreated(seatplan.created_at))
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
                                   _c(
-                                    "span",
+                                    "button",
                                     {
+                                      staticClass: "btn btn-primary",
                                       attrs: {
                                         type: "button",
-                                        disabled: !_vm.disableSorting
+                                        "data-toggle": "modal",
+                                        "data-target": "#modalComponent"
                                       },
                                       on: {
                                         click: function($event) {
-                                          return _vm.sortByIdOf("totalSeats")
+                                          $event.preventDefault()
+                                          return _vm.view(seatplan)
                                         }
                                       }
                                     },
                                     [
                                       _c("i", {
-                                        staticClass: "fa fa-sort-amount-asc",
-                                        attrs: { "aria-hidden": "true" }
-                                      })
-                                    ]
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("th", [
-                                  _vm._v(
-                                    "Created On\n                              "
-                                  ),
-                                  _c(
-                                    "span",
-                                    {
-                                      attrs: {
-                                        type: "button",
-                                        disabled: _vm.disableSorting
-                                      },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.sortByIdOf("dateCreated")
-                                        }
-                                      }
-                                    },
-                                    [
-                                      _c("i", {
-                                        staticClass: "fa fa-sort-amount-asc",
-                                        attrs: { "aria-hidden": "true" }
-                                      })
-                                    ]
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("th", [_vm._v("Action")])
-                              ])
-                            ]),
-                            _vm._v(" "),
-                            _c(
-                              "tbody",
-                              _vm._l(_vm.availableSeatPlanList, function(
-                                seatplan,
-                                index
-                              ) {
-                                return _c("tr", [
-                                  _c("td", [_vm._v(_vm._s(index + 1))]),
-                                  _vm._v(" "),
-                                  _c("td", [_vm._v(_vm._s(seatplan.id))]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(_vm._s(seatplan.total_seats))
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(
-                                      _vm._s(
-                                        _vm.dateCreated(seatplan.created_at)
+                                        staticClass: "fa fa-eye fa-fw"
+                                      }),
+                                      _vm._v(
+                                        "View\n                                "
                                       )
-                                    )
-                                  ]),
+                                    ]
+                                  ),
                                   _vm._v(" "),
-                                  _c("td", [
-                                    _c(
-                                      "button",
-                                      {
-                                        staticClass: "btn btn-primary",
-                                        attrs: {
-                                          type: "button",
-                                          "data-toggle": "modal",
-                                          "data-target": "#modalComponent"
-                                        },
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            return _vm.view(seatplan)
-                                          }
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-danger",
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.remove(seatplan)
                                         }
-                                      },
-                                      [
-                                        _c("i", {
-                                          staticClass: "fa fa-eye fa-fw"
-                                        }),
-                                        _vm._v(
-                                          "View\n                                "
-                                        )
-                                      ]
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "button",
-                                      {
-                                        staticClass: "btn btn-danger",
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            return _vm.remove(seatplan)
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _c("i", {
-                                          staticClass: "fa fa-trash fa-fw"
-                                        }),
-                                        _vm._v(
-                                          "Remove\n                                "
-                                        )
-                                      ]
-                                    )
-                                  ])
+                                      }
+                                    },
+                                    [
+                                      _c("i", {
+                                        staticClass: "fa fa-trash fa-fw"
+                                      }),
+                                      _vm._v(
+                                        "Remove\n                                "
+                                      )
+                                    ]
+                                  )
                                 ])
-                              }),
-                              0
-                            )
-                          ]
-                        )
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "card-footer" },
-                      [
-                        _c(
-                          "show-alert",
-                          {
-                            attrs: { show: _vm.showAlert, type: _vm.alertType },
-                            on: {
-                              "update:show": function($event) {
-                                _vm.showAlert = $event
-                              }
+                              ])
+                            }),
+                            0
+                          )
+                        ]
+                      )
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "card-footer" },
+                    [
+                      _c(
+                        "show-alert",
+                        {
+                          attrs: { show: _vm.showAlert, type: _vm.alertType },
+                          on: {
+                            "update:show": function($event) {
+                              _vm.showAlert = $event
                             }
-                          },
-                          [
-                            _vm._v(
-                              "             \n                 Seat Plan\n                  "
-                            ),
-                            _c("strong", [
-                              _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
-                            ]),
-                            _vm._v(" successfully!\n                ")
-                          ]
-                        )
-                      ],
-                      1
-                    )
-                  ])
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "             \n                 Seat Plan\n                  "
+                          ),
+                          _c("strong", [
+                            _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
+                          ]),
+                          _vm._v(" successfully!\n                ")
+                        ]
+                      )
+                    ],
+                    1
+                  )
                 ])
-              ]
-            )
+              ])
+            ])
           ],
           1
         ),
@@ -55193,100 +54687,66 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("section", { staticClass: "content-header" }, [
-      _c("h1", [_vm._v("\n     Add new city\n      ")]),
-      _vm._v(" "),
-      _c("ol", { staticClass: "breadcrumb" }, [
-        _c(
-          "li",
-          [
-            _c("router-link", { attrs: { to: "/dashboard", exact: "" } }, [
-              _c("i", { staticClass: "fa fa-dashboard" }),
-              _vm._v("Dashboard\n        ")
+    _c("div", { staticClass: "content-header" }, [
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "row mb-2" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-6" }, [
+            _c("ol", { staticClass: "breadcrumb float-sm-right" }, [
+              _c(
+                "li",
+                { staticClass: "breadcrumb-item" },
+                [
+                  _c("router-link", { attrs: { to: "/dashboard" } }, [
+                    _c("i", { staticClass: "fa fa-tachometer nav-icon" }),
+                    _vm._v(" Dashboard\n              ")
+                  ])
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("li", { staticClass: "breadcrumb-item active" }, [
+                _vm._v("City")
+              ])
             ])
-          ],
-          1
-        ),
-        _vm._v(" "),
-        _c("li", { staticClass: "active" }, [_vm._v("city")])
+          ])
+        ])
       ])
     ]),
     _vm._v(" "),
-    _c(
-      "section",
-      { staticClass: "content" },
-      [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "panel panel-default" }, [
-            _c("div", { staticClass: "panel-heading" }, [
-              _c("span", { staticClass: "input-group-btn" }, [
-                _c(
-                  "button",
-                  {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: !_vm.show,
-                        expression: "!show"
-                      }
-                    ],
-                    staticClass: "btn btn-success",
-                    attrs: { type: "button" },
-                    on: { click: _vm.expandAddCityPanel }
-                  },
-                  [
-                    _c("i", {
-                      staticClass: "fa fa-plus",
-                      attrs: { "aria-hidden": "true" }
-                    })
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: _vm.show,
-                        expression: "show"
-                      }
-                    ],
-                    staticClass: "btn btn-warning",
-                    attrs: { type: "button" },
-                    on: { click: _vm.expandAddCityPanel }
-                  },
-                  [
-                    _c("i", {
-                      staticClass: "fa fa-minus",
-                      attrs: { "aria-hidden": "true" }
-                    })
-                  ]
-                )
-              ])
-            ]),
-            _vm._v(" "),
-            _c(
-              "div",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: _vm.show,
-                    expression: "show"
-                  }
-                ],
-                staticClass: "panel-body"
+    _c("section", { staticClass: "content" }, [
+      _c(
+        "div",
+        { staticClass: "container-fluid" },
+        [
+          _c(
+            "add-section",
+            {
+              attrs: { show: _vm.show },
+              on: {
+                "update:show": function($event) {
+                  _vm.show = $event
+                }
               },
-              [
-                _c("form", [
+              scopedSlots: _vm._u([
+                {
+                  key: "heading",
+                  fn: function() {
+                    return [_c("strong", [_vm._v("Add City")])]
+                  },
+                  proxy: true
+                }
+              ])
+            },
+            [
+              _vm._v(" "),
+              _c("form", [
+                _c("div", { staticClass: "form-row justify-content-center" }, [
                   _c("div", { staticClass: "col-sm-3" }, [
                     _c("div", { staticClass: "form-group" }, [
                       _c("label", { attrs: { for: "divisionName" } }, [
-                        _vm._v("Division Name")
+                        _vm._v("Division")
                       ]),
                       _vm._v(" "),
                       _c(
@@ -55336,9 +54796,9 @@ var render = function() {
                               },
                               [
                                 _vm._v(
-                                  "\n                            " +
+                                  "\n                      " +
                                     _vm._s(division.name) +
-                                    "\n                          "
+                                    "\n                    "
                                 )
                               ]
                             )
@@ -55351,8 +54811,8 @@ var render = function() {
                   _vm._v(" "),
                   _c("div", { staticClass: "col-sm-3" }, [
                     _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "cityName" } }, [
-                        _vm._v("City Name ")
+                      _c("label", { attrs: { for: "districtName" } }, [
+                        _vm._v("District")
                       ]),
                       _vm._v(" "),
                       _c(
@@ -55362,12 +54822,12 @@ var render = function() {
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: _vm.selectedCity,
-                              expression: "selectedCity"
+                              value: _vm.selectedDistrict,
+                              expression: "selectedDistrict"
                             }
                           ],
                           staticClass: "form-control",
-                          attrs: { id: "cityName" },
+                          attrs: { id: "districtName" },
                           on: {
                             change: function($event) {
                               var $$selectedVal = Array.prototype.filter
@@ -55378,7 +54838,7 @@ var render = function() {
                                   var val = "_value" in o ? o._value : o.value
                                   return val
                                 })
-                              _vm.selectedCity = $event.target.multiple
+                              _vm.selectedDistrict = $event.target.multiple
                                 ? $$selectedVal
                                 : $$selectedVal[0]
                             }
@@ -55389,19 +54849,24 @@ var render = function() {
                             _vm._v("Please select one")
                           ]),
                           _vm._v(" "),
-                          _vm._l(_vm.cityList, function(city) {
+                          _vm._l(_vm.districtListByDivision, function(
+                            district
+                          ) {
                             return _c(
                               "option",
                               {
                                 domProps: {
-                                  value: { id: city.id, name: city.name }
+                                  value: {
+                                    id: district.id,
+                                    name: district.name
+                                  }
                                 }
                               },
                               [
                                 _vm._v(
-                                  "\n                            " +
-                                    _vm._s(city.name) +
-                                    "\n                          "
+                                  "\n                      " +
+                                    _vm._s(district.name) +
+                                    "\n                    "
                                 )
                               ]
                             )
@@ -55412,10 +54877,75 @@ var render = function() {
                     ])
                   ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-2" }, [
+                  _c("div", { staticClass: "col-sm-3" }, [
                     _c("div", { staticClass: "form-group" }, [
-                      _c("label", { attrs: { for: "cityCode" } }, [
-                        _vm._v("City Code")
+                      _c("label", { attrs: { for: "upazilaName" } }, [
+                        _vm._v("Upazila")
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "select",
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.selectedUpazila,
+                              expression: "selectedUpazila"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { id: "upazilaName" },
+                          on: {
+                            change: function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.selectedUpazila = $event.target.multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            }
+                          }
+                        },
+                        [
+                          _c("option", { attrs: { disabled: "", value: "" } }, [
+                            _vm._v("Please select one")
+                          ]),
+                          _vm._v(" "),
+                          _vm._l(_vm.upazilaListByDistrict, function(upazila) {
+                            return _c(
+                              "option",
+                              {
+                                domProps: {
+                                  value: { id: upazila.id, name: upazila.name }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(upazila.name) +
+                                    "\n                    "
+                                )
+                              ]
+                            )
+                          })
+                        ],
+                        2
+                      )
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-row" }, [
+                  _c("div", { staticClass: "col-sm-4 offset-sm-3" }, [
+                    _c("div", { staticClass: "form-group" }, [
+                      _c("label", { attrs: { for: "cityName" } }, [
+                        _vm._v("City Name")
                       ]),
                       _vm._v(" "),
                       _c("input", {
@@ -55423,19 +54953,19 @@ var render = function() {
                           {
                             name: "model",
                             rawName: "v-model",
-                            value: _vm.selectedCity.id,
-                            expression: "selectedCity.id"
+                            value: _vm.selectedCity.name,
+                            expression: "selectedCity.name"
                           }
                         ],
                         staticClass: "form-control",
                         attrs: {
                           type: "text",
-                          name: "code",
-                          id: "cityCode",
-                          placeholder: "City Code",
+                          name: "city_name",
+                          id: "cityName",
+                          placeholder: "City Name",
                           disabled: ""
                         },
-                        domProps: { value: _vm.selectedCity.id },
+                        domProps: { value: _vm.selectedCity.name },
                         on: {
                           input: function($event) {
                             if ($event.target.composing) {
@@ -55443,7 +54973,7 @@ var render = function() {
                             }
                             _vm.$set(
                               _vm.selectedCity,
-                              "id",
+                              "name",
                               $event.target.value
                             )
                           }
@@ -55452,17 +54982,19 @@ var render = function() {
                     ])
                   ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "col-sm-4" }, [
+                  _c("div", { staticClass: "col-sm-5" }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-4 offset-sm-3" }, [
                     _c("div", { staticClass: "button-group" }, [
                       _c(
                         "button",
                         {
                           staticClass: "btn btn-primary",
-                          attrs: { disabled: _vm.disableSaveButton },
+                          attrs: { disabled: !_vm.isValid },
                           on: {
                             click: function($event) {
                               $event.preventDefault()
-                              return _vm.saveCities()
+                              return _vm.save()
                             }
                           }
                         },
@@ -55473,7 +55005,7 @@ var render = function() {
                         "button",
                         {
                           staticClass: "btn btn-primary",
-                          attrs: { disabled: _vm.disableResetButton },
+                          attrs: { disabled: !_vm.isValid },
                           on: {
                             click: function($event) {
                               $event.preventDefault()
@@ -55481,163 +55013,204 @@ var render = function() {
                             }
                           }
                         },
-                        [_vm._v("Reset")]
+                        [_vm._v("Cancel")]
                       )
                     ])
                   ])
                 ])
-              ]
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _c("loader", { attrs: { show: _vm.loading } }),
-        _vm._v(" "),
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "panel panel-info" }, [
-            _c("div", { staticClass: "panel-heading" }, [
-              _vm._v("Service Available City Info")
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "panel-body" }, [
-              _c("div", { attrs: { id: "scroll-cities" } }, [
-                _c(
-                  "table",
-                  { staticClass: "table table-striped table-hover" },
-                  [
-                    _c("thead", [
-                      _c("tr", [
-                        _c("th", [_vm._v("Sl. No.")]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v("Name\n                           "),
-                          _c(
-                            "span",
-                            {
-                              attrs: {
-                                type: "button",
-                                disabled: _vm.disableSorting
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.isSortingAvailableBy("name")
-                                }
-                              }
-                            },
-                            [
-                              _c("i", {
-                                staticClass: "fa fa-sort-amount-asc",
-                                attrs: { "aria-hidden": "true" }
-                              })
-                            ]
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [_vm._v("Code")]),
-                        _vm._v(" "),
-                        _c("th", [
-                          _vm._v(
-                            "Division                            \n                           "
-                          ),
-                          _c(
-                            "span",
-                            {
-                              attrs: {
-                                type: "button",
-                                disabled: !_vm.disableSorting
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.isSortingAvailableBy("division")
-                                }
-                              }
-                            },
-                            [
-                              _c("i", {
-                                staticClass: "fa fa-sort-amount-asc",
-                                attrs: { "aria-hidden": "true" }
-                              })
-                            ]
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("th", [_vm._v("Action")])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "tbody",
-                      _vm._l(_vm.busAvailableToCityList, function(city, index) {
-                        return _c("tr", [
-                          _c("td", [_vm._v(_vm._s(index + 1))]),
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c("loader", { attrs: { show: _vm.loading } }),
+          _vm._v(" "),
+          _c("div", { staticClass: "row justify-content-center" }, [
+            _c("div", { staticClass: "card card-info w-100" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _vm._v("Service Available City Info"),
+                _c("span", [
+                  _vm._v(" " + _vm._s(_vm.busAvailableToCityList.length) + " ")
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { attrs: { id: "scrollbar" } }, [
+                  _c(
+                    "table",
+                    { staticClass: "table table-striped table-hover" },
+                    [
+                      _c("thead", [
+                        _c("tr", [
+                          _c("th", [_vm._v("Sl. No.")]),
                           _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(city.name))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(city.code))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(city.division))]),
-                          _vm._v(" "),
-                          _c("td", [
+                          _c("th", [
+                            _vm._v("District ID\n                        "),
                             _c(
-                              "button",
+                              "span",
                               {
-                                staticClass: "btn btn-danger",
+                                attrs: {
+                                  type: "button",
+                                  disabled: !_vm.disableSorting
+                                },
                                 on: {
                                   click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.removeCity(city)
+                                    return _vm.isSortingAvailableBy("district")
                                   }
                                 }
                               },
                               [
-                                _c("i", { staticClass: "fa fa-trash fa-fw" }),
-                                _vm._v("Remove\n                          ")
+                                _c("i", {
+                                  staticClass: "fa fa-sort-amount-asc",
+                                  attrs: { "aria-hidden": "true" }
+                                })
                               ]
                             )
-                          ])
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [_vm._v("City ID")]),
+                          _vm._v(" "),
+                          _c("th", [
+                            _vm._v("City\n                           "),
+                            _c(
+                              "span",
+                              {
+                                attrs: {
+                                  type: "button",
+                                  disabled: _vm.disableSorting
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.isSortingAvailableBy("name")
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", {
+                                  staticClass: "fa fa-sort-amount-asc",
+                                  attrs: { "aria-hidden": "true" }
+                                })
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("th", [_vm._v("Action")])
                         ])
-                      }),
-                      0
-                    )
-                  ]
-                )
-              ])
-            ]),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "panel-footer" },
-              [
-                _c(
-                  "show-alert",
-                  {
-                    attrs: { show: _vm.showAlert, type: _vm.alertType },
-                    on: {
-                      "update:show": function($event) {
-                        _vm.showAlert = $event
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "tbody",
+                        _vm._l(_vm.busAvailableToCityList, function(
+                          city,
+                          index
+                        ) {
+                          return _c("tr", [
+                            _c("td", [_vm._v(_vm._s(index + 1))]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _c(
+                                "span",
+                                {
+                                  attrs: {
+                                    "data-toggle": "tooltip",
+                                    "data-placement": "top",
+                                    title: _vm.district.name
+                                  },
+                                  on: {
+                                    mouseover: function($event) {
+                                      return _vm.getNameOf(city)
+                                    }
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "high-light",
+                                    { attrs: { color: "#4eb3f3", value: "5" } },
+                                    [
+                                      _vm._v(
+                                        " " + _vm._s(city.district_id) + " "
+                                      )
+                                    ]
+                                  )
+                                ],
+                                1
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(city.id))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(city.name))]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-danger",
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.remove(city)
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("i", { staticClass: "fa fa-trash fa-fw" }),
+                                  _vm._v("Remove\n                          ")
+                                ]
+                              )
+                            ])
+                          ])
+                        }),
+                        0
+                      )
+                    ]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "card-footer" },
+                [
+                  _c(
+                    "show-alert",
+                    {
+                      attrs: { show: _vm.showAlert, type: _vm.alertType },
+                      on: {
+                        "update:show": function($event) {
+                          _vm.showAlert = $event
+                        }
                       }
-                    }
-                  },
-                  [
-                    _c("strong", [_vm._v(_vm._s(_vm.cityName) + " ")]),
-                    _vm._v(" has been \n            "),
-                    _c("strong", [
-                      _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
-                    ]),
-                    _vm._v(" successfully!\n          ")
-                  ]
-                )
-              ],
-              1
-            )
+                    },
+                    [
+                      _c("strong", [_vm._v(_vm._s(_vm.cityName) + " ")]),
+                      _vm._v(" has been \n              "),
+                      _c("strong", [
+                        _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
+                      ]),
+                      _vm._v(" successfully!\n            ")
+                    ]
+                  )
+                ],
+                1
+              )
+            ])
           ])
-        ])
-      ],
-      1
-    )
+        ],
+        1
+      )
+    ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-6" }, [
+      _c("h1", { staticClass: "m-0 text-dark" }, [_vm._v("City")])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -73281,9 +72854,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Route_vue_vue_type_template_id_0b5bea2a_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Route.vue?vue&type=template&id=0b5bea2a&scoped=true& */ "./resources/js/views/bus/Route.vue?vue&type=template&id=0b5bea2a&scoped=true&");
 /* harmony import */ var _Route_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Route.vue?vue&type=script&lang=js& */ "./resources/js/views/bus/Route.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& */ "./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -73291,7 +72862,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
   _Route_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _Route_vue_vue_type_template_id_0b5bea2a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _Route_vue_vue_type_template_id_0b5bea2a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -73320,22 +72891,6 @@ component.options.__file = "resources/js/views/bus/Route.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Route.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Route.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&":
-/*!****************************************************************************************************!*\
-  !*** ./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& ***!
-  \****************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/bus/Route.vue?vue&type=style&index=0&id=0b5bea2a&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Route_vue_vue_type_style_index_0_id_0b5bea2a_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
@@ -73542,9 +73097,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _City_vue_vue_type_template_id_24e0e240_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./City.vue?vue&type=template&id=24e0e240&scoped=true& */ "./resources/js/views/city/City.vue?vue&type=template&id=24e0e240&scoped=true&");
 /* harmony import */ var _City_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./City.vue?vue&type=script&lang=js& */ "./resources/js/views/city/City.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& */ "./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -73552,7 +73105,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
   _City_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _City_vue_vue_type_template_id_24e0e240_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _City_vue_vue_type_template_id_24e0e240_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -73581,22 +73134,6 @@ component.options.__file = "resources/js/views/city/City.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./City.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/city/City.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&":
-/*!****************************************************************************************************!*\
-  !*** ./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& ***!
-  \****************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/city/City.vue?vue&type=style&index=0&id=24e0e240&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_City_vue_vue_type_style_index_0_id_24e0e240_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 

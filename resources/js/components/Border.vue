@@ -25,7 +25,7 @@
                 borderStyle: 'dashed',
                 //border-color: lightblue,
                 padding: '35px 10px 15px',
-                margin: '25px auto 50px',
+                margin: '25px auto 35px',
                 position: 'relative',
               },   
 

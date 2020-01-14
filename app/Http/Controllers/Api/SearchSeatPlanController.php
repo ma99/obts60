@@ -9,7 +9,7 @@ use App\SeatPlan;
 
 class SearchSeatPlanController extends Controller
 {
-   public function seatPlanList()
+   public function index()
    {
         $error = ['error' => 'No results found'];
 

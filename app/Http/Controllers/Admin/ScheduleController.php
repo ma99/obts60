@@ -92,7 +92,7 @@ class ScheduleController extends Controller
     {
         return request()->validate([
            'departure_time' => 'required|unique:schedules',
-           'arrival_time' => 'required|after:departure_time',
+           'arrival_time' => 'after:departure_time',
         ]);
     }
 }
