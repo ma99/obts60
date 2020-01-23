@@ -23,10 +23,7 @@
     <section class="content">      
       <div class="container-fluid">
         <add-section :show.sync="show">
-          <template v-slot:heading>
-            <strong>Add Bus</strong>
-          </template>
-
+          <template v-slot:heading>Add Bus</template>
           <form> 
                 <border color="navy-blue" pattern="dashed" width="1" 
                   heading-background="#F2B705" heading-width="150" heading-show="true"
@@ -121,7 +118,7 @@
         </add-section>
         <loader :show="loading"></loader>
       
-        <div class="row justify-content-center view-available-info">
+        <div class="row justify-content-center">
           <div class="card card-info w-100">
             <div class="card-header">Bus Info <span> {{ availableBusList.length }} </span></div>
             <div class="card-body">
@@ -242,10 +239,10 @@
                         var aa = this.isRegNumberAvailableInBusList(this.availableBusList, this.bus.regNumber);
                         if (aa) {
                             if(this.editMode) {
-                              alert('Edit Mode Started..');
+                              this.swAlert('Edit Mode Started..', 'warning');                              
                               return;
                             }
-                            alert('Registration Number is already exist!');
+                            this.swAlert('Registration Number is already exist!', 'info');
                         }
                     },
                     'bus.seatPlanId'(val, oldVal) {
@@ -277,214 +274,231 @@
                           return $1.toUpperCase();
                       });
                   },                    
-                    save() {
-                        var vm = this;
-                        axios.post('/buses', {
-                            seat_plan_id: this.bus.seatPlanId,
-                            reg_no: this.bus.regNumber,
-                            number_plate: this.bus.numberPlate,
-                            type: this.bus.type,                
-                            //total_seats: this.bus.numberOfSeat,
-                            description: this.bus.description
-                        })          
-                        .then(function (response) {
-                            //console.log(response.data);
-                            response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                            vm.availableBusList.push({
-                              bus: vm.response,
-                              total_seats: vm.numberOfSeat
-                            });
-                            vm.loading = false;
-                            vm.actionStatus = 'Added';
-                            vm.reset();
-                            vm.alertType = 'success';
-                            vm.showAlert = true;
-                            //console.log(response.status);                            
-                        });
-                    },
-                    edit(bus) {
-                      this.busToedit.id = bus.bus.id;
-                      let busToedit = this.availableBusList.find(element => element.bus.id == bus.bus.id);
-                      this.busToedit.index = this.availableBusList.indexOf(busToedit);
-                      //console.log(this.availableBusList.indexOf(busToedit));
-                      this.bus.seatPlanId = busToedit.bus.seat_plan_id;
-                      this.bus.regNumber = busToedit.bus.reg_no;
-                      this.bus.numberPlate = busToedit.bus.number_plate;
-                      this.bus.type = busToedit.bus.type;
-                      this.bus.description = busToedit.bus.description;
-                      //this.bus = busToedit.bus;
-                      this.editMode = true;
-                      //this.show = true;
-                      this.formControl.backgroundColor = 'lightyellow';
-                      //console.log(busToedit);
-                    },
-                    update() {
+                  save() {
                       var vm = this;
-                        axios.patch('/buses/'+ this.busToedit.id, {
-                            seat_plan_id: this.bus.seatPlanId,
-                            reg_no: this.bus.regNumber,
-                            number_plate: this.bus.numberPlate,
-                            type: this.bus.type,                
-                            //total_seats: this.bus.numberOfSeat,
-                            description: this.bus.description
-                        })          
-                        .then(function (response) {
-                            //console.log(response.data);
-                            response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                            vm.updateAvailableBusList();
-                            vm.loading = false;
-                            vm.actionStatus = 'Updated';
-                            vm.reset();
-                            vm.alertType = 'success';
-                            vm.showAlert = true;
-                            //console.log(response.status);                            
-                        });
-                    },
-                    updateAvailableBusList() {
-                      let index = this.busToedit.index;
-                      this.availableBusList[index].bus.reg_no = this.bus.regNumber;
-                      this.availableBusList[index].bus.number_plate = this.bus.numberPlate;
-                      this.availableBusList[index].bus.type = this.bus.type;
-                      this.availableBusList[index].bus.description = this.bus.description;
-                      //this.availableBusList[index].bus = this.bus;
-                    },            
-                    enableScroll() {
-                      //initializes the plugin with empty options
-                      $('#scrollbar').overlayScrollbars({ /* your options */ 
-                        sizeAutoCapable: true,
-                        scrollbars: {
-                          autoHide: "never",
-                          clickScrolling: true
-                        }
-                      }); 
-                    },       
+                      axios.post('/buses', {
+                          seat_plan_id: this.bus.seatPlanId,
+                          reg_no: this.bus.regNumber,
+                          number_plate: this.bus.numberPlate,
+                          type: this.bus.type,                
+                          //total_seats: this.bus.numberOfSeat,
+                          description: this.bus.description
+                      })          
+                      .then(function (response) {
+                          //console.log(response.data);
+                          response.data.error ? vm.error = response.data.error : vm.response = response.data;
+                          vm.availableBusList.push({
+                            bus: vm.response,
+                            total_seats: vm.numberOfSeat
+                          });
+                          vm.loading = false;
+                          vm.actionStatus = 'Added';
+                          vm.reset();
+                          vm.alertType = 'success';
+                          vm.showAlert = true;
+                      });
+                  },
+                  edit(bus) {
+                    this.busToedit.id = bus.bus.id;
+                    let busToedit = this.availableBusList.find(element => element.bus.id == bus.bus.id);
+                    this.busToedit.index = this.availableBusList.indexOf(busToedit);
+                    //console.log(this.availableBusList.indexOf(busToedit));
+                    this.bus.seatPlanId = busToedit.bus.seat_plan_id;
+                    this.bus.regNumber = busToedit.bus.reg_no;
+                    this.bus.numberPlate = busToedit.bus.number_plate;
+                    this.bus.type = busToedit.bus.type;
+                    this.bus.description = busToedit.bus.description;
+                    //this.bus = busToedit.bus;
+                    this.editMode = true;
+                    //this.show = true;
+                    this.formControl.backgroundColor = 'lightyellow';
+                    //console.log(busToedit);
+                  },
+                  update() {
+                    var vm = this;
+                      axios.patch('/buses/'+ this.busToedit.id, {
+                          seat_plan_id: this.bus.seatPlanId,
+                          reg_no: this.bus.regNumber,
+                          number_plate: this.bus.numberPlate,
+                          type: this.bus.type,                
+                          //total_seats: this.bus.numberOfSeat,
+                          description: this.bus.description
+                      })          
+                      .then(function (response) {
+                          //console.log(response.data);
+                          response.data.error ? vm.error = response.data.error : vm.response = response.data;
+                          vm.updateAvailableBusList();
+                          vm.loading = false;
+                          vm.actionStatus = 'Updated';
+                          vm.reset();
+                          vm.alertType = 'success';
+                          vm.showAlert = true;
+                          //console.log(response.status);                            
+                      });
+                  },
+                  updateAvailableBusList() {
+                    let index = this.busToedit.index;
+                    // this.availableBusList[index].bus.reg_no = this.bus.regNumber;
+                    // this.availableBusList[index].bus.number_plate = this.bus.numberPlate;
+                    // this.availableBusList[index].bus.type = this.bus.type;
+                    // this.availableBusList[index].bus.description = this.bus.description;
 
-                    fetchAvailableBuses() {
-                        this.loading = true;
-                        this.availableBusList= [];            
-                        var vm = this;                
-                        axios.get('/api/buses')  //--> api/bus?q=xyz        (right)
-                            .then(function (response) {                  
-                               response.data.error ? vm.error = response.data.error : vm.availableBusList = response.data;
-                               vm.sortByBusId(vm.availableBusList);                       
-                               vm.loading = false;
-                        });
-                    },
+                    this.availableBusList[index].bus = {
+                      reg_no: this.bus.regNumber,
+                      number_plate: this.bus.numberPlate,
+                      type: this.bus.type,
+                      description: this.bus.description,
+                    };
+                  },            
+                  enableScroll() {
+                    //initializes the plugin with empty options
+                    $('#scrollbar').overlayScrollbars({ /* your options */ 
+                      sizeAutoCapable: true,
+                      scrollbars: {
+                        autoHide: "never",
+                        clickScrolling: true
+                      }
+                    }); 
+                  },       
 
-                    fetchAvailableSeatPlans() {
+                  fetchAvailableBuses() {
                       this.loading = true;
-                      this.availableSeatPlanList= [];            
+                      this.availableBusList= [];            
                       var vm = this;                
-                      axios.get('/api/seatplans')  //--> api/bus?q=xyz        (right)
+                      axios.get('/api/buses')  //--> api/bus?q=xyz        (right)
                           .then(function (response) {                  
-                             response.data.error ? vm.error = response.data.error : vm.availableSeatPlanList = response.data;
-                             vm.sortBySeatPlanId(vm.availableSeatPlanList);                       
+                             response.data.error ? vm.error = response.data.error : vm.availableBusList = response.data;
+                             vm.sortByBusId(vm.availableBusList);                       
                              vm.loading = false;
                       });
-                    },
-                    
-                    isRegNumberAvailableInBusList(arr, val){
-                        //var vm = this;
-                         return arr.some(function(bus) {
-                            return val === bus.bus.reg_no;
-                        });
-                    },
-                    sortByIdOf(val) {
-                        if (val== 'bus') { 
-                            this.sortByBusId(this.availableBusList);
-                            this.disableSorting = true;
-                            return ;
-                        }
-                        this.sortByRegNumber(this.availableBusList);
-                        this.disableSorting = false;
-                    },
-
-                    sortByBusId(arr) {
-                        arr.sort(function(a, b) {
-                              return a.bus.id - b.bus.id;
-                            });
-                    },
-
-                    sortByRegNumber(arr) {
-                        arr.sort(function(a, b) {
-                            var nameA = a.bus.reg_no; 
-                            var nameB = b.bus.reg_no; 
-                            if (nameA < nameB) {
-                              return -1;
-                            }
-                            if (nameA > nameB) {
-                              return 1;
-                            }
-                            // names must be equal
-                            return 0;
-                        });
-                    },
-                    sortBySeatPlanId(arr) {
-                        arr.sort(function(a, b) {
-                              return a.id - b.id;
-                        });
-                    },                    
-
-            remove(bus) { 
-                var vm = this;
-                swal({
-                  title: "Are you sure?",
-                  text: "This BUS will be Removed!",
-                  icon: "error",                 
-                  dangerMode: true,
-                  buttons: {
-                      cancel: "cancel",
-                      confirm: {
-                        text: "Remove It!",
-                        value: true,
-                      },                                
                   },
-                })
-                .then((value) => {
-                  if (value) {
 
-                    vm.loading = true;
-                    vm.response = '';
-                    vm.showAlert = false;
+                  fetchAvailableSeatPlans() {
+                    this.loading = true;
+                    this.availableSeatPlanList= [];            
+                    var vm = this;                
+                    axios.get('/api/seatplans')  //--> api/bus?q=xyz        (right)
+                        .then(function (response) {                  
+                           response.data.error ? vm.error = response.data.error : vm.availableSeatPlanList = response.data;
+                           vm.sortBySeatPlanId(vm.availableSeatPlanList);                       
+                           vm.loading = false;
+                    });
+                  },
+                  
+                  isRegNumberAvailableInBusList(arr, val){
+                      //var vm = this;
+                       return arr.some(function(bus) {
+                          return val === bus.bus.reg_no;
+                      });
+                  },
+                  sortByIdOf(val) {
+                      if (val== 'bus') { 
+                          this.sortByBusId(this.availableBusList);
+                          this.disableSorting = true;
+                          return ;
+                      }
+                      this.sortByRegNumber(this.availableBusList);
+                      this.disableSorting = false;
+                  },
 
-                    axios.delete('/buses/'+bus.id)
-                    .then(function (response) {               
-                        response.data.error ? vm.error = response.data.error : vm.response = response.data;
-                        if (vm.response) {               
-                            vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
-                            vm.loading = false;
-                            vm.actionStatus = 'Removed';
-                            vm.alertType = 'danger';
-                            vm.showAlert= true;
-                            return;                      
-                        }                            
-                        vm.loading = false;
-                    });                     
-                  }                   
-                }); 
-            },
-            removeBusFromAvailableBusList(busId) {
-                var indx = this.availableBusList.findIndex(function(bus){                 
-                     return bus.bus.id == busId;
-                });        
-                this.availableBusList.splice(indx, 1);
-                //return;
-            },
-            reset() {                       
-                this.isDisabled = false;
-                this.editMode = false;                        
-                this.bus.regNumber = '' ; 
-                this.bus.numberPlate = '';
-                this.bus.type = '';
-                this.bus.description = '';
-                //this.bus = '';
-                this.formControl.backgroundColor = '#fff';
-            }
+                  sortByBusId(arr) {
+                      arr.sort(function(a, b) {
+                            return a.bus.id - b.bus.id;
+                          });
+                  },
+
+                  sortByRegNumber(arr) {
+                      arr.sort(function(a, b) {
+                          var nameA = a.bus.reg_no; 
+                          var nameB = b.bus.reg_no; 
+                          if (nameA < nameB) {
+                            return -1;
+                          }
+                          if (nameA > nameB) {
+                            return 1;
+                          }
+                          // names must be equal
+                          return 0;
+                      });
+                  },
+                  sortBySeatPlanId(arr) {
+                      arr.sort(function(a, b) {
+                            return a.id - b.id;
+                      });
+                  },                    
+
+                  remove(bus) { 
+                      var vm = this;
+                      swal({
+                        title: "Are you sure?",
+                        text: "This BUS will be Removed!",
+                        icon: "error",                 
+                        dangerMode: true,
+                        buttons: {
+                            cancel: "cancel",
+                            confirm: {
+                              text: "Remove It!",
+                              value: true,
+                            },                                
+                        },
+                      })
+                      .then((value) => {
+                        if (value) {
+
+                          vm.loading = true;
+                          vm.response = '';
+                          vm.showAlert = false;
+
+                          axios.delete('/buses/'+bus.id)
+                          .then(function (response) {               
+                              response.data.error ? vm.error = response.data.error : vm.response = response.data;
+                              if (vm.response) {               
+                                  vm.removeBusFromAvailableBusList(bus.id); // update the array after removing
+                                  vm.loading = false;
+                                  vm.actionStatus = 'Removed';
+                                  vm.alertType = 'danger';
+                                  vm.showAlert= true;
+                                  return;                      
+                              }                            
+                              vm.loading = false;
+                          });                     
+                        }                   
+                      }); 
+                  },
+                  removeBusFromAvailableBusList(busId) {
+                      var indx = this.availableBusList.findIndex(function(bus){                 
+                           return bus.bus.id == busId;
+                      });        
+                      this.availableBusList.splice(indx, 1);
+                      //return;
+                  },
+                  reset() {                       
+                      this.isDisabled = false;
+                      this.editMode = false;                        
+                      // this.bus.regNumber = '' ; 
+                      // this.bus.numberPlate = '';
+                      // this.bus.type = '';
+                      // this.bus.description = '';
+                      //this.bus = '';
+                      this.bus = {
+                        regNumber:  '' , 
+                        numberPlate:  '',
+                        type:  '',
+                        description:  '',
+                      }
+                      this.formControl.backgroundColor = '#fff';
+                  },
+                  swAlert(text, icon) {
+                    swal({
+                      text: text, 
+                      icon: icon,
+                    });
+                  },
         }
     }
 </script>
 <style lang="scss" scoped>
   .view-button button {
     margin: 1.9rem auto; 
-  }     
+  }  
 </style>

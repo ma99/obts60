@@ -23,9 +23,7 @@
     <section class="content">
       <div class="container-fluid">
         <add-section :show.sync="show">
-          <template v-slot:heading>
-            <strong>Add Route</strong>
-          </template>
+          <template v-slot:heading>Add Route</template>
           <form>     
             <div class="row">
               <div class="col">

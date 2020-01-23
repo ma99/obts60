@@ -31,6 +31,20 @@ class Bus extends Model
     	return $this->belongsTo(SeatPlan::class);//->latest();
     }
 
+    public function type()
+    {
+        return $this->belongsTo(Type::class);
+    }
+
+    // public function typeBy($typeId)
+    // {
+    //     return $this->belongsTo(Type::class)
+    //                 ->where('id', $typeId)->first();
+
+    // }
+
+
+
     /*public function getBusesWithSeatPlan()
     {
         $buses = $this::with('seat_plan')->get();

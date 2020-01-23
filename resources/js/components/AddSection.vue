@@ -3,7 +3,7 @@
     <div class="card card-light w-100">
       <div class="card-header">
         <!-- <expand :show.sync="show"></expand> -->
-        <slot name="heading"></slot>        
+        <div class="heading"><slot name="heading"></slot></div>
         <p class="input-group-btn">
           <button class="btn btn-success" type="button" @click="expandOrNot()" v-show="!expand">
               <i class="fa fa-plus" aria-hidden="true"></i>
@@ -50,5 +50,12 @@
 div.card-header p {    
     float: right;
     margin: 0;    
-  }  
+}  
+div.heading {
+  margin-top: 5px; 
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  color: gray;
+  display: inline-block;
+}
 </style>

@@ -56,12 +56,14 @@ class SearchTicketController extends Controller
 				 			$availableSeats = $bus->seat_plan->total_seats;
 				 		}
 
-				 		$fare = $arrival_city->cityFareBy($route)->getFareByBus($bus->type); 
+				 		//$fare = $arrival_city->cityFareBy($route)->getFareByBus($bus->type); 
+				 		$type = $bus->type;
+				 		$fare = $arrival_city->cityFareBy($route)->getFareByBus($type['key']); 
 
 				        $buses[] = [
 				        	//'route_id'	=> $route->id,
 							'bus_id' => $bus->id,
-							'bus_type' => $bus->type,
+							'bus_type' => $type->name,
 							'fare' => $fare,
 							'available_seats' => $availableSeats,
 							'schedule_id' => $schedule->id,

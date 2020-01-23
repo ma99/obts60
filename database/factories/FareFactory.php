@@ -11,8 +11,14 @@ $factory->define(Fare::class, function (Faker $faker) {
     	'city_id' => factory('App\City'),
     	'details' => json_encode([
 		    'ac' => $faker->numerify('8##'),
-		    'non-ac' => $faker->numerify('5##'),
-		    'deluxe' =>$faker->numerify('9##') 
+		    //'non-ac' => $faker->numerify('5##'),
+		    'nonac' => $faker->numerify('5##'),
+		    'economyac' => $faker->numerify('6##'),
+		    'businessac' =>$faker->numerify('9##'),
+		    'ac|deluxe' => [
+	    					'ac' => $faker->numerify('85#'),
+	    					'deluxe' => $faker->numerify('12##'),
+		    			    ],
     	])
     ];
 });

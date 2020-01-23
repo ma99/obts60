@@ -16,9 +16,10 @@ class CreateBusesTable extends Migration
         Schema::create('buses', function (Blueprint $table) {
             $table->bigIncrements('id');            
             $table->unsignedBigInteger('seat_plan_id');            
+            $table->unsignedBigInteger('type_id');            
             $table->string('reg_no');
             $table->string('number_plate');
-            $table->enum('type', ['ac', 'ac-deluxe', 'deluxe', 'non-ac']);
+            //$table->enum('type', ['ac', 'ac-deluxe', 'deluxe', 'non-ac']);
             $table->text('description')->nullable();           
             $table->timestamps();
 

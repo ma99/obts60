@@ -7,11 +7,11 @@
       <div class="card-body">                
         <div class="seat-layout">                
           <div class="row driver-seat">                      
-            <button :disabled="true">Driver Seat</button>                      
+            <button class="btn btn-outline-secondary" :disabled="true">Driver</button>                      
           </div>
           <div class="row">
             <button
-              class="col-xs-2"
+              class="btn btn-outline-primary col-xs-2"
               v-bind:class="{
                 empty: seat.status=='n/a'? true : false,                                    
                 'col-xs-offset-2': emptySpace(index, seat.no) }"
@@ -117,12 +117,12 @@
     #app .seat-layout {
         padding-left: 50px;
         button {               
-          height: 50px;
+          height: 34px; //50px;
           margin: 10px 10px 0 0;
         }   
     }
     #app button.col-xs-2 {
-        width: 16.76666667%;
+        width: 14.66666667%; //16.76666667%;
     }
     #app button.col-xs-offset-2 {
         margin-left: 17.666667%;

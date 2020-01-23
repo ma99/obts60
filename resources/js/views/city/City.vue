@@ -24,7 +24,7 @@
       <div class="container-fluid">
         <add-section :show.sync="show">
           <template v-slot:heading>
-            <strong>Add City</strong>
+            Add City
           </template>
 
           <form> 

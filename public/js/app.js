@@ -3913,9 +3913,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   // mounted() {
   //     console.log('Component mounted.')
@@ -3975,11 +3972,11 @@ __webpack_require__.r(__webpack_exports__);
 
       if (aa) {
         if (this.editMode) {
-          alert('Edit Mode Started..');
+          this.swAlert('Edit Mode Started..', 'warning');
           return;
         }
 
-        alert('Registration Number is already exist!');
+        this.swAlert('Registration Number is already exist!', 'info');
       }
     },
     'bus.seatPlanId': function busSeatPlanId(val, oldVal) {
@@ -4033,7 +4030,7 @@ __webpack_require__.r(__webpack_exports__);
         vm.actionStatus = 'Added';
         vm.reset();
         vm.alertType = 'success';
-        vm.showAlert = true; //console.log(response.status);                            
+        vm.showAlert = true;
       });
     },
     edit: function edit(bus) {
@@ -4074,11 +4071,17 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     updateAvailableBusList: function updateAvailableBusList() {
-      var index = this.busToedit.index;
-      this.availableBusList[index].bus.reg_no = this.bus.regNumber;
-      this.availableBusList[index].bus.number_plate = this.bus.numberPlate;
-      this.availableBusList[index].bus.type = this.bus.type;
-      this.availableBusList[index].bus.description = this.bus.description; //this.availableBusList[index].bus = this.bus;
+      var index = this.busToedit.index; // this.availableBusList[index].bus.reg_no = this.bus.regNumber;
+      // this.availableBusList[index].bus.number_plate = this.bus.numberPlate;
+      // this.availableBusList[index].bus.type = this.bus.type;
+      // this.availableBusList[index].bus.description = this.bus.description;
+
+      this.availableBusList[index].bus = {
+        reg_no: this.bus.regNumber,
+        number_plate: this.bus.numberPlate,
+        type: this.bus.type,
+        description: this.bus.description
+      };
     },
     enableScroll: function enableScroll() {
       //initializes the plugin with empty options
@@ -4201,13 +4204,25 @@ __webpack_require__.r(__webpack_exports__);
     },
     reset: function reset() {
       this.isDisabled = false;
-      this.editMode = false;
-      this.bus.regNumber = '';
-      this.bus.numberPlate = '';
-      this.bus.type = '';
-      this.bus.description = ''; //this.bus = '';
+      this.editMode = false; // this.bus.regNumber = '' ; 
+      // this.bus.numberPlate = '';
+      // this.bus.type = '';
+      // this.bus.description = '';
+      //this.bus = '';
 
+      this.bus = {
+        regNumber: '',
+        numberPlate: '',
+        type: '',
+        description: ''
+      };
       this.formControl.backgroundColor = '#fff';
+    },
+    swAlert: function swAlert(text, icon) {
+      swal({
+        text: text,
+        icon: icon
+      });
     }
   }
 });
@@ -4271,8 +4286,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
 //
 //
 //
@@ -5383,18 +5396,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  // mounted() {
-  //     console.log('Component mounted.')
-  // }
   data: function data() {
     return {
       actionStatus: '',
       disableSorting: true,
       alertType: '',
       availableSeatPlanList: [],
-      disableShowButton: false,
+      combineType: false,
       disableSaveButton: true,
+      disableShowButton: false,
       error: '',
       numberOfCol: 4,
       numberOfRow: 4,
@@ -5441,7 +5464,12 @@ __webpack_require__.r(__webpack_exports__);
       if (!this.modal) {
         this.selectedSeatPlan = [];
       }
-    }
+
+      this.disableShowButton = true;
+    } // status(newVal) {
+    //   console.log('mmm');
+    // }                    
+
   },
   computed: {
     isValidForShow: function isValidForShow() {
@@ -5449,7 +5477,10 @@ __webpack_require__.r(__webpack_exports__);
     },
     isValidForSave: function isValidForSave() {
       return this.numberOfRow != '' && this.disableSaveButton != true;
-    }
+    } // status() {                      
+    //   return this.seatList.map(seat => seat.status)  //working
+    // },            
+
   },
   methods: {
     dateCreated: function dateCreated(dateString) {
@@ -5468,14 +5499,13 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     totalSeatsCount: function totalSeatsCount(arrayName) {
-      var count = 0; //this.selectedSeatPlan.forEach(function(seat) {
-
+      var count = 0;
       arrayName.forEach(function (seat) {
         if (seat.status === 'available') {
           count++;
         }
-      });
-      console.log(count);
+      }); //console.log(count);
+
       this.totalSeats = count;
     },
     hideAlert: function hideAlert() {
@@ -5548,7 +5578,8 @@ __webpack_require__.r(__webpack_exports__);
           this.seatList.push({
             no: seatNo,
             status: 'available',
-            checked: true
+            checked: true,
+            special: false
           });
         }
       } // for 5th column                         
@@ -5560,7 +5591,8 @@ __webpack_require__.r(__webpack_exports__);
       this.seatList.push({
         no: seatNo,
         status: 'available',
-        checked: true
+        checked: true,
+        special: false
       });
       this.seatListCloned = this.cloneSeatList();
       this.isDisabled = true;
@@ -5626,8 +5658,9 @@ __webpack_require__.r(__webpack_exports__);
     reset: function reset() {
       this.seatList = [];
       this.numberOfRow = '';
-      this.isDisabled = false;
-      this.disableShowButton = false;
+      this.isDisabled = false; //this.disableSaveButton = true;
+
+      this.disableShowButton = true;
       this.seatListLength = '';
       this.showSeatPlan = false;
     },
@@ -5654,6 +5687,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (seat.checked) {
         seat.status = 'available';
+        this.c;
         this.updateSeatList(seat, 'available');
         return;
       }
@@ -5745,6 +5779,7 @@ __webpack_require__.r(__webpack_exports__);
       return JSON.parse(JSON.stringify(this.seatList));
     },
     view: function view(seatplan) {
+      this.showSeatPlan = false;
       this.selectedSeatPlan = seatplan.seat_list;
       this.setRowNumber();
       this.createIndexList();
@@ -11436,7 +11471,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "div.card-header p[data-v-5a293ca2] {\n  float: right;\n  margin: 0;\n}", ""]);
+exports.push([module.i, "div.card-header p[data-v-5a293ca2] {\n  float: right;\n  margin: 0;\n}\ndiv.heading[data-v-5a293ca2] {\n  margin-top: 5px;\n  font-size: 1.2rem;\n  letter-spacing: 1px;\n  color: gray;\n  display: inline-block;\n}", ""]);
 
 // exports
 
@@ -11550,7 +11585,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "#app .seat-layout[data-v-0914aaba] {\n  padding-left: 50px;\n}\n#app .seat-layout button[data-v-0914aaba] {\n  height: 50px;\n  margin: 10px 10px 0 0;\n}\n#app button.col-xs-2[data-v-0914aaba] {\n  width: 16.76666667%;\n}\n#app button.col-xs-offset-2[data-v-0914aaba] {\n  margin-left: 17.666667%;\n}\ndiv.row.driver-seat[data-v-0914aaba] {\n  height: 4rem;\n  position: relative;\n}\ndiv.row.driver-seat > button[data-v-0914aaba] {\n  position: absolute;\n  top: 0;\n  right: 10%;\n}\n.empty[data-v-0914aaba] {\n  background-color: white;\n  border-width: 0;\n  color: white;\n}", ""]);
+exports.push([module.i, "#app .seat-layout[data-v-0914aaba] {\n  padding-left: 50px;\n}\n#app .seat-layout button[data-v-0914aaba] {\n  height: 34px;\n  margin: 10px 10px 0 0;\n}\n#app button.col-xs-2[data-v-0914aaba] {\n  width: 14.66666667%;\n}\n#app button.col-xs-offset-2[data-v-0914aaba] {\n  margin-left: 17.666667%;\n}\ndiv.row.driver-seat[data-v-0914aaba] {\n  height: 4rem;\n  position: relative;\n}\ndiv.row.driver-seat > button[data-v-0914aaba] {\n  position: absolute;\n  top: 0;\n  right: 10%;\n}\n.empty[data-v-0914aaba] {\n  background-color: white;\n  border-width: 0;\n  color: white;\n}", ""]);
 
 // exports
 
@@ -11626,7 +11661,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".seat-layout .active[data-v-5864679c] {\n  background-color: #f4e542;\n  position: relative;\n}\n.inactive[data-v-5864679c] {\n  background-color: #c4c0c0;\n}\n.tickmark[data-v-5864679c] {\n  /*background-color: green;*/\n  color: green;\n  /*padding: 5px;*/\n}\n.crossmark[data-v-5864679c] {\n  /*background-color: red;*/\n  /*padding: 5px;*/\n  color: red;\n}\n\n/*#app button {               \n    height: 50px;\n    margin: 10px 10px 0 0;\n}*/\n.seat-layout button[data-v-5864679c] {\n  height: 50px;\n  margin: 10px 10px 0 0;\n}\n#app button.col-xs-2[data-v-5864679c] {\n  width: 16.76666667%;\n}\n#app button.col-xs-offset-2[data-v-5864679c] {\n  margin-left: 17.666667%;\n}\n#app .seat-layout[data-v-5864679c] {\n  padding-left: 50px;\n}\n#app .button-group[data-v-5864679c] {\n  margin: 1.9rem auto;\n}\ndiv.row.driver-seat[data-v-5864679c] {\n  height: 4rem;\n  position: relative;\n}\ndiv.row.driver-seat > button[data-v-5864679c] {\n  position: absolute;\n  top: 0;\n  right: 10%;\n}\n.empty[data-v-5864679c] {\n  background-color: white;\n  border-width: 0;\n  color: white;\n}", ""]);
+exports.push([module.i, "#design .active[data-v-5864679c] {\n  background: #f4e542;\n}\n#design .special[data-v-5864679c] {\n  background: #ffc107;\n}\n.inactive[data-v-5864679c] {\n  background-color: #c4c0c0;\n}\n.tickmark[data-v-5864679c] {\n  /*background-color: green;*/\n  color: green;\n  /*padding: 5px;*/\n}\n.crossmark[data-v-5864679c] {\n  /*background-color: red;*/\n  /*padding: 5px;*/\n  color: red;\n}\n\n/*#app button {               \n    height: 50px;\n    margin: 10px 10px 0 0;\n}*/\n#design button[data-v-5864679c] {\n  padding: 0 10px;\n}\n#app .col-xs-2[data-v-5864679c] {\n  width: 16.76666667%;\n}\n#app .col-xs-offset-2[data-v-5864679c] {\n  margin-left: 17.666667%;\n}\n#app .button-group[data-v-5864679c] {\n  margin: 1.9rem auto;\n}\n.seat-layout-design[data-v-5864679c], .seat-layout-display[data-v-5864679c] {\n  padding: 0 0 0.6rem 11%;\n}\n.seat-layout-design button[data-v-5864679c], .seat-layout-display button[data-v-5864679c] {\n  height: 50px;\n  margin: 10px 10px 0 0;\n}\n.seat-layout-design div.row.driver-seat[data-v-5864679c], .seat-layout-display div.row.driver-seat[data-v-5864679c] {\n  height: 4rem;\n  position: relative;\n}\n.seat-layout-design div.row.driver-seat > button[data-v-5864679c], .seat-layout-display div.row.driver-seat > button[data-v-5864679c] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  margin: 10px 0;\n  width: 65px;\n  font-weight: 600;\n}\n.seat-layout-design div.row.driver-seat[data-v-5864679c] {\n  width: 82%;\n}\n.seat-layout-design div.row.driver-seat > button[data-v-5864679c] {\n  background: #bdf1b2b8;\n}\n.seat-layout-display div.row.driver-seat[data-v-5864679c] {\n  width: 100%;\n}\n.empty[data-v-5864679c] {\n  background-color: white;\n  border-width: 0;\n  color: white;\n}", ""]);
 
 // exports
 
@@ -50174,70 +50209,65 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "row" }, [
     _c("div", { staticClass: "card card-light w-100" }, [
-      _c(
-        "div",
-        { staticClass: "card-header" },
-        [
-          _vm._t("heading"),
+      _c("div", { staticClass: "card-header" }, [
+        _c("div", { staticClass: "heading" }, [_vm._t("heading")], 2),
+        _vm._v(" "),
+        _c("p", { staticClass: "input-group-btn" }, [
+          _c(
+            "button",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: !_vm.expand,
+                  expression: "!expand"
+                }
+              ],
+              staticClass: "btn btn-success",
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  return _vm.expandOrNot()
+                }
+              }
+            },
+            [
+              _c("i", {
+                staticClass: "fa fa-plus",
+                attrs: { "aria-hidden": "true" }
+              })
+            ]
+          ),
           _vm._v(" "),
-          _c("p", { staticClass: "input-group-btn" }, [
-            _c(
-              "button",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: !_vm.expand,
-                    expression: "!expand"
-                  }
-                ],
-                staticClass: "btn btn-success",
-                attrs: { type: "button" },
-                on: {
-                  click: function($event) {
-                    return _vm.expandOrNot()
-                  }
+          _c(
+            "button",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: _vm.expand,
+                  expression: "expand"
                 }
-              },
-              [
-                _c("i", {
-                  staticClass: "fa fa-plus",
-                  attrs: { "aria-hidden": "true" }
-                })
-              ]
-            ),
-            _vm._v(" "),
-            _c(
-              "button",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: _vm.expand,
-                    expression: "expand"
-                  }
-                ],
-                staticClass: "btn btn-warning",
-                attrs: { type: "button" },
-                on: {
-                  click: function($event) {
-                    return _vm.expandOrNot()
-                  }
+              ],
+              staticClass: "btn btn-warning",
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  return _vm.expandOrNot()
                 }
-              },
-              [
-                _c("i", {
-                  staticClass: "fa fa-minus",
-                  attrs: { "aria-hidden": "true" }
-                })
-              ]
-            )
-          ])
-        ],
-        2
-      ),
+              }
+            },
+            [
+              _c("i", {
+                staticClass: "fa fa-minus",
+                attrs: { "aria-hidden": "true" }
+              })
+            ]
+          )
+        ])
+      ]),
       _vm._v(" "),
       _c(
         "div",
@@ -50655,7 +50685,14 @@ var render = function() {
       _c("div", { staticClass: "card-body" }, [
         _c("div", { staticClass: "seat-layout" }, [
           _c("div", { staticClass: "row driver-seat" }, [
-            _c("button", { attrs: { disabled: true } }, [_vm._v("Driver Seat")])
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-outline-secondary",
+                attrs: { disabled: true }
+              },
+              [_vm._v("Driver")]
+            )
           ]),
           _vm._v(" "),
           _c(
@@ -50665,7 +50702,7 @@ var render = function() {
               return _c(
                 "button",
                 {
-                  staticClass: "col-xs-2",
+                  staticClass: "btn btn-outline-primary col-xs-2",
                   class: {
                     empty: seat.status == "n/a" ? true : false,
                     "col-xs-offset-2": _vm.emptySpace(index, seat.no)
@@ -51666,7 +51703,7 @@ var render = function() {
                   {
                     key: "heading",
                     fn: function() {
-                      return [_c("strong", [_vm._v("Add Bus")])]
+                      return [_vm._v("Add Bus")]
                     },
                     proxy: true
                   },
@@ -52174,206 +52211,196 @@ var render = function() {
             _vm._v(" "),
             _c("loader", { attrs: { show: _vm.loading } }),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "row justify-content-center view-available-info" },
-              [
-                _c("div", { staticClass: "card card-info w-100" }, [
-                  _c("div", { staticClass: "card-header" }, [
-                    _vm._v("Bus Info "),
-                    _c("span", [
-                      _vm._v(" " + _vm._s(_vm.availableBusList.length) + " ")
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "card-body" }, [
-                    _c("div", { attrs: { id: "scrollbar" } }, [
-                      _c(
-                        "table",
-                        { staticClass: "table table-striped table-hover" },
-                        [
-                          _c("thead", [
-                            _c("tr", [
-                              _c("th", [_vm._v("Sl. No.")]),
-                              _vm._v(" "),
-                              _c("th", [
-                                _vm._v("Bus ID\n                            "),
-                                _c(
-                                  "span",
-                                  {
-                                    attrs: {
-                                      type: "button",
-                                      disabled: _vm.disableSorting
-                                    },
-                                    on: {
-                                      click: function($event) {
-                                        return _vm.sortByIdOf("bus")
-                                      }
-                                    }
+            _c("div", { staticClass: "row justify-content-center" }, [
+              _c("div", { staticClass: "card card-info w-100" }, [
+                _c("div", { staticClass: "card-header" }, [
+                  _vm._v("Bus Info "),
+                  _c("span", [
+                    _vm._v(" " + _vm._s(_vm.availableBusList.length) + " ")
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "card-body" }, [
+                  _c("div", { attrs: { id: "scrollbar" } }, [
+                    _c(
+                      "table",
+                      { staticClass: "table table-striped table-hover" },
+                      [
+                        _c("thead", [
+                          _c("tr", [
+                            _c("th", [_vm._v("Sl. No.")]),
+                            _vm._v(" "),
+                            _c("th", [
+                              _vm._v("Bus ID\n                            "),
+                              _c(
+                                "span",
+                                {
+                                  attrs: {
+                                    type: "button",
+                                    disabled: _vm.disableSorting
                                   },
-                                  [
-                                    _c("i", {
-                                      staticClass: "fa fa-sort-amount-asc",
-                                      attrs: { "aria-hidden": "true" }
-                                    })
-                                  ]
-                                )
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.sortByIdOf("bus")
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("i", {
+                                    staticClass: "fa fa-sort-amount-asc",
+                                    attrs: { "aria-hidden": "true" }
+                                  })
+                                ]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("th", [
+                              _vm._v(
+                                "Reg. Number\n                            "
+                              ),
+                              _c(
+                                "span",
+                                {
+                                  attrs: {
+                                    type: "button",
+                                    disabled: !_vm.disableSorting
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.sortByIdOf("registration")
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("i", {
+                                    staticClass: "fa fa-sort-amount-asc",
+                                    attrs: { "aria-hidden": "true" }
+                                  })
+                                ]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Number Plate")]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Type")]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Total Seats")]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Seat Plan ID")]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Descriptin")]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("Action")])
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "tbody",
+                          _vm._l(_vm.availableBusList, function(bus, index) {
+                            return _c("tr", [
+                              _c("td", [_vm._v(_vm._s(index + 1))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(bus.bus.id))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(bus.bus.reg_no))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(bus.bus.number_plate))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(_vm.ucwords(bus.bus.type)))
                               ]),
                               _vm._v(" "),
-                              _c("th", [
-                                _vm._v(
-                                  "Reg. Number\n                            "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    attrs: {
-                                      type: "button",
-                                      disabled: !_vm.disableSorting
-                                    },
-                                    on: {
-                                      click: function($event) {
-                                        return _vm.sortByIdOf("registration")
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _c("i", {
-                                      staticClass: "fa fa-sort-amount-asc",
-                                      attrs: { "aria-hidden": "true" }
-                                    })
-                                  ]
-                                )
+                              _c("td", [
+                                _c("strong", [_vm._v(_vm._s(bus.total_seats))])
                               ]),
                               _vm._v(" "),
-                              _c("th", [_vm._v("Number Plate")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Type")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Total Seats")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Seat Plan ID")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Descriptin")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Action")])
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c(
-                            "tbody",
-                            _vm._l(_vm.availableBusList, function(bus, index) {
-                              return _c("tr", [
-                                _c("td", [_vm._v(_vm._s(index + 1))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(bus.bus.id))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(bus.bus.reg_no))]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(_vm._s(bus.bus.number_plate))
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(_vm._s(_vm.ucwords(bus.bus.type)))
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _c("strong", [
-                                    _vm._v(_vm._s(bus.total_seats))
-                                  ])
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _c("strong", [
-                                    _vm._v(_vm._s(bus.bus.seat_plan_id))
-                                  ])
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(bus.bus.description))]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-primary",
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.edit(bus)
-                                        }
-                                      }
-                                    },
-                                    [
-                                      _c("i", {
-                                        staticClass: "fa fa-edit fa-fw"
-                                      }),
-                                      _vm._v(
-                                        "Edit\n                            "
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-danger",
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.remove(bus.bus)
-                                        }
-                                      }
-                                    },
-                                    [
-                                      _c("i", {
-                                        staticClass: "fa fa-trash fa-fw"
-                                      }),
-                                      _vm._v(
-                                        "Remove\n                            "
-                                      )
-                                    ]
-                                  )
+                              _c("td", [
+                                _c("strong", [
+                                  _vm._v(_vm._s(bus.bus.seat_plan_id))
                                 ])
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(bus.bus.description))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-primary",
+                                    on: {
+                                      click: function($event) {
+                                        $event.preventDefault()
+                                        return _vm.edit(bus)
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", {
+                                      staticClass: "fa fa-edit fa-fw"
+                                    }),
+                                    _vm._v("Edit\n                            ")
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-danger",
+                                    on: {
+                                      click: function($event) {
+                                        $event.preventDefault()
+                                        return _vm.remove(bus.bus)
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", {
+                                      staticClass: "fa fa-trash fa-fw"
+                                    }),
+                                    _vm._v(
+                                      "Remove\n                            "
+                                    )
+                                  ]
+                                )
                               ])
-                            }),
-                            0
-                          )
-                        ]
-                      )
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "card-footer" },
-                    [
-                      _c(
-                        "show-alert",
-                        {
-                          attrs: { show: _vm.showAlert, type: _vm.alertType },
-                          on: {
-                            "update:show": function($event) {
-                              _vm.showAlert = $event
-                            }
+                            ])
+                          }),
+                          0
+                        )
+                      ]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "card-footer" },
+                  [
+                    _c(
+                      "show-alert",
+                      {
+                        attrs: { show: _vm.showAlert, type: _vm.alertType },
+                        on: {
+                          "update:show": function($event) {
+                            _vm.showAlert = $event
                           }
-                        },
-                        [
-                          _vm._v(
-                            "             \n             Bus\n              "
-                          ),
-                          _c("strong", [
-                            _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
-                          ]),
-                          _vm._v(" successfully!\n            ")
-                        ]
-                      )
-                    ],
-                    1
-                  )
-                ])
-              ]
-            )
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "             \n             Bus\n              "
+                        ),
+                        _c("strong", [
+                          _vm._v(" " + _vm._s(_vm.actionStatus) + " ")
+                        ]),
+                        _vm._v(" successfully!\n            ")
+                      ]
+                    )
+                  ],
+                  1
+                )
+              ])
+            ])
           ],
           1
         ),
@@ -52542,7 +52569,7 @@ var render = function() {
                 {
                   key: "heading",
                   fn: function() {
-                    return [_c("strong", [_vm._v("Add Route")])]
+                    return [_vm._v("Add Route")]
                   },
                   proxy: true
                 },
@@ -54144,7 +54171,7 @@ var render = function() {
                   {
                     key: "heading",
                     fn: function() {
-                      return [_c("strong", [_vm._v("Add Seat Plan")])]
+                      return [_vm._v("Add Seat Plan")]
                     },
                     proxy: true
                   },
@@ -54290,7 +54317,7 @@ var render = function() {
                             "button",
                             {
                               staticClass: "btn btn-primary",
-                              attrs: { disabled: !_vm.isValidForSave },
+                              attrs: { disabled: !_vm.showSeatPlan },
                               on: {
                                 click: function($event) {
                                   $event.preventDefault()
@@ -54331,65 +54358,192 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "card-body" }, [
-                    _c("div", { staticClass: "seat-layout" }, [
+                    _c("div", { staticClass: "seat-layout-design" }, [
+                      _c("div", { staticClass: "row" }, [
+                        _c("div", { staticClass: "combine" }, [
+                          _c("div", { staticClass: "form-check" }, [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.combineType,
+                                  expression: "combineType"
+                                }
+                              ],
+                              staticClass: "form-check-input",
+                              attrs: { type: "checkbox", id: "defaultCheck1" },
+                              domProps: {
+                                checked: Array.isArray(_vm.combineType)
+                                  ? _vm._i(_vm.combineType, null) > -1
+                                  : _vm.combineType
+                              },
+                              on: {
+                                change: function($event) {
+                                  var $$a = _vm.combineType,
+                                    $$el = $event.target,
+                                    $$c = $$el.checked ? true : false
+                                  if (Array.isArray($$a)) {
+                                    var $$v = null,
+                                      $$i = _vm._i($$a, $$v)
+                                    if ($$el.checked) {
+                                      $$i < 0 &&
+                                        (_vm.combineType = $$a.concat([$$v]))
+                                    } else {
+                                      $$i > -1 &&
+                                        (_vm.combineType = $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1)))
+                                    }
+                                  } else {
+                                    _vm.combineType = $$c
+                                  }
+                                }
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c(
+                              "label",
+                              {
+                                staticClass: "form-check-label",
+                                attrs: { for: "defaultCheck1" }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                      Combined Type Seat Plan\n                    "
+                                )
+                              ]
+                            )
+                          ])
+                        ])
+                      ]),
+                      _vm._v(" "),
                       _c("div", { staticClass: "row driver-seat" }, [
                         _c("button", { attrs: { disabled: true } }, [
-                          _vm._v("Driver Seat")
+                          _vm._v("Driver")
                         ])
                       ]),
                       _vm._v(" "),
                       _c(
                         "div",
-                        { staticClass: "row" },
+                        { staticClass: "row", attrs: { id: "design" } },
                         _vm._l(_vm.seatList, function(seat, index) {
                           return _c(
-                            "button",
+                            "div",
                             {
                               staticClass: "col-xs-2",
                               class: {
-                                active: seat.checked,
-                                inactive: !seat.checked,
                                 "col-xs-offset-2": _vm.emptySpace(
                                   index,
                                   seat.no
                                 )
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.toggle(seat)
-                                }
                               }
                             },
                             [
-                              _c("i", {
+                              _c("input", {
                                 directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: seat.special,
+                                    expression: "seat.special"
+                                  },
                                   {
                                     name: "show",
                                     rawName: "v-show",
-                                    value: seat.checked,
-                                    expression: "seat.checked"
+                                    value: _vm.combineType,
+                                    expression: "combineType"
                                   }
                                 ],
-                                staticClass: "fa fa-check fa-lg tickmark"
-                              }),
-                              _vm._v(" "),
-                              _c("i", {
-                                directives: [
-                                  {
-                                    name: "show",
-                                    rawName: "v-show",
-                                    value: !seat.checked,
-                                    expression: "!seat.checked"
+                                attrs: {
+                                  type: "checkbox",
+                                  id: "checkbox-" + index,
+                                  disabled: seat.status != "available"
+                                },
+                                domProps: {
+                                  checked: Array.isArray(seat.special)
+                                    ? _vm._i(seat.special, null) > -1
+                                    : seat.special
+                                },
+                                on: {
+                                  change: function($event) {
+                                    var $$a = seat.special,
+                                      $$el = $event.target,
+                                      $$c = $$el.checked ? true : false
+                                    if (Array.isArray($$a)) {
+                                      var $$v = null,
+                                        $$i = _vm._i($$a, $$v)
+                                      if ($$el.checked) {
+                                        $$i < 0 &&
+                                          _vm.$set(
+                                            seat,
+                                            "special",
+                                            $$a.concat([$$v])
+                                          )
+                                      } else {
+                                        $$i > -1 &&
+                                          _vm.$set(
+                                            seat,
+                                            "special",
+                                            $$a
+                                              .slice(0, $$i)
+                                              .concat($$a.slice($$i + 1))
+                                          )
+                                      }
+                                    } else {
+                                      _vm.$set(seat, "special", $$c)
+                                    }
                                   }
-                                ],
-                                staticClass: "fa fa-times fa-lg crossmark",
-                                attrs: { "aria-hidden": "true" }
+                                }
                               }),
                               _vm._v(" "),
-                              _vm._v(
-                                "\n                    " +
-                                  _vm._s(seat.no) +
-                                  "\n                    \n                "
+                              _c(
+                                "button",
+                                {
+                                  class: {
+                                    active: seat.checked,
+                                    inactive: !seat.checked,
+                                    special: seat.special
+                                    // 'col-xs-offset-2': emptySpace(index, seat.no)
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.toggle(seat)
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("i", {
+                                    directives: [
+                                      {
+                                        name: "show",
+                                        rawName: "v-show",
+                                        value: seat.checked,
+                                        expression: "seat.checked"
+                                      }
+                                    ],
+                                    staticClass: "fa fa-check fa-lg tickmark"
+                                  }),
+                                  _vm._v(" "),
+                                  _c("i", {
+                                    directives: [
+                                      {
+                                        name: "show",
+                                        rawName: "v-show",
+                                        value: !seat.checked,
+                                        expression: "!seat.checked"
+                                      }
+                                    ],
+                                    staticClass: "fa fa-times fa-lg crossmark",
+                                    attrs: { "aria-hidden": "true" }
+                                  }),
+                                  _vm._v(" "),
+                                  _vm._v(
+                                    "\n                      " +
+                                      _vm._s(seat.no) +
+                                      "                                            \n                  "
+                                  )
+                                ]
                               )
                             ]
                           )
@@ -54613,10 +54767,10 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "card-body" }, [
-                  _c("div", { staticClass: "seat-layout" }, [
+                  _c("div", { staticClass: "seat-layout-display" }, [
                     _c("div", { staticClass: "row driver-seat" }, [
                       _c("button", { attrs: { disabled: true } }, [
-                        _vm._v("Driver Seat")
+                        _vm._v("Driver")
                       ])
                     ]),
                     _vm._v(" "),
@@ -54733,7 +54887,7 @@ var render = function() {
                 {
                   key: "heading",
                   fn: function() {
-                    return [_c("strong", [_vm._v("Add City")])]
+                    return [_vm._v("\n          Add City\n        ")]
                   },
                   proxy: true
                 }
