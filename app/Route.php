@@ -21,7 +21,8 @@ class Route extends Model
 
     public function cities()
     {
-        return $this->belongsToMany(City::class); 
+        return $this->belongsToMany(City::class)
+                    ->withPivot('distance'); 
     }
 
     public function schedules()

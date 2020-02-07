@@ -17,6 +17,7 @@ class CreateCityRouteTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('route_id');
+            $table->smallInteger('distance')->unsigned();
             $table->timestamps();
 
             $table->foreign('city_id')

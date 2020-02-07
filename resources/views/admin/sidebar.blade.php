@@ -80,6 +80,11 @@
                       <i class="nav-icon fas fa-bus" aria-hidden="true"></i>Bus
                   </router-link> 
                 </li>          
+                <li class="nav-item">
+                  <router-link to="/fare" class="nav-link">                    
+                      <i class="nav-icon fas fa-money-bill" aria-hidden="true"></i>Fare 
+                  </router-link> 
+                </li>          
                 <li class="nav-item"> 
                   <router-link to="/bus-list" class="nav-link">
                     <i class="nav-icon fas fa-plus" aria-hidden="true"></i>Bus List

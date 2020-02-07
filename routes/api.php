@@ -24,8 +24,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 //bus
 //Route::get('/bus', 'Api\SearchBusController@busInfo');
-Route::get('/buses', 'Api\SearchBusController@index');
+Route::get('/buses', 'Api\SearchBusesController@index');
+Route::get('/types', 'Api\SearchTypesController@index');
 Route::get('/routes', 'Api\SearchRoutesController@index');
+Route::get('/fares', 'Api\SearchFaresController@index');
 Route::get('/stops', 'Api\SearchBusController@stopList');
 
 //schedule
@@ -38,6 +40,7 @@ Route::get('/divisions', 'Api\SearchDivisionsController@index');
 Route::get('/districts', 'Api\SearchDistrictsController@index');
 Route::get('/upazilas', 'Api\SearchUpazilasController@index');
 Route::get('/cities', 'Api\SearchCitiesController@index');
+Route::get('/{route}/cities', 'Api\SearchCitiesController@routeCities');
 
 //city
 

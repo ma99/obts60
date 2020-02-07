@@ -5,12 +5,18 @@
         <!-- <expand :show.sync="show"></expand> -->
         <div class="heading"><slot name="heading"></slot></div>
         <p class="input-group-btn">
-          <button class="btn btn-success" type="button" @click="expandOrNot()" v-show="!expand">
-              <i class="fa fa-plus" aria-hidden="true"></i>
-          </button>
-          <button class="btn btn-warning" type="button" @click="expandOrNot()" v-show="expand">
-              <i class="fa fa-minus" aria-hidden="true"></i>
-          </button>
+          <transition name="fade" mode="out-in">
+            <button type="button" @click="expandOrNot()" v-bind:key="expand"
+              v-bind:class="{                        
+                'btn btn-success': (!expand) ? true : false,          
+                'btn btn-warning': (expand) ? true : false,                          
+             }" 
+            >
+              <!-- {{ expand ? 'Save' : 'Edit' }} -->
+              <i v-show="expand"class="fas fa-angle-double-up" aria-hidden="true"></i>
+              <i v-show="!expand"class="fas fa-angle-double-down" aria-hidden="true"></i>
+            </button>
+          </transition>
         </p>                
       </div>            
       
@@ -33,7 +39,11 @@
           expand: '',
         }
       },
-
+      watch: {
+        show() {
+          this.expand = this.show;
+        }
+      },
       methods: {        
         expandOrNot()  {
           this.expand = !this.expand;
@@ -53,9 +63,15 @@ div.card-header p {
 }  
 div.heading {
   margin-top: 5px; 
-  font-size: 1.2rem;
+  //font-size: 1.2rem;
   letter-spacing: 1px;
   color: gray;
   display: inline-block;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

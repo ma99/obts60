@@ -21,9 +21,15 @@ class FareControllerTest extends TestCase
         $route = factory('App\Route')->create();
 
         $fareDetails = [ 
-            'ac' => $this->faker->numerify('8##'),
-            'non-ac' => $this->faker->numerify('5##'),
-            'deluxe' => $this->faker->numerify('9##') 
+            'ac' => $faker->numerify('8##'),
+            //'non-ac' => $faker->numerify('5##'),
+            'nonac' => $faker->numerify('5##'),
+            'economyac' => $faker->numerify('6##'),
+            'businessac' =>$faker->numerify('9##'),
+            'ac|deluxe' => [
+                            'ac' => $faker->numerify('85#'),
+                            'deluxe' => $faker->numerify('12##'),
+                            ],
         ]; 
 
         $attributes = [
@@ -50,15 +56,25 @@ class FareControllerTest extends TestCase
 
         //$fare = factory('App\Fare')->create();
         $route = factory('App\Route')->create();
-        $fare = $route->fare;
         
         $city = factory('App\City')->create();
         
+        $fare = factory('App\Fare')->create([
+            'city_id' => $city->id, 
+            'route_id' => $route->id,
+        ]);
+        
 
         $fareDetails = [ 
-            'ac' => $this->faker->numerify('7##'),
-            'non-ac' => $this->faker->numerify('6##'),
-            'deluxe' => $this->faker->numerify('95#') 
+            'ac' => $faker->numerify('8##'),
+            //'non-ac' => $faker->numerify('5##'),
+            'nonac' => $faker->numerify('5##'),
+            'economyac' => $faker->numerify('6##'),
+            'businessac' =>$faker->numerify('9##'),
+            'ac|deluxe' => [
+                            'ac' => $faker->numerify('95#'),
+                            'deluxe' => $faker->numerify('12##'),
+                            ],
         ]; 
 
         $attributes = [

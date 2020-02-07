@@ -7,17 +7,20 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Bus;
-use App\Rout;
 use App\Stop;
 
 
-class SearchBusController extends Controller
+class SearchBusesController extends Controller
 {
    public function index()
    {        
         $error = ['error' => 'No results found'];
 
-        $buses = Bus::with('seat_plan')->get();
+        $buses = Bus::with('seat_plan')->get();       
+
+        if  (!count($buses)) {
+           return $error;
+        } 
 
         foreach ($buses as $bus) {           
             $busList[] = [
@@ -26,7 +29,7 @@ class SearchBusController extends Controller
             ];
         }        
         
-        return count($busList) ? $busList : $error;       
+        return $busList;
    } 
 
    public function stopList()

@@ -44,6 +44,7 @@ Route::group(['middleware' => ['auth', 'role:super_admin']], function () {
 	//fare
 	Route::post('/fares', 'Admin\FareController@store');
 	Route::patch('/fares/{fare}', 'Admin\FareController@update');
+	Route::delete('/fares/{fare}', 'Admin\FareController@destroy');
 
 	//schedule 
 	Route::post('/schedules', 'Admin\ScheduleController@store')->name('schedule');

@@ -43,9 +43,9 @@ class BusController extends Controller
     {
         return request()->validate([
         	'seat_plan_id' => 'required',
+            'type_id' => 'required',
             'reg_no' => 'required|max:50',
             'number_plate' => 'required',
-            'type' => 'required',
             'description' => 'nullable'
         ]);
     }

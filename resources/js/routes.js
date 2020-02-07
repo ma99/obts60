@@ -49,6 +49,10 @@ export const routes = [
         component: require('./views/bus/SeatPlan').default
     },
     {
+        path: '/fare',
+        component: require('./views/bus/Fare').default
+    },
+    {
         path: '/schedule',
         component: require('./views/bus/Schedule').default
     },

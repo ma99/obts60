@@ -13,7 +13,7 @@
                   <i class="fa fa-tachometer nav-icon"></i> Dashboard
                 </router-link>
               </li>
-              <li class="breadcrumb-item active">Bus</li>
+              <li class="breadcrumb-item active">Fare</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -23,9 +23,9 @@
     <section class="content">      
       <div class="container-fluid">
         <add-section :show.sync="show">
-          <template v-slot:heading>Add Bus</template>
+          <template v-slot:heading>Add Fare</template>
           <form> 
-                <border color="navy-blue" pattern="dashed" width="1" 
+                <!-- <border color="navy-blue" pattern="dashed" width="1" 
                   heading-background="#F2B705" heading-width="150" heading-show="true"
                 >
                   <template v-slot:heading>Seat Plan Info</template> 
@@ -35,7 +35,7 @@
                         <label for="seatPlan">Seat Plan#</label>
                           <select v-model="bus.seatPlanId" class="form-control" id="seatPlan" :disabled="editMode">
                               <option disabled value="">Please select one</option>
-                              <option v-for="seat in availableSeatPlanList" v-bind:value="seat.id">
+                              <option v-for="seat in availableSeatPlanList" v-bind:value="seat.id">                         
                                   {{ seat.id }}
                               </option>                                              
                           </select>                      
@@ -57,44 +57,84 @@
                       </div>                     
                     </div>
                   </div>  
-                </border>
+                </border> -->
 
                 <border color="eastern-blue" pattern="dashed" width="1" 
                   heading-background="lightgreen" heading-width="200" heading-show="true"
                 >
-                  <template v-slot:heading>Bus Registraion Info</template> 
-                  <div class="form-row justify-content-center">  
-                    <div class="col-sm-4">
+                  <template v-slot:heading>Set Fare for Route Cities</template> 
+                  <div class="form-row justify-content-center">
+                     <div class="col-sm-4">
                       <div class="form-group">
-                        <label for="regNumber">Registration #</label>
-                        <input v-model.lazy="bus.regNumber" type="text" class="form-control" id="regNumber" placeholder="Registration Number" v-bind:style="formControl">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                      <div class="form-group">
-                        <label for="numberPlate">Number Plate #</label>
-                        <input v-model="bus.numberPlate" v-bind:style="formControl" type="text" class="form-control" id="numberPlate" placeholder="Number Plate" :disabled="isDisabled">
-                      </div>
-                    </div>
-                    
-                    <div class="col-sm-3">
-                      <div class="form-group">
-                        <label for="busType">Bus Type #</label>
-                          <select v-model="bus.typeId" v-bind:style="formControl" class="form-control" id="busType">
+                        <label for="route">Route</label>
+                          <select v-model="route.id" v-bind:style="formControl" class="form-control custom-select" id="route">
                               <option disabled value="">Please select one</option>
-                              <option v-for="type in types" v-bind:value="type.id">
-                                  {{ type.name }}
+                              <option v-for="route in availableRouteList" v-bind:value="route.id">
+                                  <strong>{{ route.id }}</strong> <small> {{ route.departure_city }} -> {{ route.arrival_city }}</small>
                               </option>                                             
                           </select>                      
                       </div>
                     </div>
 
-                    <div class="col-sm-10">
+                    <div class="col-sm-4">
                       <div class="form-group">
-                        <label for="busDescription">Description</label>
-                        <textarea v-model="bus.description" v-bind:style="formControl" type="text" min="1" max="50" value="36" class="form-control" id="busDescription" placeholder="Description" :disabled="isDisabled"></textarea>
+                        <label for="city">City</label>
+                          <select v-model="city.id" v-bind:style="formControl" class="form-control custom-select" id="city">
+                              <option disabled value="">Please select one</option>
+                              <option v-for="city in citiesByRoute" v-bind:value="city.id">
+                                  <strong>{{ city.name }}</strong> <small> {{city.pivot.distance}}</small>
+                              </option>                                             
+                          </select>                      
                       </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                      <!-- <div id="scrollbar"> -->
+                        <table class="table table-striped table-hover">
+                            <thead>
+                              <tr>
+                                <!-- <th v-for="(type, index) in types">{{type.name}}</th>                                -->
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>                                                               
+                                <td v-for="(type, index) in types">
+                                  <!-- <template v-if="isCombined(type.name)">
+                                  </template> -->
+                                  <!-- <template v-else> -->
+                                    <!-- <label>Email</label>
+                                    <input placeholder="Enter your email address" key="email-input"> -->
+                                    <div class="form-group" v-show="isCombined(type)">
+                                      <label :for="'type-'+index">{{ type.name }}</label>
+                                      <!-- <input v-model="fare[type.key].type1" type="text" class="form-control" :id="'type-'+index" :placeholder="type.key"> -->
+                                      <!-- <input v-model="fare[type.key].type2" type="text" class="form-control" :id="'type-'+index" :placeholder="type.name"> -->
+                                      <!-- <input :value="getValue(fare, type, 'type1')" @input="setValue(fare, type, 'type1', $event.target.value)"> -->
+                                      <!-- <input :value="getValue(fare, [type.key].two)" @input="setValue(fare, [type.key].two, $event.target.value)"> -->
+
+                                      <!-- <input v-model="fare[type.key].t1" type="text" class="form-control" :id="'type-'+index" :placeholder="type.name"> -->
+                                      <!-- <input v-model="fareSelect" type="text" class="form-control" :id="'type-'+index" :placeholder="type.name"> -->
+
+                                      <input :value="getValue(fare, 't1')" @input="setValue(fare, 't1', $event.target.value)">
+                                      <input :value="getValue(fare, 't2')" @input="setValue(fare, 't2', $event.target.value)">
+                                    </div>                                
+
+                                    <div class="form-group" v-show="!isCombined(type)">
+                                    <!-- <div class="form-group" v-else> -->
+                                      <label :for="'type-'+index">{{ type.name }}</label>
+                                      <input v-model="fare[type.key]" type="text" class="form-control" :id="'type-'+index" :placeholder="type.name">
+                                  </div>
+
+                                  <!-- </template>  -->
+                                  <!-- <div class="form-group">
+                                    <label :for="'type-'+index">{{ type.name }}</label>
+                                    <input v-model="fare[type.key]" type="text" class="form-control" :id="'type-'+index" :placeholder="type.name">
+                                  </div>                                 -->
+                                </td>
+                              </tr>                           
+                            </tbody>
+                        </table>      
+                      <!-- </div> -->                 
+
                     </div>
 
                     <div class="col-sm-4">
@@ -115,74 +155,11 @@
               </show-alert>
           </template>
         </add-section>
-        <loader :show="loading"></loader>
-      
-        <div class="row justify-content-center">
-          <div class="card card-info w-100">
-            <div class="card-header">Bus Info <span> {{ availableBusList.length }} </span></div>
-            <div class="card-body">
-                <div id="scrollbar">
-                  <table class="table table-striped table-hover">
-                      <thead>
-                        <tr>
-                          <th>Sl. No.</th>
-                          <th>Bus ID
-                              <span type="button" @click="sortByIdOf('bus')" :disabled="disableSorting">
-                                  <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
-                              </span>
-                          </th>                           
-                          <th>Reg. Number
-                              <span type="button" @click="sortByIdOf('registration')" :disabled="!disableSorting">
-                                  <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
-                              </span>
-                          </th>
-                          <th>Number Plate</th>
-                          <th>Type</th>                                
-                          <th>Total Seats</th>     
-                          <th>Seat Plan ID</th>     
-                          <th>Descriptin</th> 
-                          <th>Action</th>    
-                          <!-- <th>&nbsp;</th> -->
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr  v-for="(bus, index) in availableBusList" >                              
-                          <td>{{ index+1 }}</td>                              
-                          <td>{{ bus.bus.id }}</td>
-                          <td>{{ bus.bus.reg_no }}</td>
-                          <td>{{ bus.bus.number_plate }}</td>
-                          <!-- <td>{{ ucwords(bus.bus.type) }}</td>                          -->
-                          <td>{{ typeBy(bus.bus.type_id) }}</td>                         
-                          <td><strong>{{ bus.total_seats }}</strong></td>
-                          <td><strong>{{ bus.bus.seat_plan_id }}</strong></td>
-                          <td>{{ bus.bus.description }}</td>
-                          <td> 
-                              <button v-on:click.prevent="edit(bus)" class="btn btn-primary">
-                                <i class="fa fa-edit fa-fw"></i>Edit
-                              </button>  
-                              <button v-on:click.prevent="remove(bus.bus)" class="btn btn-danger">
-                                <i class="fa fa-trash fa-fw"></i>Remove
-                              </button> 
-                          </td>                        
-                        </tr>                            
-                      </tbody>
-                  </table>      
-                </div>
-            </div>
-            <!-- {{-- card-footer --}} -->
-            <div class="card-footer">                                
-              <show-alert :show.sync="showAlert" :type="alertType">             
-               Bus
-                <strong> {{ actionStatus }} </strong> successfully!
-              </show-alert>
-            </div>
-          </div>
-        </div>           
+        <loader :show="loading"></loader>     
+        
       </div>
 
-      <modal :show.sync="modal">
-        <seat-layout :seatList="selectedSeatPlan.seat_list"></seat-layout>
-      </modal>                          
+      
 
     </section>        
   </div>      
@@ -198,6 +175,10 @@
                     busToedit: {
                       id: '',
                       index: '',
+                    },
+                    combineType: {
+                      //type1: '',
+                      //type2: ''
                     },
                     disableShowButton: false,
                     //disableSaveButton: true,
@@ -223,39 +204,39 @@
                     showAlert: false,
                     show: false,                    
                     modal: false,               
-                    types: [],                    
+                    types: [],
+                    typeAttr: '',
+                    fare: {},
+                    cityListByRoute: [],
+                    availableRouteList: [],
+                    citiesByRoute: [],
+                    city: {
+                      id: '',
+                      name: '',
+                      distance: ''
+                    },
+                    route: {
+                      id: '',
+                      departure_city: '',
+                      arrival_city: '',
+                      //distance: ''
+                    },                    
                 }
                 },
                 watch: {
-                    'bus.regNumber'(val, oldVal) {
-                        var aa = this.isRegNumberAvailableInBusList(this.availableBusList, this.bus.regNumber);
-                        if (aa) {
-                            if(this.editMode) {
-                              this.swAlert('Edit Mode Started..', 'warning');                              
-                              return;
-                            }
-                            this.swAlert('Registration Number is already exist!', 'info');
-                        }
+                    'route.id'(val, oldVal) {
+                      this.fetchCitiesBy(this.route.id);                        
                     },
-                    'bus.seatPlanId'(val, oldVal) {
-                      if(this.bus.seatPlanId) {                        
-                        this.selectedSeatPlan = this.availableSeatPlanList.find(element => element.id == this.bus.seatPlanId);
-                        this.numberOfSeat = this.selectedSeatPlan.total_seats;
-                        return;
-                      }
-                      this.numberOfSeat= '';
-                    },
-                    // 'type.id'(val, oldVal) {
-                    //   this.bus.typeId = this.type.id;
-                    // },                   
                 },      
                 mounted() {                    
                     this.fetchBusTypes();
+                    this.fetchRoutes();
+                    //this.fetchCities();
                     this.fetchAvailableBuses();
                     this.fetchAvailableSeatPlans();
                     this.enableScroll();                
                 },
-                computed: {
+                computed: {                    
                     isValid() {
                         return this.bus.regNumber != '' && 
                                 this.bus.numberPlate != '' &&
@@ -264,6 +245,70 @@
                      }
                 }, 
                 methods: {
+                  getValue(object, p) {
+                    var path = this.typeAttr+'.'+p;
+                    console.log('mm='+ path);
+                    let obj = object;
+                    for (const key of path.split('.')) {
+                      obj = obj[key];
+                    }                    
+                    return obj;
+                     //return object[type.key[path]];
+                     //console.log(this.fare[type.key[path]]);
+                     //return this.fare[type.key[path]];
+                  },                  
+                  setValue(object, p, value) {
+                    //console.log(type.key);
+                    var path = this.typeAttr+'.'+p;
+                    const keys = path.split('.');
+                    let obj = object;
+                    for (let i = 0; i < keys.length - 1; i++) {
+                      obj = obj[keys[i]];
+                    }                    
+                    obj[keys[keys.length - 1]] = value;
+                    //object[type.key[path]] = value;
+                    // this.fare[type.key] = {
+                    //   [path] : value,
+                    // }
+                    //this.fare[type.key[path]] = value;
+                  },
+                  isCombined(type) {
+                    if (type.key.includes('|')) {
+                      let types = type.key.split('|');
+                      let t1, t2;
+                      t1= types[0];
+                      t2= types[1];
+                      this.combineType[type.key] = {                       
+                        [t1]: types[0],
+                        [t2]: types[1],
+                      };
+                      // this.fare[type.key] = {
+                      //  type1: '', //types[0],
+                      //  type2: '',//types[1]
+                      // }
+                      //let key= type.key;
+                      //this.combineType.key.type2 = types[1];
+                      //console.log(this.combineType[type.key]['type1']);
+                      return true; 
+                    }
+                    return false;
+                  },
+                  createFareForCombineType(types) {                    
+                    types.forEach(type => {                      
+                      if (type.key.includes('|')) {
+                        this.typeAttr = type.key;
+
+                        let types = type.key.split('|');
+                        //let t1, t2;
+                        //t1= types[0];
+                        //t2= types[1];
+                        this.fare[type.key] = {                       
+                          t1: types[0],
+                          t2: types[1],
+                        }
+                      }                      
+                    });
+                  },
                   typeBy(id) {
                     let type = this.types.find(type => type.id == id);
                     if(type) {                      
@@ -275,10 +320,13 @@
                       return (str + '').replace(/^([a-z])|\s+([a-z])/g, function ($1) {
                           return $1.toUpperCase();
                       });
+                  
                   },                    
+                  
                   save() {
                       var vm = this;
                       axios.post('/buses', {
+                          
                           seat_plan_id: this.bus.seatPlanId,
                           reg_no: this.bus.regNumber,
                           number_plate: this.bus.numberPlate,
@@ -312,7 +360,7 @@
                     this.bus.description = busToedit.bus.description;
                     //this.bus = busToedit.bus;
                     this.editMode = true;
-                    this.show = true;
+                    //this.show = true;
                     this.formControl.backgroundColor = 'lightyellow';
                     //console.log(busToedit);
                     //this.type.name = this.typeBy(this.bus.typeId);
@@ -391,11 +439,50 @@
                     axios.get('/api/types')  
                         .then(function (response) {                  
                            response.data.error ? vm.error = response.data.error : vm.types = response.data;
-                           //vm.sortBySeatPlanId(vm.availableSeatPlanList);                       
+                           //vm.sortBySeatPlanId(vm.availableSeatPlanList);      
+                           vm.createFareForCombineType(vm.types);                 
                            vm.loading = false;
                     });
                   },
-                  
+                  fetchRoutes() {
+                    this.loading = true;
+                    this.availableRouteList= [];            
+                    var vm = this;                
+                    axios.get('/api/routes')  
+                        .then(function (response) {
+                           response.data.error ? vm.error = response.data.error : vm.availableRouteList = response.data;
+                           vm.loading = false;
+                           //vm.sortByCityNameAvailableRouteList(vm.availableRouteList);                 
+                    });
+                  },                  
+                  fetchCities() {
+                    this.loading = true;
+                    this.availableCityList= [];            
+                    var vm = this;                
+                    axios.get('/api/cities')  
+                        .then(function (response) {
+                           response.data.error ? vm.error = response.data.error : vm.availableCityList = response.data;
+                           vm.loading = false;
+                           //vm.sortByCityNameAvailableRouteList(vm.availableRouteList);                 
+                    });
+                  },
+                  fetchCitiesBy(routeId) {
+                    this.loading = true;
+                    this.citiesByRoute= [];     
+                    var vm = this;
+                    //this.citiesByRoute =  this.availableCityList.filter(city => city.division_id == divisionId);
+                    axios.get('/api/'+routeId+'/cities')  
+                        .then(function (response) {
+                           response.data.error ? vm.error = response.data.error : vm.citiesByRoute = response.data;
+                           vm.sortByDistance(vm.citiesByRoute);                 
+                           vm.loading = false;
+                    });
+                  },                  
+                  sortByDistance(arr) {
+                    arr.sort((a, b) => {
+                            return a.pivot.distance - b.pivot.distance;
+                    });
+                  },
                   isRegNumberAvailableInBusList(arr, val){
                       //var vm = this;
                        return arr.some(function(bus) {
@@ -415,7 +502,7 @@
                   sortByBusId(arr) {
                       arr.sort(function(a, b) {
                             return a.bus.id - b.bus.id;
-                          });
+                      });
                   },
 
                   sortByRegNumber(arr) {

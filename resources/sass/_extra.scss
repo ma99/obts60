@@ -17,47 +17,20 @@ section.content {
             opacity: 0.65;
         }
   }
-  div.card-header span {
+  div.card-header em {
     background-color: #F2B705; //yellow;
     font-weight: 600;
     float: right;
     padding: 2px 6px;
     color: #F24405;//royalblue;
   }
-  /* Colored Dotted Box */
-  %dashed-border {
-      //border: 1px dashed lightblue;
-      padding: 25px 10px;
-      margin: 25px 25px 50px 25px;
-      position: relative;
-      //text-align: center;      
+  
+/* fas icon margin to right in button */
+i.button-icon {
+  margin-right: .4rem;
+}
 
-      span {
-        background-color: lightblue; 
-        display: block;
-        font-weight: 600;
-        letter-spacing: 1px;        
-        left: 14px;
-        top: -16px;
-        position: absolute;
-        padding: 5px 10px;
-        width: 125px;
-      }      
-    }
-    .dashed-border-navy-blue {
-      @extend %dashed-border;
-      border: 1px dashed $navy-blue;
-    }
-    .dashed-border-eastern-blue {
-      @extend %dashed-border;
-      border: 1px dashed $eastern-blue;
-    }
-    .dashed-border-pigment-green {
-      @extend %dashed-border;
-      border: 1px dashed $pigment-green;
-    }
-    .dashed-border-orange-yellow {
-      @extend %dashed-border;
-      border: 1px dashed $orange-yellow;
-    }
-
+/* information table */
+.info-table {
+  margin-top: 2rem;
+}

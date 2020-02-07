@@ -76,7 +76,9 @@
                   </div>                  
                 </div>
                 <div class="row driver-seat">                      
-                  <button :disabled="true">Driver</button>                      
+                  <button type="button" class="btn" :disabled="true">
+                    <i class="fas fa-peace fa-lg"></i>
+                  </button>                      
                 </div>
 
                 <div id="design" class="row">
@@ -85,16 +87,17 @@
                     v-for="(seat, index) in seatList"
                   >
                     <input type="checkbox" :id="'checkbox-'+index" v-model="seat.special" v-show="combineType" :disabled="seat.status !='available'">                  
-                    <button                                  
-                        v-bind:class="{ active : seat.checked, 
-                                inactive : !seat.checked, 
-                                special: seat.special,
+                    <button type="button"                                                      
+                        v-bind:class="{ 
+                          'btn btn-success regular' : seat.checked, 
+                          'btn btn-warning' : !seat.checked, 
+                          'btn special': seat.special,
                                 // 'col-xs-offset-2': emptySpace(index, seat.no)
-                                }"                      
+                        }"                      
                         @click="toggle(seat)"                      
                     >                       
-                        <i class="fa fa-check fa-lg tickmark" v-show="seat.checked"></i>
-                        <i class="fa fa-times fa-lg crossmark" aria-hidden="true" v-show="!seat.checked"></i>
+                        <i class="fas fa-check fa-sm" v-show="seat.checked"></i>
+                        <i class="fas fa-times fa-sm crossmark" aria-hidden="true" v-show="!seat.checked"></i>
 
                         <!-- {{ seat.no }} - {{ seat.sts }} : {{index}}  -->
                         {{ seat.no }}                                            
@@ -106,9 +109,8 @@
           </div>              
         </div>
 
-        <div class="row justify-content-center">          
-            <div class="col">
-              <div class="card card-info">
+        <div class="row info-table">          
+          <div class="card w-100">
                 <div class="card-header">Seat Plan Info <span> [ {{ availableSeatPlanList.length }} ]</span></div>
                 <div class="card-body">
                     <div id="scrollbar">
@@ -139,14 +141,14 @@
                               <td>{{ dateCreated(seatplan.created_at) }}</td>
                               <td>
                                   <!-- <button v-on:click.prevent="view(seatplan)" class="btn btn-success"> -->
-                                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalComponent" v-on:click.prevent="view(seatplan)">    
-                                    <i class="fa fa-eye fa-fw"></i>View
+                                  <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalComponent" v-on:click.prevent="view(seatplan)">    
+                                    <i class="button-icon fas fa-eye"></i>View
                                   </button>   
                                   <!-- <button v-on:click.prevent="edit(seatplan)" class="btn btn-primary">
                                     <i class="fa fa-edit fa-fw"></i>Edit
                                   </button>   -->
-                                  <button v-on:click.prevent="remove(seatplan)" class="btn btn-danger">
-                                    <i class="fa fa-trash fa-fw"></i>Remove
+                                  <button v-on:click.prevent="remove(seatplan)" class="btn btn-outline-danger">
+                                    <i class="button-icon fas fa-trash"></i>Remove
                                   </button> 
                               </td>                        
                             </tr>                            
@@ -161,8 +163,7 @@
                     <strong> {{ actionStatus }} </strong> successfully!
                   </show-alert>
                 </div>
-              </div>
-            </div>
+          </div>
         </div>
 
       </div>
@@ -177,7 +178,7 @@
                   <button :disabled="true">Driver</button>                      
                 </div>
                 <div class="row">
-                  <button
+                  <button type="button" 
                     class="col-xs-2"
                     v-bind:class="{
                       empty: seat.status=='n/a'? true : false,                                    
@@ -579,25 +580,31 @@
 <style lang="scss" scoped>
     #design {
       .active {
-        background: #f4e542;
+        background: linear-gradient(0deg, #f4e542, #e4c25c); //#f4e542;
       }                   
+      .regular i {
+        color: #a5d6a7;
+        //color: green;
+        /*padding: 5px;*/
+      }
       .special {
-        background: #ffc107;      
+        background: linear-gradient(0deg, #fd7e14, #e6ceb9);
+        color: black;
+        border-color: white;
+        i {
+          color: #af8850;
+        }      
       }
     }    
     .inactive {
         background-color: #c4c0c0;  
-    }                       
-    .tickmark {
-        /*background-color: green;*/
-        color: green;
-        /*padding: 5px;*/
-    }
+    }                           
     .crossmark {
         /*background-color: red;*/
         /*padding: 5px;*/
         color: red;
-    }    
+    }
+    
     /*#app button {               
         height: 50px;
         margin: 10px 10px 0 0;
@@ -638,7 +645,7 @@
     .seat-layout-design div.row.driver-seat {      
       width: 82%;      
       > button {
-        background: #bdf1b2b8;
+        background: linear-gradient(90deg, #C5E1A5, #DCEDC8);
       }
     }
     .seat-layout-display div.row.driver-seat {      

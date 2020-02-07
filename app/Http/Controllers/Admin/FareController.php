@@ -27,6 +27,18 @@ class FareController extends Controller
         return 'success';
     }
 
+    public function destroy(Fare $fare)
+    {
+        $error = ['error' => 'No results found'];
+      
+        if ($fare) {
+            $fare->delete();
+            return 'success';            
+        }
+
+        return $error;
+    }
+
     protected function validateRequest()
     {
         return request()->validate([

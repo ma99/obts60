@@ -10,7 +10,7 @@ use App\City;
 use App\Division;
 use App\District;
 use App\Fare;
-use App\Rout;
+use App\Route;
 use App\Stop;
 
 class SearchCitiesController extends Controller
@@ -21,6 +21,11 @@ class SearchCitiesController extends Controller
     $cities = City::all();
     return $cities->count() ? $cities : $error;
    } 
+
+   public function routeCities(Route $route)
+   {
+     return $route->cities;
+   }
 
    public function cityTo()
    {
