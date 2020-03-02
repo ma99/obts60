@@ -6,7 +6,7 @@
       <!-- <option disabled value="">Please select one</option> -->
       <option v-if="!error.pickupPoint" disabled value="">Please select one</option>
       <option v-if="error.pickupPoint" disabled value="">@{{ error.pickupPoint }}</option>    
-      <option v-for="pickup in pickupList">
+      <option v-for="pickup in pickupStops">
         @{{ pickup.name }}
       </option>                           
     </select>
@@ -19,7 +19,7 @@
       <!-- <option disabled value="">Please select one</option> -->
       <option v-if="!error.droppingPoint" disabled value="">Please select one</option>
       <option v-if="error.droppingPoint" disabled value="">@{{ error.droppingPoint }}</option>
-      <option v-for="dropping in droppingList">
+      <option v-for="dropping in droppingStops">
         @{{ dropping.name }}
       </option>                           
     </select>

@@ -20,7 +20,7 @@ Vue.component('loader', require('./components/Loader.vue').default);
 Vue.component('expand', require('./components/ExpandButton.vue').default);
 Vue.component('add-section', require('./components/AddSection.vue').default);
 Vue.component('border', require('./components/Border.vue').default);
-Vue.component('c-input', require('./components/CustomInput.vue').default);
+Vue.component('autocomplete', require('./components/Autocomplete.vue').default);
 
 
 const router = new VueRouter({

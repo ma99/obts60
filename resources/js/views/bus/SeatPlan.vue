@@ -165,11 +165,10 @@
                 </div>
           </div>
         </div>
-
       </div>
       <!-- Modal -->
-      <modal :show.sync="modal">                          
-        <div class="row justify-content-center">
+      <modal :show.sync="modal">
+        <!-- <div class="row justify-content-center">
           <div class="card w-75">
             <div class="card-header">Seat Planning <span> [ {{ totalSeats}} ]</span></div>
             <div class="card-body">                
@@ -191,7 +190,9 @@
               </div>                   
             </div>
           </div>              
-        </div>
+        </div> -->
+        <seat-layout :seatList="selectedSeatPlan"></seat-layout>
+
       </modal>         
     </section>        
   </div>      

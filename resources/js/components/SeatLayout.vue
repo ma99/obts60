@@ -1,28 +1,30 @@
 <template>
   <div class="row justify-content-center">
-    <div class="card w-75">
+    <div class="seat-layout">
+      <div class="card w-75">
       <div class="card-header">Seat Layout
         <span> [ {{ totalSeats}} ]</span>
       </div>
       <div class="card-body">                
-        <div class="seat-layout">                
           <div class="row driver-seat">                      
             <button class="btn btn-outline-secondary" :disabled="true">Driver</button>                      
           </div>
-          <div class="row">
+          <div class="row justify-content-center" style="margin-left: -5px;">
             <button
               class="btn btn-outline-primary col-xs-2"
               v-bind:class="{
                 empty: seat.status=='n/a'? true : false,                                    
                 'col-xs-offset-2': emptySpace(index, seat.no) }"
-              v-for="(seat, index) in seatList"                              
+              v-for="(seat, index) in seatList"
+              v-on:click.prevent=""
+              :disabled="buttonIsDisabled(seat.status)"
             >               
               {{ seat.no }}
             </button> 
           </div>
-        </div>                   
       </div>
-    </div>              
+      </div>              
+    </div>  
   </div>   
 </template>
 
@@ -59,6 +61,9 @@
       computed: {        
       },
       methods: {
+        buttonIsDisabled(seatStatus) {
+          return seatStatus=='n/a'? true : false
+        },
         setRowNumber() {
           let length = this.seatList.length-1;
           this.numberOfRow = length/4;
@@ -115,18 +120,30 @@
 </script>
 <style lang="scss" scoped>
     #app .seat-layout {
-        padding-left: 50px;
+        //padding-left: 50px;
+        // .row {
+        //   margin-left: 0px;
+        // }
+        display: flex;
+        flex-wrap: wrap;
+        justify-content:  center;
         button {               
           height: 34px; //50px;
           margin: 10px 10px 0 0;
+          &.col-xs-2 {
+            width: 15.666667%;
+          }
+          &.col-xs-offset-2 {
+            margin-left: 17.666667%;
+          }
         }   
     }
-    #app button.col-xs-2 {
-        width: 14.66666667%; //16.76666667%;
-    }
-    #app button.col-xs-offset-2 {
-        margin-left: 17.666667%;
-    }
+    // #app button.col-xs-2 {
+    //     width: 15.666667%; //14.66666667%; //16.76666667%;
+    // }
+    // #app button.col-xs-offset-2 {
+    //     margin-left: 17.666667%;
+    // }
     div.row.driver-seat {      
       height: 4rem;
       position: relative;

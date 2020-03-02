@@ -1,7 +1,7 @@
-<div v-show="isSeatBooked" class="panel panel-info row">
-  <div class="panel-heading">Booking Information</div>
+<div v-show="isSeatBooked" class="card row">
+  <div class="card-header">Booking Information</div>
     <p>Dear <strong> @{{ bookedSeatInfo.name}} </strong>! Your Booking Request has been completed. </p>
-  <div class="panel-body">                            
+  <div class="card-body">                            
           <div class="col-sm-8">
             Booking Ref: <strong>@{{ bookedSeatInfo.booking_id}}</strong>
           </div>
@@ -12,7 +12,7 @@
             Date: <strong>@{{ bookedSeatInfo.date}}</strong>
           </div>
   </div>
-  <div class="panel-footer">
+  <div class="card-footer">
     
 
     {{-- <button href="{{ route('payment', ['booking' => $bookingId]) }}" type="button" class="btn btn-primary">Pay Now</button> --}}

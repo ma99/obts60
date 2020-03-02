@@ -1,6 +1,6 @@
-<div class="panel panel-info">
-    <div class="panel-heading">For Guest</div>
-    <div class="panel-body">
+<div class="card">
+    <div class="card-header">For Guest</div>
+    <div class="card-body">
 		<form method="POST" action="/seatbooking" v-on:submit.prevent="seatBookingByGuest()" @keydown="form.errors.clear($event.target.name)">
 			<div class="form-group">
 			<label for="name" class="control-label">Name</label>

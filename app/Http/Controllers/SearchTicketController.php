@@ -5,9 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Route;
 use App\Bus;
+use App\City;
 
 class SearchTicketController extends Controller
 {
+    public function index()
+    {
+    	//dd('test');
+    	$cities = City::all();
+    	//dd($cities);
+    	return view('pages.home', compact('cities'));
+    }
+
     public function searchTicket() 
     {
 		$error = ['error' => 'No results found'];
@@ -20,10 +29,11 @@ class SearchTicketController extends Controller
 
 		$date = date("Y-m-d", strtotime($date)); //wk if input date is dd-mm-yyyy format in vue script
 
-		$route = $this->getRouteBy($departure_city, $arrival_city);
+		$route = $this->getRouteBy($departure_city, $arrival_city);		
 		//dd($route);
 		//dd($route->cities()->first());
-		$arrival_city = $route->cities()->first();
+		$arrival_city = $route->cities[0];
+
 		
 		$route = $route->load([
 			'buses.schedules.bookings' => function($query) use ($date) {
@@ -140,6 +150,7 @@ class SearchTicketController extends Controller
 						$arr_seats[] = [								
 							'seat_no' => $seat->seat_no,
 							'status'  => $seat->status,
+							'special' => $seat->special,
 							'checked' => false,
 							'fare'	  => $busFare
 						];
@@ -163,6 +174,7 @@ class SearchTicketController extends Controller
 			$arr_seats[] = [								
 				'seat_no' => $seat['no'],
 				'status'  => $seat['status'],
+				'special' => $seat['special'],
 				'checked' => false,
 				'fare'	  => $busFare, 	 
 			];
@@ -184,6 +196,5 @@ class SearchTicketController extends Controller
 	        $i++;
 	    }
 	    return $temp_array;
-	} 
-    
+	}     
 }

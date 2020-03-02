@@ -1,3 +1,4 @@
+
 <script>
     export default {
       props: ['cities'],
@@ -10,6 +11,10 @@
               busError: false,
               buses:[],
               cityList:[],
+              availableCityList: [],
+              availableStopList: [],
+              pickupStops: [],
+              droppingStops: [],
               cityToList:[],
               //error: false,
               error: {
@@ -24,12 +29,14 @@
               showSearch: true,
               showSchedule: false,              
               scheduleId:'',
+              selection: '',
               startDate: '',               
               selectedCityFrom: '',
               selectedTo: '',
               selectedPickupPoint: '',
               selectedDroppingPoint: '',
-              url: 'seatbooking',             
+              //url: 'seatbooking',             
+              url: 'bookings',             
               // seat display
               seatChar:["A","B", "C" , "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"],                             
               seatNo: '',
@@ -66,14 +73,12 @@
       mounted() {
            console.log('Seat search Component ready.');
            //this.createIndexList();            
-           this.cityList = JSON.parse(this.cities);         
-           this.showDate();           
-           // Echo.channel('mychannel.1')
-           //    .listen('SeatStatusUpdatedEvent', function(e) {
-           //        console.log(e.seat, e.scheduleId);
-           //    });
-            Echo.channel('mychannel.1')
-              .listen('SeatStatusUpdatedEvent', this.updateSeatStatus); 
+           //this.cityList = JSON.parse(this.cities);         
+           this.fetchCities();
+           this.fetchStops();
+           this.showDate();                      
+            // Echo.channel('mychannel.1')
+            //   .listen('SeatStatusUpdatedEvent', this.updateSeatStatus); 
       },
       watch: {
        seatStatus() {        
@@ -100,35 +105,16 @@
        }, 
        selectedCityFrom() {
           //console.log();
-          this.fetchCityToList(this.selectedCityFrom);                        
-          //this.fetchPickupPointList(this.selectedCityFrom);   // Pickup Area List based On From City       
+         // this.fetchCityToList(this.selectedCityFrom);                        
+          //this.pickupStopsBy(this.selectedCityFrom);   // Pickup Area List based On From City       
           
          //this.arr.push(val);
        },
        selectedTo() {
-          this.buses=[];
-          this.fetchDroppingPointList(this.selectedTo);   // Pickup Area List based On From City       
+          //this.buses=[];
+          //this.droppingStopsBy(this.selectedTo);   // Pickup Area List based On From City       
        },      
-       /*selectedTo(val) {
-          console.log(val);
-          this.fetchDropingPointList(val);   // Drop Area List based On To City
-       }*/
-      //  selectedSeat() {
-      //     // sort the array
-      //     this.selectedSeat.sort(function(a, b) {
-      //     var nameA = a.seat_no.toUpperCase(); // ignore upper and lowercase
-      //     var nameB = b.seat_no.toUpperCase(); // ignore upper and lowercase
-      //     if (nameA < nameB) {
-      //       return -1;
-      //     }
-      //     if (nameA > nameB) {
-      //       return 1;
-      //     }
-
-      //     // names must be equal
-      //     return 0;
-      //   });
-      // }
+       
         seatList() {
             this.createIndexList();
         }
@@ -138,10 +124,11 @@
           var fare = 0;
           let len = this.selectedSeat.length;
           for (var i=0; i<len; i++){
-            fare = fare + parseInt(this.selectedSeat[i].fare, 10);
+            //fare = fare + parseInt(this.selectedSeat[i].fare, 10);
+            fare = fare + parseInt(this.getFareFor(this.selectedSeat[i]), 10);
           }
-          console.log('total fare:', fare);
-          console.log('total seats:', len);
+          //console.log('total fare:', fare);
+          //console.log('total seats:', len);
           this.totalFare = fare; 
           this.totalSeats = len;         
         },        
@@ -179,6 +166,23 @@
         },
       },
       methods: {
+        getFareFor(seat) {
+          //console.log(seat);
+          let combinedFare = this.isCombinedType(seat.fare);
+          if (combinedFare) {
+            let fares = seat.fare.split('|');
+            let f1, f2;
+            f1 = parseInt(fares[0], 10);
+            f2 = parseInt(fares[1], 10);                        
+
+            return (seat.special) ? 
+                    ( (f1 > f2) ? f1 : f2 ) : ( (f1 < f2) ? f1 : f2 );
+          }
+          return seat.fare;
+        },        
+        isCombinedType(fare) {
+          return fare.includes('|') ? true : false;
+        },
         close() {
                 this.modal = false;
                 this.loading = false;                
@@ -222,13 +226,7 @@
           }
           console.log(evnt.seat.seat_no, evnt.scheduleId, evnt.date);
         },
-        // showAlert() {
-        //         $("#status-alert").alert();
-        //         $("#status-alert").fadeTo(2000, 500)
-        //         .slideUp(500, function(){
-        //             $("#status-alert").slideUp(500);
-        //         });   
-        // },        
+        
         searchBus() {         
           console.log(this.startDate);
 
@@ -253,37 +251,27 @@
                   return;
                }
             });
-         
-          /* for POST
-            axios.post('/search', {
-              firstName: this.selected,
-              from: this.selected,
-              to: this.selectedTo,
-              date: this.startDate,
-              lastName: 'Flintstone'
-            })          
-            .then(function (response) {
-               console.log(response.data)
-               response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
-            });
-            */
         },
-
         viewSeats(scheduleId, busId, busFare) {
           console.log('schId=', scheduleId);
           console.log('busId=', busId);
           
           this.seatError = false;
+          this.selectedSeat = [];
           this.scheduleId = scheduleId;
           this.busId = busId;
+          this.selectedPickupPoint = '';
+          this.selectedDroppingPoint = '';
          
           this.loading = true;
+          this.pickupStopsBy(this.selectedCityFrom);
+          this.droppingStopsBy(this.selectedTo);
           var vm = this;
-          axios.get('/viewseats', {
+          axios.get('/viewseats/buses/'+busId, {
               params: {
-                from: this.selectedCityFrom,
-                to: this.selectedTo,
-                date: this.startDate,
+                // from: this.selectedCityFrom,
+                // to: this.selectedTo,
+                // date: this.startDate,
                 schedule_id: scheduleId,
                 bus_id: busId,
                 bus_fare: busFare,
@@ -318,117 +306,6 @@
             closeOnClickOutside: true,
           });
         },
-
-        // seatBookingByGuest() {
-        //   //this.loading = true;
-        //   //this.buses = []; // hide table
-        //   var vm = this; 
-        //   //this.changeStatusOfSelectedSeat(this.selectedSeat); 
-        //   console.log('modified selected seat'); 
-        //   console.log(this.selectedSeat); 
-
-        //   swal({
-        //       title: "Are you sure?",
-        //       text: "This will register a BOOKING for you",
-        //       type: "info",
-        //       showCancelButton: true,
-        //       confirmButtonColor: "#DD6B55",
-        //       confirmButtonText: "Yes, Book!",
-        //       //closeOnConfirm: false,
-        //       //closeOnCancel: false                        
-        //     },
-        //     function() {  
-        //       vm.loading = true;
-        //       vm.buses = []; // hide table
-        //       vm.changeStatusOfSelectedSeat(vm.selectedSeat); 
-        //       // // non form data  
-        //       vm.form.bus_id = vm.busId;
-        //       vm.form.date = vm.startDate;
-        //       vm.form.schedule_id = vm.scheduleId;
-        //       vm.form.selected_seats = vm.selectedSeat;
-        //       vm.form.total_seats = vm.totalSeats;
-        //       vm.form.total_fare = vm.totalFare; 
-        //       vm.form.pickup_point = vm.selectedPickupPoint; 
-        //       vm.form.dropping_point = vm.selectedDroppingPoint; 
-
-
-        //     vm.form.post(vm.url)
-        //           //.then(response => alert('Wahoo!'));
-        //     .then(function (response) {
-        //        //console.log(response.data)
-        //        vm.selectedSeat= [];                                  
-        //        vm.bookedSeatInfo = response;
-        //        vm.modal = false;
-        //        vm.loading = false;
-        //        //console.log('res=', response);
-        //     })
-        //     .catch(function (error) {
-        //       console.log(error);
-        //       vm.loading = false;
-        //     });
-        //   // end of non form data
-        //   });
-
-        //     // // non form data  
-        //     // this.form.bus_id = this.busId;
-        //     // this.form.date = this.startDate;
-        //     // this.form.schedule_id = this.scheduleId;
-        //     // this.form.selected_seats = this.selectedSeat;
-        //     // this.form.total_seats = this.totalSeats;
-        //     // this.form.total_fare = this.totalFare; 
-
-
-        //     // this.form.post(this.url)
-        //     //       //.then(response => alert('Wahoo!'));
-        //     // .then(function (response) {
-        //     //    //console.log(response.data)
-        //     //    vm.selectedSeat= [];                                  
-        //     //    vm.bookedSeatInfo = response;
-        //     //    vm.modal = false;
-        //     //    vm.loading = false;
-        //     //    //console.log('res=', response);
-        //     // })
-        //     // .catch(function (error) {
-        //     //   console.log(error);
-        //     //   vm.loading = false;
-        //     // });
-        //   // end of non form data
-        //   // swal({
-        //   //   title: "Are you sure?",
-        //   //   text: "This will register a BOOKING for you",
-        //   //   type: "info",
-        //   //   showCancelButton: true,
-        //   //   confirmButtonColor: "#DD6B55",
-        //   //   confirmButtonText: "Yes, Book!",
-        //   //   //closeOnConfirm: false,
-        //   //   //closeOnCancel: false                       
-        //   // },
-        //   // function() {                       
-           
-        //   //         //swal("Deleted!", "Staff has been Removed.", "success");                      
-              
-        //   // });
-          
-          
-        //   /*
-        //   axios.post('/seatbooking', {
-        //       bus_id: this.busId,
-        //       date: this.startDate,
-        //       schedule_id: this.scheduleId,
-        //       selected_seats:this.selectedSeat,
-        //       total_seats: this.totalSeats,
-        //       total_fare: this.totalFare
-        //   })          
-        //   .then(function (response) {
-        //        console.log(response.data)
-        //        vm.selectedSeat= [];
-        //        vm.loading = false;
-        //        vm.modal = false;
-        //        // response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
-        //   });
-        //   */
-        // },
-
         seatBookingByGuest() {          
           var vm = this; 
           swal({
@@ -480,70 +357,6 @@
             
           }); 
         },
-
-        // seatBookingByUser() {
-        //   //this.loading = true;
-        //   //this.buses = []; // hide table
-        //   var vm = this; 
-        //   //this.changeStatusOfSelectedSeat(this.selectedSeat);         
-        //   swal({
-        //       title: "Are you sure?",
-        //       text: "This will register a BOOKING for you",
-        //       type: "info",
-        //       showCancelButton: true,
-        //       confirmButtonColor: "#DD6B55",
-        //       confirmButtonText: "Yes, Book!",
-        //       //closeOnConfirm: false,
-        //       //closeOnCancel: false                        
-        //     },
-        //     function() {  
-        //       vm.loading = true;
-        //       vm.buses = []; // hide table
-        //       vm.changeStatusOfSelectedSeat(vm.selectedSeat);               
-
-        //       axios.post(vm.url, {
-        //         bus_id: vm.busId,
-        //         date: vm.startDate,
-        //         schedule_id: vm.scheduleId,
-        //         selected_seats:vm.selectedSeat,
-        //         total_seats: vm.totalSeats,
-        //         total_fare: vm.totalFare,
-        //         pickup_point:  vm.selectedPickupPoint,
-        //         dropping_point: vm.selectedDroppingPoint 
-        //       })                           
-        //       .then(function (response) {
-        //          //console.log(response.data)
-        //          vm.selectedSeat= [];
-        //          vm.bookedSeatInfo = response.data;
-        //          vm.loading = false;
-        //          vm.modal = false;
-        //          // response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
-        //       })
-        //       .catch(function (error) {
-        //         console.log(error);
-        //         vm.loading = false;
-        //       });
-          
-        //   });
-          
-        //   /*axios.post(this.url, {
-        //       bus_id: this.busId,
-        //       date: this.startDate,
-        //       schedule_id: this.scheduleId,
-        //       selected_seats:this.selectedSeat,
-        //       total_seats: this.totalSeats,
-        //       total_fare: this.totalFare
-        //   })          
-        //   .then(function (response) {
-        //        console.log(response)
-        //        vm.selectedSeat= [];
-        //        vm.bookedSeatInfo = response.data;
-        //        vm.loading = false;
-        //        vm.modal = false;
-        //        // response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
-        //   });*/
-          
-        // },
         seatBookingByUser() {          
           var vm = this; 
           swal({
@@ -596,100 +409,63 @@
         changeStatusOfSelectedSeat(selectedSeat) {
           var vm = this;
           selectedSeat.forEach( function(seat){
-            seat.status = (vm.url == 'seatbooking') ? 'booked' : 'buying';
+            //seat.status = (vm.url == 'bookings') ? 'booked' : 'buying';
+            seat.status = 'buying';
           });
 
         },
-        // makePayment() {
-        //   this.loading = true;
-        //   var vm = this;
-        //   var code = '30303';          
-        //   axios.get('api/zipcode?q=' + code)
-        //       .then(function (response) {
-        //        console.log(response.data)
-        //        // vm.selectedSeat= [];
-        //        vm.loading = false;
-        //        //vm.modal = false;
-        //        // response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
-        //   });
-
-        // },
-
-        fetchCityToList(cityName) {
-          
-          this.error.city = false;
+        fetchCities() {
           this.loading = true;
-          this.cityToList = [];
-          var vm = this;
-          axios.get('api/city?q=' + cityName)          
-            .then(function (response) {
-              //vm.answer = _.capitalize(response.data.answer)
-              // console.log(response.data);
-              response.data.error ? vm.error.city = response.data.error : vm.cityToList = response.data;
-              vm.loading = false;               
-               if (vm.error.city){
-                vm.selectedTo='';
-                vm.buses= [];
-                return;
-              } 
-              vm.selectedTo='';
-              vm.buses= [];
-              vm.fetchPickupPointList(cityName);                
-              // console.log(vm.error);
-               //vm.cityToList = response.data;
-               //vm.message= response.data
-            });
+          this.availableCityList= [];            
+          var vm = this;                
+          axios.get('/api/cities')  
+              .then(function (response) {
+                 response.data.error ? vm.error = response.data.error : vm.availableCityList = response.data;
+                 vm.loading = false;
+          });
         },
-
-        fetchPickupPointList(cityName) {
-          
+        fetchStops() {
+          this.loading = true;
+          this.availableStopList= [];            
+          var vm = this;                
+          axios.get('/api/stops')  
+              .then(function (response) {
+                 response.data.error ? vm.error = response.data.error : vm.availableStopList = response.data;
+                 vm.loading = false;
+          });
+        },        
+        getCityIdBy(cityName) {
+          let city = this.availableCityList.find(city => city.name == cityName);
+          return city.id;
+        },
+        pickupStopsBy(city) {          
           this.error.pickupPoint = false;
           this.loading = true;
-          this.pickupList = [];
-          var vm = this;
-          axios.get('api/pickup?q=' + cityName)          
-            .then(function (response) {
-              //vm.answer = _.capitalize(response.data.answer)
-              // console.log(response.data);
-               response.data.error ? vm.error.pickupPoint = response.data.error : vm.pickupList = response.data;
-               vm.loading = false;
-              // console.log(vm.error);
-               //vm.cityToList = response.data;
-               //vm.message= response.data
-            });
-
+          let cityId = this.getCityIdBy(city);      
+      
+          this.pickupStops = [];          
+          this.pickupStops =  this.availableStopList.filter(stop => stop.city_id == cityId);
+          this.loading = false;
         },
 
-        fetchDroppingPointList(cityName) {
-
-          if (cityName == undefined || cityName =='') {
-            return;
-          }
+        droppingStopsBy(city) {          
           this.error.droppingPoint = false;
           this.loading = true;
-          this.droppingList = [];
-          var vm = this;
-          axios.get('api/dropping?q=' + cityName)          
-            .then(function (response) {
-              //vm.answer = _.capitalize(response.data.answer)
-              // console.log(response.data);
-               response.data.error ? vm.error.droppingPoint = response.data.error : vm.droppingList = response.data;
-               vm.loading = false;
-              // console.log(vm.error);
-               //vm.cityToList = response.data;
-               //vm.message= response.data
-            });
-
-        },
+          let cityId = this.getCityIdBy(city);
+          
+          this.droppingStops = [];          
+          this.droppingStops =  this.availableStopList.filter(stop => stop.city_id == cityId);
+          this.loading = false;
+        },        
 
         showDate() {
           var vm = this;
           $('#sandbox-container .input-group.date').datepicker({
-                        format: 'dd-mm-yyyy',                        
-                        startDate: '0d',
-                        todayHighlight: true,
-                        autoclose: true
-                    }).on("changeDate", () => {vm.startDate = $('#sandbox-container #startDate').val()});
+              format: 'dd-mm-yyyy',                        
+              startDate: '0d',
+              todayHighlight: true,
+              autoclose: true
+          }).on("changeDate", () => {vm.startDate = $('#sandbox-container #startDate').val()});
 
         },
         testDate() {
@@ -765,6 +541,7 @@
           this.selectedSeat.push({
           seat_no: seat.seat_no,
           fare: seat.fare,
+          special:seat.special,
           status: 'booked' //'selected'
           });
           this.sortSelectedSeat();
@@ -779,45 +556,28 @@
             if (nameA > nameB) {
               return 1;
             }
-
             // names must be equal
             return 0;
           });
         },
-        removeSeat(seatNo, seat) {
-          //console.log('-', seatNo);
-          //var indx = this.selectedSeat.indexOf(seatNo);  
-          /*
-          'findIndex' callback is invoked with three arguments: 
-          1.the value of the element, 
-          2. the index of the element, and 
-          3. the Array object being traversed.
-          ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex 
-          */      
-          
-          this.removeSeatCheckedStatus(seatNo, seat); // checked = false 
-          // var indx = this.seatList.findIndex(function(seat){ 
-          //       // here 'seat' is array object of selectedSeat array
-          //       return seat.seat_no == seatNo;
-          //     });
-
-          //     this.seatList[indx].checked = false;
-          //
-
-          var indx = this.selectedSeat.findIndex(function(seat){ 
-            // here 'seat' is array object of selectedSeat array
-             return seat.seat_no == seatNo;
-          });
-        //console.log(indx);
-          this.selectedSeat.splice(indx, 1);
-          return;
+        removeSeat(seatNo) {                    
+          this.assignSeatCheckedStatusFalseInSeatList(seatNo); // checked = false 
+          this.removeSeatFromSelectedSeat(seatNo);
         },
-        removeSeatCheckedStatus(seatNo, seat){
-          var indx = this.seatList.findIndex(function(seat){ 
-                // here 'seat' is array object of selectedSeat array
-                return seat.seat_no == seatNo;
-              });
-              this.seatList[indx].checked = false;               
+        assignSeatCheckedStatusFalseInSeatList(seatNo) {         
+          let index = this.seatList.findIndex(seat =>              
+            seat.seat_no == seatNo &&
+            seat.status == 'available'
+          );
+          //let index = this.seatList.indexOf(seat);
+          this.seatList[index].checked = false;               
+        },
+        removeSeatFromSelectedSeat(seatNo) {
+          let index = this.selectedSeat.findIndex(seat =>            
+             seat.seat_no == seatNo
+          );
+          //let index = this.selectedSeat.indexOf(seat);      
+          this.selectedSeat.splice(index, 1);     
         },
         isDisabledSeatSelection(seatStatus) {
           //console.log('disableSelection=', seatStatus);
@@ -843,33 +603,38 @@
 </script>
 
 <style lang="scss" scoped>
-  @media (min-width: 992px) { 
-    .btn-search {
-      margin-top: 25px;
-    }
-    // #app .alert {
-    //   margin-top: 65px;
-    // }
-  }
+  // @media (min-width: 992px) { 
+  //   // .btn-search {
+  //   //   margin-top: 25px;
+  //   // }
+  //   // #app .alert {
+  //   //   margin-top: 65px;
+  //   // }
+  // }
   
-  @media (max-width: 767px) { 
-    #app .alert {
-      margin-top: 15px;
-    }
+  // @media (max-width: 767px) { 
+  //   #app .alert {
+  //     margin-top: 15px;
+  //   }
+  // }
+
+  // @media (max-width: 991px) { 
+  //   // #app .alert {
+  //   //   margin-top: 15px;
+  //   // }
+  // }
+
+  // /*[v-cloak] { display:none; }*/
+  .search-form {
+    background: linear-gradient(0deg, #8BC34A, #FFF59D);
+    padding: 1.5rem 0;
+    border-radius: 0.27rem;
   }
 
-  @media (max-width: 991px) { 
-    // #app .alert {
-    //   margin-top: 15px;
-    // }
-  }
-
-  /*[v-cloak] { display:none; }*/
-  
-  .loading {
-    text-align: center;
-    z-index: 11111;
-  }
+  // .loading {
+  //   text-align: center;
+  //   z-index: 11111;
+  // }
 
  .seat-error {
     text-align: center;
@@ -878,33 +643,73 @@
   .form-control[disabled] {
     background-color: #3097D1;
   }
-
+  
   /* The Modal (background) */
-  .modal {
-      display: block; 
-      position: fixed; //* Stay in place */
-      z-index: 11111; //* Sit on top */
-      left: 0;
-      top: 0;
-      width: 100%; //* Full width */
-      height: 100%; //* Full height */
-      overflow: auto; //* Enable scroll if needed */
-      background-color: rgb(0,0,0); //* Fallback color */
-      background-color: rgba(0,0,0,0.4); //* Black w/ opacity */
+  // .modal {
+  //     display: block; 
+  //     position: fixed; //* Stay in place */
+  //     z-index: 11111; //* Sit on top */
+  //     left: 0;
+  //     top: 0;
+  //     width: 100%; //* Full width */
+  //     height: 100%; //* Full height */
+  //     overflow: auto; //* Enable scroll if needed */
+  //     background-color: rgb(0,0,0); //* Fallback color */
+  //     background-color: rgba(0,0,0,0.4); //* Black w/ opacity */
+  // }
+
+#app .seat-layout {
+      //padding-left: 50px;
+      // .row {
+      //   margin-left: 0px;
+      // }
+      display: flex;
+      flex-wrap: wrap;
+      justify-content:  center;
+      button {               
+        height: 34px; //50px;
+        margin: 10px 10px 0 0;
+        font-size: 0.8rem;
+        &.col-xs-2 {
+          width: 15.666667%;
+        }
+        &.col-xs-offset-2 {
+          margin-left: 17.666667%;
+        }
+        &.is-white {
+          background-color: #fff; 
+          border-width: 0;
+          color: #0a0a0a;
+        }
+      }   
   }
   
+  div.row.driver-seat {      
+    height: 4rem;
+    position: relative;
+  }
+  div.row.driver-seat > button {
+    position: absolute;
+    top: 0;
+    right: 10%;
+  }  
+
   /* seat display */
   .is-active {
     background-color: green;
+    color: #fff;
   }     
   .booked {
     background-color: yellow; 
+    color: #fff;
   }
   .buying {
     background-color: orange; 
+    color: #fff;
   }
   .confirmed {
     background-color: red;
+    color: #fff;
   }
   .empty {
     background-color: white;
@@ -913,66 +718,36 @@
     color:white;        
   }
   
+  .search-form {
+    .input-group-text i {
+      color: #a0cc59;
+    }
+  } 
   
-  /*#modal button {       
-    height: 50px;
-    margin: 10px 10px 0 0;
-  }
-  #modal button.col-xs-2 {
-      width: 16.76666667%;          
-  }
-  #modal button.col-xs-offset-2 {
-      margin-left: 17.666667%;
-  }
-  #modal button.is-white {
-      background-color: white;
-      border-width: 0;
-      color: #0a0a0a;
-  }*/
-
-  // seat-layout
-
-  /* #seat-layout .seat-plan-body button {       
-    height: 50px;
-    margin: 10px 10px 0 0;
-  }
-  #seat-layout button.col-xs-2 {
-      width: 16.76666667%;          
-  }
-  #seat-layout button.col-xs-offset-2 {
-      margin-left: 17.666667%;
-  }
-  #seat-layout button.is-white {
-      background-color: white;
-      border-width: 0;
-      color: #0a0a0a;
-  }
-  .seat-plan-body {
-    padding-left: 20px;
-  } */
-
-  #seat-layout {
-    .seat-plan-body {
-      padding-left: 20px;
-       button {       
-          height: 50px;
-          margin: 10px 10px 0 0;
-           &.col-xs-2 {
-                width: 16.76666667%;          
-            }
-          &.col-xs-offset-2 {
-              margin-left: 17.666667%;
-          }
-          &.is-white {
-              background-color: #fff; 
-              border-width: 0;
-              color: #0a0a0a;
-          }
-        }   
-    }   
-  }  
+  
+  // #seat-layout {
+  //   .seat-plan-body {
+  //     padding-left: 20px;
+  //      button {       
+  //         height: 50px;
+  //         margin: 10px 10px 0 0;
+  //          &.col-xs-2 {
+  //               width: 16.76666667%;          
+  //           }
+  //         &.col-xs-offset-2 {
+  //             margin-left: 17.666667%;
+  //         }
+  //         &.is-white {
+  //             background-color: #fff; 
+  //             border-width: 0;
+  //             color: #0a0a0a;
+  //         }
+  //       }   
+  //   }   
+  // }  
   /*#modal .row  {
     background-color: #e5ecff;
   }*/  
 /* end seat display */
+
 </style>

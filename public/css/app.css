@@ -11400,3 +11400,64 @@ i.button-icon {
   margin-top: 2rem;
 }
 
+@media (max-width: 575.98px) {
+  .card-columns {
+    -webkit-column-count: 1;
+       -moz-column-count: 1;
+            column-count: 1;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .card-columns {
+    -webkit-column-count: 1;
+       -moz-column-count: 1;
+            column-count: 1;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .card-columns {
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .card-columns {
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+  }
+}
+
+/** login */
+
+.auth-login {
+  background-image: url("/images/img/login-bg.svg");
+  background-size: 400px auto;
+  background-position: top right;
+  background-repeat: no-repeat;
+  margin-top: 60px;
+}
+
+.auth-login div.card {
+  background-color: transparent;
+  border: none;
+}
+
+/** login */
+
+.auth-verify {
+  background-image: url("/images/img/verify-phone.svg");
+  background-size: contain;
+  background-position: top left;
+  background-repeat: no-repeat;
+}
+
+.auth-verify div.card {
+  background-color: transparent;
+  border: none;
+}
+

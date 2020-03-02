@@ -38,7 +38,11 @@ class BookingController extends Controller
         foreach ($selected_seats as $seat ) {
 
             $seatNo = $seatNo .' '. $seat['seat_no'];            
-            $booking->seats()->create($seat);
+            //$booking->seats()->create($seat);
+            $booking->seats()->create([
+                'seat_no' => $seat.seat_no,
+                'status'  => $seat.status               
+            ]);
             
             //broadcast(new SeatStatusUpdatedEvent($seat, $scheduleId, $travelDate))->toOthers();
         }

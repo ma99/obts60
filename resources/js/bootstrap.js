@@ -13,6 +13,7 @@ try {
     require('bootstrap');
 } catch (e) {}
 
+require('bootstrap-datepicker');
 require('overlayScrollbars');
 
 import swal from 'sweetalert';
@@ -20,6 +21,9 @@ import swal from 'sweetalert';
 window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+import Form from './utilities/Form';
+window.Form = Form;
 
 
 /**

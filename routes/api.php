@@ -28,7 +28,7 @@ Route::get('/buses', 'Api\SearchBusesController@index');
 Route::get('/types', 'Api\SearchTypesController@index');
 Route::get('/routes', 'Api\SearchRoutesController@index');
 Route::get('/fares', 'Api\SearchFaresController@index');
-Route::get('/stops', 'Api\SearchBusController@stopList');
+Route::get('/stops', 'Api\SearchStopsController@index');
 
 //schedule
 Route::get('/schedule', 'Api\SearchScheduleController@index');

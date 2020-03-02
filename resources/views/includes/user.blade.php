@@ -1,6 +1,6 @@
-<div class="panel panel-success">
-    <div class="panel-heading">For Rgistered User</div>
-    <div class="panel-body">
+<div class="card">
+    <div class="card-header">For Rgistered User</div>
+    <div class="card-body">
 		<form method="POST" action="/seatbooking" v-on:submit.prevent="seatBookingByUser()">
 			{{-- <div v-show="guestUser" class="form-group">
 			<label for="name" class="control-label">Name</label>

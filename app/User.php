@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'phone', 'password',
     ];
 
     /**
@@ -34,9 +34,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        //'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
     ];
 
+    //protected $sms;
+    
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'creator_id'); 
@@ -86,5 +89,65 @@ class User extends Authenticatable
     public function hasRole($role)
     {
       return null !== $this->roles()->where('name', $role)->first();
+    }
+
+    /** phone verfication */
+
+    public function hasVerifiedPhone()
+    {
+        return ! is_null($this->phone_verified_at);
+    }
+
+    public function markPhoneAsVerified()
+    {
+        return $this->forceFill([
+            'phone_verified_at' => $this->freshTimestamp(),
+        ])->save();
+    }
+
+    /**
+     * Send the phone verification notification.
+     *
+     * @return void
+     */
+    public function sendPhoneVerificationNotification()
+    {
+        $this->notify(new Notifications\VerifyPhone);
+    }
+
+    /**
+     * Get the Phone address that should be used for verification.
+     *
+     * @return string
+     */
+    public function getPhoneForVerification()
+    {
+        return $this->phone;
+    }
+
+    public function smsToVerify()
+    {
+        //$code = random_int(100000, 999999); // 6 digits
+        $code = random_int(1000, 9999); // 6 digits
+        
+        $this->forceFill([
+            'verification_code' => $code
+        ])->save();
+
+        // $client = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+
+        // $client->calls->create(
+        //     $this->phone,
+        //     "+15306658566", // REPLACE WITH YOUR TWILIO NUMBER
+        //     ["url" => "http://your-ngrok-url>/build-twiml/{$code}"]
+        // );
+        $data = [
+            'to_numbers' => $this->phone,
+            'from_number' => '8801720310945',
+            'message' => 'Your Verfication Code:'.$code,
+        ];
+        //$sms->send($data);
+        //app('App\Repositories\Sms\SmsInterface')->send($data); //wk
+        sendSms($data);
     }
 }

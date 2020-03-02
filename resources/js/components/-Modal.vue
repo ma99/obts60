@@ -4,15 +4,15 @@
 <transition name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <!-- <div class="modal-container"> -->
-        <div id="modal-container" v-bind:style="modalContainer">
+        <div class="modal-container">
+
           <div class="modal-header">
             <slot name="header">
               <!-- default header -->
               <!-- <button class="modal-default-button" @click="$emit('close')">
                 OK
               </button> -->
-              <button type="button" class="close" @click="close()">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close()">
                 <span aria-hidden="true">&times;</span>
               </button>
             </slot>
@@ -36,22 +36,7 @@
 
 <script>
     export default {
-      props: ['show', 'width', 'padding'],
-      data() {
-        return {
-          modalContainer: {
-            width: '30rem',
-            margin: '1.75rem auto',
-            padding: '1rem',
-            backgroundColor: '#fff',
-            borderRadius: '3px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, .33)',
-            transition: 'all .3s ease',
-            height: 'calc(100vh - 4rem)',
-            overflowY: 'auto',
-          }
-        }
-      },                 
+      props: ['show'],                  
       created() {
           document.addEventListener("keydown", (e) => {
             if (e.keyCode == 27) {
@@ -60,36 +45,20 @@
           });
         },
       mounted() {
-          if (this.width) {            
-            this.modalContainer.width = this.width + 'rem';            
-          }          
-          if (this.padding) {            
-            this.modalContainer.padding = this.padding + 'rem';
-          }
-          this.enableScroll();
+          console.log('model component mounted.')
       },
       methods: {
         close() {                
                 //this.$emit('close');                
                 this.$emit('update:show', false); 
-        },
-        enableScroll() {
-            //initializes the plugin with empty options
-          $('#modal-container').overlayScrollbars({ /* your options */ 
-            sizeAutoCapable: false,
-            scrollbars: {
-              autoHide: "never",
-              clickScrolling: true
-            }
-          }); 
-        },
+            },
       }      
     }
 </script>
 <style lang="scss" scoped>
     /* The Modal (background) */
   .modal-mask {
-  position: fixed;
+  position: absolute;
   z-index: 9998;
   top: 0;
   left: 0;
@@ -105,26 +74,24 @@
   vertical-align: middle;
 }
 
-// .modal-container {
-//   width: 31rem;
-//   margin: 1.75rem auto;
-//   padding: 20px 30px;
-//   background-color: #fff;
-//   border-radius: 3px;
-//   box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-//   transition: all .3s ease;
-//   height: calc(100vh - 0px);
-//   overflow-y: auto;
-//   //font-family: Helvetica, Arial, sans-serif;
-//}
+.modal-container {
+  width: 50%;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  //font-family: Helvetica, Arial, sans-serif;
+}
 
 .modal-header h3 {
   margin-top: 0;
-  color: #42b983;  
+  color: #42b983;
 }
 
 .modal-body {
-  margin: 1rem 0; //20px 0;  
+  margin: 20px 0;
 }
 
 .modal-default-button {

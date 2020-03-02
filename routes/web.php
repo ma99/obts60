@@ -65,11 +65,18 @@ Route::group(['middleware' => ['auth']], function () {
     
 });
 
+//Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'SearchTicketController@index')->name('home')->middleware('verifiedphone'); 
 Route::get('/search', 'SearchTicketController@searchTicket');
 Route::get('/viewseats/buses/{bus}', 'SearchTicketController@viewSeats');
+
+/** Phone Verification */
+Route::get('phone/verify', 'PhoneVerificationController@show')->name('phoneverification.notice');
+Route::post('phone/verify', 'PhoneVerificationController@verify')->name('phoneverification.verify');
+Route::post('phone/resend', 'PhoneVerificationController@resend')->name('phoneverification.resend');
+ 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/sp', function() {
 	// DB::listen(function($query){

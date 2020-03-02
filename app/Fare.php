@@ -25,7 +25,8 @@ class Fare extends Model
 
     public function getFareByBus($type)
     {
-        $fare = json_decode($this->details, true); 
+        //$fare = json_decode($this->details, true); 
+        $fare = json_decode(json_encode($this->details), true); 
         
         $result = $fare[$type] ?? 'N/A';        
         
