@@ -32,4 +32,37 @@ class Booking extends Model
     {
         return $this->belongsTo(Schedule::class);
     }
+
+    public function setSession()
+    {
+        session([
+            'booking_id' => $this->id,
+            'bus_id' => $this->bus_id,
+            'schedule_id' => $this->schedule_id,
+            'travel_date' => date("d-m-Y", strtotime($this->date)),
+            'amount' => $this->amount
+        ]);
+    }
+
+    public function getSession()
+    {        
+        return [
+            'booking_id' => session('booking_id'),
+            'bus_id' => session('bus_id'),
+            'schedule_id' => session('schedule_id'),
+            'travel_date' => session('travel_date'),           
+            'amount' => session('amount')
+        ];
+    }
+
+    public function info()
+    {        
+        return [
+            'booking_id' => $this->id,
+            'bus_id' => $this->bus_id,
+            'schedule_id' => $this->schedule_id,
+            'travel_date' => date("d-m-Y", strtotime($this->date)),
+            'amount' => $this->amount
+        ];
+    }
 }

@@ -10,7 +10,7 @@ import { routes } from './routes';
 // import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 // Vue.component('overlay-scrollbars', OverlayScrollbarsComponent);
 
-//Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('seat-display', require('./components/SeatDisplay.vue').default);
 Vue.component('seat-layout', require('./components/SeatLayout.vue').default);
 Vue.component('modal', require('./components/Modal.vue').default);

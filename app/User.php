@@ -45,6 +45,36 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class, 'creator_id'); 
     }
 
+    protected function create(array $data)
+    {
+      // return User::updateOrCreate(
+      //     ['phone' => $data['phone']],
+      //     [
+      //       'name' => $data['name'],
+      //       'email' => $data['email'],
+      //       'password' => $data['password'] // $attributes['password'] = Hash::make(Str::random(8)); 
+      //     ]
+      // );
+
+      return User::create(
+          [
+            'phone' => $data['phone'],
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'], 
+          ]
+      );
+    }
+
+    // public function remove(array $data)
+    // {        
+    //     unset($data['name']);
+    //     unset($data['phone']);
+    //     unset($data['password']);        
+    //     if (isset($data['email'])) { unset($data['email']); }
+    //     return $data;
+    // }
+
     public function roles()
     {
         return $this->belongsToMany(Role::class); 

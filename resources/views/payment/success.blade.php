@@ -1,27 +1,22 @@
-@extends('layouts.app')
-
-@section('content')
-	<div class="row">
-	    <div class="col-md-8 col-md-offset-2">
-		    <div class="panel panel-success">		      
-		      <div class="panel-heading">Payment Status</div>		      			      		      
-		      <div class="panel body">
-
-		      	@if ($payment_status == 'success')
-							<h1> {{ $payment_status }}  </h1>
-							<ul>
-								<li> Status: {{ $status }} </li>
-								<li> Transaction Ref: {{ $tran_id }} </li>
-								<li>  Validation ID: {{ $val_id }}</li>				
-								<li> Amount: {{ $store_amount }}</li>
-								<li> Amount Including Charge: {{ $amount }}</li>
-							</ul>
-						@else
-							<p> {{ $validation_message }}  </p>			
-						@endif												
-
-			  	</div>
-		    </div>
-	  	</div>
-	</div>   
-@endsection
+<div class="icon-box {{ $status }}">
+	{{-- <i class="material-icons">&#xE876;</i> --}}	
+	{{-- <i class="fas fa-check-circle"></i> --}}
+	<i class="fas {{ $icon }}"></i>
+</div>	
+<div class="card-body mt-4">
+	<h5 class="card-title">{{ $title }}</h5>
+	<p class="card-text"> {{ $msg }} </p>
+	@if ($status == 'error')
+		<form method="post" action="{{ route('make.payment') }}">
+	        @csrf
+	        <input id="booking_id2" name="booking_id" type="hidden" value="{{ $booking_id }}">                                
+	        <button class="btn btn-primary btn-block">Try Again</button>			
+    	</form>	
+	@endif
+		<form method="get" action="{{ route('home') }}">
+	        @csrf                                
+	        <button class="btn btn-{{ $button }} btn-block mt-2">Ok</button>
+			{{-- <button class="btn btn-outline-primary btn-block">Ok</button> --}}		
+    	</form>	
+	{{-- @endif	 --}}
+</div>

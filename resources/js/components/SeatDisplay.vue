@@ -1,4 +1,3 @@
-
 <script>
     export default {
       props: ['cities'],
@@ -17,6 +16,7 @@
               droppingStops: [],
               cityToList:[],
               //error: false,
+              dataErrors: [],
               error: {
                 city: false,
                 pickupPoint: false,
@@ -30,9 +30,9 @@
               showSchedule: false,              
               scheduleId:'',
               selection: '',
-              startDate: '',               
-              selectedCityFrom: '',
-              selectedTo: '',
+              startDate: '11-04-2020',               
+              selectedCityFrom: 'Dhaka',
+              selectedTo: 'Sylhet',
               selectedPickupPoint: '',
               selectedDroppingPoint: '',
               //url: 'seatbooking',             
@@ -46,13 +46,23 @@
               seatList: [],              
               indexList: [],
               index: 2, // space starting from this index then 2+4, 6+4
-              numberOfRow: '',
-              pickupList: [],
-              droppingList: [],
+              numberOfRow: '',              
               totalFare: 0,
               totalSeats: 0,              
               // end seat display
-              //guestUser: true,              
+              //guestUser: true,   
+              payment: {
+                method: 'cash',
+                transaction: ''
+              },           
+              userInfo: {
+                id: '',
+                name: '',
+                phone: '',
+                email:'',
+                error: '',
+              },
+              userExist: false,
               form: new Form({  //data as object
                 name: '',
                 email:'',
@@ -63,7 +73,7 @@
                 schedule_id: '',
                 selected_seats: '',
                 total_seats: '',
-                total_fare: '',
+                amount: '',
                 pickup_point: '',
                 dropping_point:'',
               })
@@ -73,20 +83,25 @@
       mounted() {
            console.log('Seat search Component ready.');
            //this.createIndexList();            
-           //this.cityList = JSON.parse(this.cities);         
+           //this.cityList = JSON.parse(this.cities);
+           this.enableScroll();         
            this.fetchCities();
            this.fetchStops();
            this.showDate();                      
             // Echo.channel('mychannel.1')
             //   .listen('SeatStatusUpdatedEvent', this.updateSeatStatus); 
+            this.eventListenThroughBroadcastChannel();
       },
       watch: {
+       'form.phone'(val, oldVal) {
+        this.getUserInfoIfExist(this.form.phone);
+       },
        seatStatus() {        
         var type = this.seatStatus;
         switch (type) {
           case 'available':
             this.alertType = 'success';           
-            break;
+            break;            
           case 'booked':
            this.alertType = 'warning';
             break;          
@@ -101,7 +116,8 @@
         }
        },
        buses() {
-        this.isBusAvailable(); 
+        this.isBusAvailable();
+        //this.sortBusByDepartureTime(); 
        }, 
        selectedCityFrom() {
           //console.log();
@@ -120,6 +136,18 @@
         }
       },
       computed: {
+        // userNotExist() {        
+        //   return (!this.userExist ||
+        //     this.userInfo.error
+        //     )
+        //    ? true : false;
+        // },
+        showDataErrors() {
+          return (this.dataErrors.length > 0) ? true : false;
+        },
+        // routeName() {
+        //   return '/pay/'+this.bookedSeatInfo.booking_ref;
+        // },
         totalFareForSelectedSeats() {          
           var fare = 0;
           let len = this.selectedSeat.length;
@@ -131,31 +159,45 @@
           //console.log('total seats:', len);
           this.totalFare = fare; 
           this.totalSeats = len;         
-        },        
-        
+        },
+        disablePayButton() {
+          if ( Object.keys(this.bookedSeatInfo).length === 0 ) return true; // empty object
 
-        // isBusAvailable() {
-        //   let len = this.buses.length;
-        //   return ( len >0 && this.error==false && this.selectedTo !=="" ) ? true : false;  //true show table
+          if (this.payment.method == 'pos') { 
+            return ( this.payment.transaction == ''  || this.bookedSeatInfo.booking_ref == '') ?
+                true : false;
+          }
+          return ( this.bookedSeatInfo.booking_ref == '' ) ?
+                true : false;
+        },
+        // validPaymentOption() {
+        //   return ( this.payment.method == 'pos' && 
+        //     this.payment.transaction != "" ) ?
+        //     true : false;
         // },
-
-        isDisabled(){
-          //return ( this.selected=='' || this.selectedTo=='' || this.startDate='' ) ? true : false;
-          // if ( this.selected == "" || this.selectedTo == "" || this.startDate =='' ){
-          //   return true;
-          // }
-          // return false ;
-          return ( this.selectedCityFrom == "" || this.selectedTo == "" || this.startDate =='' ) ? true : false;
+        isDisabled() {        
+          return ( this.selectedCityFrom == "" || this.selectedTo == "" || this.startDate =='' || !this.validJourneyDate ) ? true : false;
        },
 
+       validJourneyDate() {
+        //let today = new Date().toISOString().slice(0, 10);
+        let date = this.startDate.split('-');
+
+        let today = new Date();
+        let dateOfJourney = new Date(`${date[2]}-${date[1]}-${date[0]} 23:50:00`); //yyyy-mm-dd        
+        return (dateOfJourney >= today) ? true : false;
+       },
         //showSelectedSeatList() {
         isSeatSelected() {
           let len = this.selectedSeat.length;
           return ( len >0 ) ? true : false;
         },
+        isValid() {
+            return this.isSeatSelected != false &&
+              this.selectedPickupPoint != '' &&
+              this.selectedDroppingPoint != ''
+          },
         isSeatBooked() {
-          //Object.keys(this.bookedSeatInfo).length;
-          //let len = this.bookedSeatInfo.length;
           let len = Object.keys(this.bookedSeatInfo).length;
           //return ( len >0 ) ? true : false;
           if (len >0) {
@@ -166,6 +208,93 @@
         },
       },
       methods: {
+        eventListenThroughBroadcastChannel() {
+          Echo.channel('mychannel.1')
+              .listen('SeatStatusUpdated', this.updateSeatStatus); 
+        },
+        getUserInfoIfExist(phone) {
+          if (phone.length < 11) {
+            this.userInfo.error = 'Phone number not given or Invalid number';
+            this.resetUserInfo();
+            return;
+          }
+          this.loading = true;          
+          this.userInfo.error = ''; 
+          this.resetUserInfo();
+          var vm = this;                
+          axios.get(`/users/${phone}`)
+              .then(function (response) {                  
+                response.data.error ? vm.error = response.data.error : vm.userInfo = response.data;
+                if( !vm.isEmpty(vm.userInfo) ){                  
+                  vm.userExist = true;
+                  vm.userInfo.error = '';
+                  vm.fillupUserForm(vm.userInfo);
+                  //console.log('not empty');                 
+                }       
+                vm.loading = false;
+          });
+        },
+        fillupUserForm(userInfo) {          
+          this.form.phone = userInfo.phone;
+          this.form.name = userInfo.name;
+          this.form.email = userInfo.email;          
+        },
+        isEmpty(obj) {
+          //console.log('lenn='+ Object.values(obj).length);
+          //return Object.keys(obj).length === 0;
+          return Object.values(obj).length <= 1;
+        },
+        resetUserInfo() {
+          this.userExist = false;
+          this.form.name = '';
+          this.form.email = '';
+        },
+        sortBusByDepartureTime() {
+          var vm = this;
+          this.buses.sort(function(a, b) {
+            var timeA = vm.convertTime12to24(a.departure_time);
+             // ignore upper and lowercase
+            var timeB = vm.convertTime12to24(b.departure_time );// ignore upper and lowercase
+            if (timeA < timeB) {
+              return -1;
+            }
+            if (timeA > timeB) {
+              return 1;
+            }
+            // names must be equal
+            return 0;
+          });
+        },
+        convertTime12to24(time12h) {
+          const [time, modifier] = time12h.split(' ');
+
+          let [hours, minutes] = time.split(':');
+
+          if (hours === '12') {
+            hours = '00';
+          }
+
+          if ( modifier === 'PM' || modifier === 'pm') {
+            hours = parseInt(hours, 10) + 12;
+          }
+
+         // return `${hours}:${minutes}`;
+          return `${hours}${minutes}`;
+        },
+        enableScroll() {
+          //initializes the plugin with empty options
+          $('#scrollbar').overlayScrollbars({ /* your options */ 
+            sizeAutoCapable: true,
+            overflowBehavior : {
+              x : "scroll",
+              y : "scroll"
+            },
+            scrollbars: {
+              autoHide: "never",
+              clickScrolling: true
+            }
+          }); 
+        },   
         getFareFor(seat) {
           //console.log(seat);
           let combinedFare = this.isCombinedType(seat.fare);
@@ -197,13 +326,15 @@
           this.showSchedule = ( len >0 ) ? true : false;  //true show table
         },
         isSeatBuying(seatStatus){
-          return seatStatus=='buying' ? true : false;
+          return seatStatus == 'buying' ? true : false;
         },
         updateSeatStatus(evnt) {          
           var seatNo = evnt.seat.seat_no;
           console.log('seaaatno=', seatNo);
           //var vm = this;
-          if ( this.scheduleId == evnt.scheduleId && this.startDate == evnt.date) {
+          if ( this.scheduleId == evnt.scheduleId &&
+              this.busId == evnt.busId &&
+              this.startDate == evnt.date) {
             
               var indx = this.seatList.findIndex(function(seat){ 
                 // here 'seat' is array object of selectedSeat array
@@ -213,16 +344,8 @@
              // this.seatList[indx].status = "booked"; //prev
             this.seatList[indx].status = evnt.seat.status;
             this.seatNo = seatNo;
-            this.seatStatus = evnt.seat.status;
-            //this.showAlert();
+            this.seatStatus = evnt.seat.status;         
             this.showAlert = true;
-
-
-            
-          // this.seatList.push({
-          //     seat_no: seat.seat_no,              
-          //     status: seat.status
-          // });
           }
           console.log(evnt.seat.seat_no, evnt.scheduleId, evnt.date);
         },
@@ -245,6 +368,7 @@
             .then(function (response) {             
                console.log(response.data);
                response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
+               vm.sortBusByDepartureTime(); 
                vm.loading = false;
                if (vm.busError) {
                   vm.seatNotAvailableAlert('SCHEDULE', 'warning');
@@ -275,6 +399,7 @@
                 schedule_id: scheduleId,
                 bus_id: busId,
                 bus_fare: busFare,
+                date: vm.startDate,
               }  
             })          
             .then(function (response) {             
@@ -306,7 +431,18 @@
             closeOnClickOutside: true,
           });
         },
-        seatBookingByGuest() {          
+        seatBookingByStaff() {         
+          // this.url = (this.userInfo.hasOwnProperty('id')) ? `bookings/byStaff/${this.userInfo.id}` : 'bookings/byStaff';
+          // if (this.userInfo.name == '' && this.form.name != '' ) {
+          //   this.userInfo.name = this.form.name;
+          // }
+          if (this.userExist) {
+            this.url = `bookings/byStaff/${this.userInfo.id}`;
+          } else {
+            this.url = 'bookings/byStaff';
+            this.userInfo.phone = this.form.phone;
+            this.userInfo.name = this.form.name;
+          }
           var vm = this; 
           swal({
             title: "Are you sure?",
@@ -333,7 +469,7 @@
               vm.form.schedule_id = vm.scheduleId;
               vm.form.selected_seats = vm.selectedSeat;
               vm.form.total_seats = vm.totalSeats;
-              vm.form.total_fare = vm.totalFare; 
+              vm.form.amount = vm.totalFare; 
               vm.form.pickup_point = vm.selectedPickupPoint; 
               vm.form.dropping_point = vm.selectedDroppingPoint; 
 
@@ -385,7 +521,7 @@
                 schedule_id: vm.scheduleId,
                 selected_seats:vm.selectedSeat,
                 total_seats: vm.totalSeats,
-                total_fare: vm.totalFare,
+                amount: vm.totalFare,
                 pickup_point:  vm.selectedPickupPoint,
                 dropping_point: vm.selectedDroppingPoint 
               })                           
@@ -398,21 +534,24 @@
                  // response.data.error ? vm.busError = response.data.error : vm.buses = response.data;
               })
               .catch(function (error) {
-                console.log(error);
+                //console.log('error='+ error);
+                console.log(error.response.data.errors);
+                vm.dataErrors = Object.values(error.response.data.errors);
+                console.log(vm.dataErrors);
                 vm.loading = false;
-              });
-              
-            } //if
-            
+              });              
+            } //if            
           }); 
         },
+        // showDataErrors() {
+        //   return (this.dataErrors.length > 0) ? true : false;
+        // },
         changeStatusOfSelectedSeat(selectedSeat) {
           var vm = this;
           selectedSeat.forEach( function(seat){
-            //seat.status = (vm.url == 'bookings') ? 'booked' : 'buying';
-            seat.status = 'buying';
+            seat.status = (vm.url == 'bookings') ? 'booked' : 'buying';
+            //seat.status = 'buying';
           });
-
         },
         fetchCities() {
           this.loading = true;
@@ -701,7 +840,7 @@
   }     
   .booked {
     background-color: yellow; 
-    color: #fff;
+    color: black;
   }
   .buying {
     background-color: orange; 
@@ -723,8 +862,30 @@
       color: #a0cc59;
     }
   } 
-  
-  
+  .warning-l {
+    background-color: #FFE006;
+    border-radius: 0.25rem 0 0 0.25rem;
+    color: #FAB005;
+    text-align: center;
+  }
+  .warning-r {
+    background-color: #fff9db;
+    border-radius: 0 0.25rem 0.25rem 0;
+    //color: #FAB005;
+    //text-align: center;
+  }
+  .info-l {
+    color: #0c5460;
+    background-color: #bee5eb; //#d1ecf1;
+    border-radius: 0.25rem 0 0 0.25rem;
+    text-align: center;
+  }
+  .info-r {
+    background-color: #d1ecf1;
+    border-radius: 0 0.25rem 0.25rem 0;
+    //color: #FAB005;
+    //text-align: center;
+  }  
   // #seat-layout {
   //   .seat-plan-body {
   //     padding-left: 20px;

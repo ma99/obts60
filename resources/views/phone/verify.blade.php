@@ -19,7 +19,7 @@
                 {{-- <img src="{{ asset('images/img/verify-phone.svg') }}" class="card-img-top" alt="..."> --}}
                 <div class="card-body">
                     {{-- <h5 class="card-title">Thank You!</h5> --}}
-                    <h5 class="card-title ml-3">Verify your phone</h5>
+                    <h5 class="card-title ml-3">Phone Verification</h5>
                     <p class="card-text ml-3">A verification code has been sent to your phone.<br>Please enter the code below.</p>
 
                     {{-- <div class="d-flex justify-content-center"> --}}
@@ -28,8 +28,8 @@
                             <form method="post" action="{{ route('phoneverification.verify') }}">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="code">Verification Code</label>
-                                    <input id="code" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}" name="code" type="text" placeholder="Verification Code" required autofocus>
+                                    {{-- <label for="code">Verification Code</label> --}}
+                                    <input id="code" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}" name="code" type="text" placeholder="Type code here" required autofocus>
                                     @if ($errors->has('code'))
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $errors->first('code') }}</strong>

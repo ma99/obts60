@@ -18,6 +18,7 @@ class CreateSeatsTable extends Migration
              $table->bigInteger('booking_id');
             $table->string('seat_no');
             $table->string('status')->default('booked');
+            $table->boolean('special');
             $table->timestamps();
 
             $table->foreign('booking_id')

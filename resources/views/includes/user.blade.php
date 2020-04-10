@@ -1,35 +1,18 @@
-<div class="card">
+{{-- <div class="card">
     <div class="card-header">For Rgistered User</div>
-    <div class="card-body">
-		<form method="POST" action="/seatbooking" v-on:submit.prevent="seatBookingByUser()">
-			{{-- <div v-show="guestUser" class="form-group">
-			<label for="name" class="control-label">Name</label>
-			<div class="input-group">
-			    <span class="input-group-addon"><i class="fa fa-user fa-fw"></i></span>
-			    <input id="name" type="text" class="form-control" name="name" v-model="form.name">
-			</div>
-			<span class="help is-danger" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></span>
-			</div>
-
-			<div v-show="guestUser" class="form-group">
-			<label for="email" class="control-label">E-Mail</label>
-			<div class="input-group">
-			    <span class="input-group-addon"><i class="fa fa-envelope-o fa-fw"></i></span>
-			    <input id="email" type="email" class="form-control" name="email" v-model="form.email">
-			</div>
-			<span class="help is-danger" v-if="form.errors.has('email')" v-text="form.errors.get('email')"></span>
-			</div>
-
-			<div v-show="guestUser" class="form-group">
-			<label for="phone" class="control-label">Mobile No.</label>
-			<div class="input-group">
-			    <span class="input-group-addon"><i class="fa fa-mobile fa-fw"></i></span>
-			    <input id="phone" type="text" class="form-control" name="phone" v-model="form.phone">
-			</div>
-			<span class="help is-danger" v-if="form.errors.has('phone')" v-text="form.errors.get('phone')"></span>
-			</div> --}}
-			@include('includes.options')
-			<button v-show="isSeatSelected" class="btn btn-primary">Continue</button>                                      
-		</form>
-    </div>
-</div>
+    <div class="card-body"> --}}
+    	<div class="d-flex">
+    		<div class="p-2 flex-fill info-l">
+    			<i class="mt-3 fas fa-user-clock fa-2x"></i>
+	    	</div>
+	  		<div class="p-2 flex-fill info-r">
+	  			<h5 class="mx-2">Ticket!</h6>
+	  			<form method="POST" action="/seatbooking" v-on:submit.prevent="seatBookingByUser()">			
+					<p class="mt-2 mx-2"> Book The Ticket(s) 
+						<button :disabled="!isValid" class="mt-2 btn btn-primary btn-block">Continue</button>
+					</p>
+				</form>
+	  		</div>    		
+    	</div>    	
+    {{-- </div>
+</div> --}}

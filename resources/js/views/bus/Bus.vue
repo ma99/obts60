@@ -112,7 +112,7 @@
             <show-alert :show.sync="showAlert" :type="alertType"> 
               <!-- altert type can be success/info/warning/danger/dark -->
               <strong> Bus </strong> has been <strong>{{ actionStatus }} </strong>
-              </show-alert>
+            </show-alert>
           </template>
         </add-section>
         <loader :show="loading"></loader>

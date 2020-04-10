@@ -58,6 +58,11 @@ Route::group(['middleware' => ['auth', 'role:super_admin']], function () {
 	Route::post('/bus-schedule/{bus}', 'Admin\BusScheduleController@store');
 //});	
 
+Route::group(['middleware' => ['auth', 'role:super_admin,admin,operator']], function () {
+	Route::get('/users/{phone}', 'Admin\UserController@index');
+	Route::post('/bookings/byStaff/{user?}', 'BookingController@createByStaff');
+	Route::post('/pay/cash', 'Payment\PaymentController@cash')->name('make.payment.cash');
+});
 Route::group(['middleware' => ['auth']], function () {
 	// booking
 	Route::post('/bookings', 'BookingController@store');
@@ -66,7 +71,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 //Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/home', 'SearchTicketController@index')->name('home')->middleware('verifiedphone'); 
+Route::get('/home', 'SearchTicketController@index')->name('home');//->middleware('verifiedphone'); 
 Route::get('/search', 'SearchTicketController@searchTicket');
 Route::get('/viewseats/buses/{bus}', 'SearchTicketController@viewSeats');
 
@@ -74,6 +79,15 @@ Route::get('/viewseats/buses/{bus}', 'SearchTicketController@viewSeats');
 Route::get('phone/verify', 'PhoneVerificationController@show')->name('phoneverification.notice');
 Route::post('phone/verify', 'PhoneVerificationController@verify')->name('phoneverification.verify');
 Route::post('phone/resend', 'PhoneVerificationController@resend')->name('phoneverification.resend');
+
+/*Payment*/
+//Route::post('/pay/{booking}', 'Payment\PaymentController@index')->name('make.payment');
+//Route::post('/pay', 'Payment\PaymentController@cash')->name('make.payment.cash'); //shifted to admin grps
+Route::post('/pay/card', 'Payment\PaymentController@card')->name('make.payment.card');
+Route::post('/payment/success', 'Payment\PaymentController@success');
+Route::post('/payment/fail', 'Payment\PaymentController@fail');
+Route::post('/payment/cancel', 'Payment\PaymentController@cancel');
+Route::post('/payment/ipn', 'Payment\PaymentController@ipn');
  
 Auth::routes();
 
@@ -83,9 +97,41 @@ Route::get('/sp', function() {
  //        	dump($query->sql);
  //        });
 
-        //$seatPlan = SeatPlan::latest()->get();
-        $seatPlan = App\SeatPlan::cursor();
-        dump($seatPlan);
-
-        return 'Done';
+        // //$seatPlan = SeatPlan::latest()->get();
+        // $seatPlan = App\SeatPlan::cursor();
+        // dump($seatPlan);
+	$password = Hash::make(Str::random(8)); 
+	$attributes = [
+		'name' => 'aauuvvuu',          
+        'email' => 'mmn@a.com',          
+        'phone' => '77888888888',
+    	'password' => $password,
+        ];          
+	return $user = auth()->user()->create($attributes);
+	dd($user);
+        // return 'Done';
+	$msg = "Completed Successfuly";
+	//view('payment.status', compact($msg));
+	$options = [
+                'border' => 'border-success',
+                'button' => 'success',
+                'msg' => $msg,
+                'icon' => 'fa-check-circle',
+                //'icon' => 'fa-times-circle',
+                //'color' => 'success'
+                'status' => 'success',
+                'title' => 'Thank You!'
+            ];
+	return view('payment.status', $options);
 });
+$options = [
+	'border' => 'border-danger',
+	'button' => 'warning',
+	'msg' => 'mmmm',
+	//'icon' => 'fa-check-circle',
+	'icon' => 'fa-times-circle',
+	//'color' => 'success'
+	'status' => 'error',
+	'title' => 'Oops!'
+];
+Route::view('/pay101', 'payment.status', $options);

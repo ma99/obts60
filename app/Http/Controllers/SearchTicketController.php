@@ -50,6 +50,12 @@ class SearchTicketController extends Controller
 		 		if ($schedules->count()) {
 
 			 		foreach ($schedules as $schedule) {
+				 		
+				 	// 	$schedule = $schedule->load([
+				  //   		'bookings' => function($query) use ($date) {
+						// 		$query->where('date', $date);
+						// }]);
+						$schedule = $this->getScheduleWithBookingsOn($date, $schedule);
 
 				 		if ($schedule->bookings->count()) {
 							
@@ -102,25 +108,33 @@ class SearchTicketController extends Controller
 				}])->first();			
     }
 
+    public function getScheduleWithBookingsOn($date, $schedule)
+    {
+    	return $schedule->load([
+		    		'bookings' => function($query) use ($date) {
+						$query->where('date', $date);
+				}]);
+    }
+
     public function viewSeats(Bus $bus)
     {
     	$scheduleId = request()->input('schedule_id');     	
-    	$busFare = request()->input('bus_fare'); 
+    	$busFare = request()->input('bus_fare');
+    	$date = request()->input('date');
+
+		$date = date("Y-m-d", strtotime($date)); //wk if input date is dd-mm-yyyy format in vue script 
 
 		$seatsBySeatPlanOfBus = $this->getSeatsBySeatPlanOf($bus, $busFare);
 
+
   		$schedule = $this->getScheduleOfBusBy($scheduleId, $bus);
     	
-		$seatsByBooking = $this->getSeatsByBooking($schedule, $busFare);
+		$seatsByBooking = $this->getSeatsByBookingOn($date, $schedule, $busFare);
 
 		if ( count($seatsByBooking) >0 && count($seatsBySeatPlanOfBus) >0) {
 
-			$result = array_merge($seatsByBooking, $seatsBySeatPlanOfBus); 
-
-			$viewseats = $this->unique_multidim_array($result,'seat_no'); // can be any key			
-			sort($viewseats);
+			return $result = $this->mergeArray($seatsByBooking, $seatsBySeatPlanOfBus);
 			
-			return $viewseats;			
 		}
 		
 		if (count($seatsBySeatPlanOfBus) >0) {
@@ -129,6 +143,22 @@ class SearchTicketController extends Controller
 		return $error = ['error' => 'Not Available'];	
     }
 
+    public function mergeArray($seatBooking, $seatPlan)
+    {  
+	    for ($i=0; $i < count($seatBooking) ; $i++) { 
+	    	for ($j=0; $j < count($seatPlan) ; $j++) { 
+	    		if ( $seatPlan[$j]['status'] == 'available') {
+	        		if ($seatPlan[$j]['seat_no'] == $seatBooking[$i]['seat_no']) {
+	        			$seatPlan[$j]['status'] = $seatBooking[$i]['status'];
+	        			$seatPlan[$j]['special'] = $seatBooking[$i]['special'];
+	        			break;
+	        		}
+	        	}	    		
+	    	}
+	    }
+
+	    return $seatPlan;
+    }
     public function getScheduleOfBusBy($scheduleId, $bus)
     {
     	$bus = $bus->load([
@@ -139,8 +169,10 @@ class SearchTicketController extends Controller
 		return $bus->schedules[0];    
     }
     
-    public function getSeatsByBooking($schedule, $busFare) 
+    public function getSeatsByBookingOn($date, $schedule, $busFare) 
     {
+  		$schedule = $this->getScheduleWithBookingsOn($date, $schedule);
+		
 		if ($schedule->bookings->count()) {
 			foreach ($schedule->bookings as $booking) {
 				//$seats = Seat::where('booking_id', $booking->id)->get(); //collection
@@ -178,11 +210,11 @@ class SearchTicketController extends Controller
 				'checked' => false,
 				'fare'	  => $busFare, 	 
 			];
-		}						
+		}							
 		return $arr_seats; 
     }
 
-    public function unique_multidim_array($array, $key)
+    /*public function unique_multidim_array($array, $key)
     {
 	    $temp_array = [] ;// = array();
 	    $i = 0;
@@ -196,5 +228,5 @@ class SearchTicketController extends Controller
 	        $i++;
 	    }
 	    return $temp_array;
-	}     
+	}     */
 }

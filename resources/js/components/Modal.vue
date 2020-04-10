@@ -66,23 +66,23 @@
           if (this.padding) {            
             this.modalContainer.padding = this.padding + 'rem';
           }
-          this.enableScroll();
+          //this.enableScroll();
       },
       methods: {
         close() {                
                 //this.$emit('close');                
                 this.$emit('update:show', false); 
         },
-        enableScroll() {
-            //initializes the plugin with empty options
-          $('#modal-container').overlayScrollbars({ /* your options */ 
-            sizeAutoCapable: false,
-            scrollbars: {
-              autoHide: "never",
-              clickScrolling: true
-            }
-          }); 
-        },
+        // enableScroll() {
+        //     //initializes the plugin with empty options
+        //   $('#modal-container').overlayScrollbars({ /* your options */ 
+        //     sizeAutoCapable: false,
+        //     scrollbars: {
+        //       autoHide: "never",
+        //       clickScrolling: true
+        //     }
+        //   }); 
+        // },
       }      
     }
 </script>

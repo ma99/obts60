@@ -23,10 +23,10 @@
           @if ( auth()->user()->hasAnyRole(['admin', 'super_admin', 'operator']) )
             {{-- @include('includes.guest') --}}
             <div class="col-6 mb-2">
-              Name: <strong>@{{ userInfo.name }}</strong>
+              Name: <strong>@{{ form.name }}</strong>
             </div>
             <div class="col-6 mb-2">
-              Phone: <strong>@{{ userInfo.phone }}</strong>
+              Phone: <strong>@{{ form.phone }}</strong>
             </div>
           @else 
             <div class="col-6 mb-2">
@@ -39,7 +39,7 @@
           @endauth
 
           <div class="col-7 mb-2">
-            Seat No(s): <strong>@{{ bookedSeatInfo.seats}}</strong>
+            Seat No(s): <strong>@{{ bookedSeatInfo.seat_no}}</strong>
           </div>
           <div class="col-7 mb-2">
             Amount: <strong>@{{ bookedSeatInfo.amount }} </strong> Tk
@@ -60,18 +60,28 @@
             Coach: @{{ bookedSeatInfo.bus_no }} 
           </div>         
           <div class="col-12 mt-2">
-            @auth
+            {{-- <form method="post" action="{{ route('make.payment', ['booking' => bookedSeatInfo.booking_ref ]) }}"> --}}            
+            
+                  @auth
                     @if ( auth()->user()->hasAnyRole(['admin', 'super_admin', 'operator']) )
-                      <form method="post" action="{{ route('make.payment.cash')}}">
+                      <form method="post" action="{{ route('make.payment.cash')}}">            
+                        @csrf   
                         @include('includes.paymentoptions')
-                        @include('includes.paymentsubmit')                        
+                        <input id="booking_id" name="booking_id" type="hidden" :value="bookedSeatInfo.booking_ref">
+                        <div class="form-group">
+                            <button class="btn btn-success btn-block" :disabled="!bookedSeatInfo.booking_ref">Pay Now</button>
+                        </div>
                       </form>                    
-                    @else
-                      <form method="post" action="{{ route('make.payment.card')}}">            
-                        @include('includes.paymentsubmit')                        
-                      </form>
                     @endif
-            @endauth 
+
+                    <form method="post" action="{{ route('make.payment.card')}}">            
+                      @csrf
+                      <input id="booking_id" name="booking_id" type="hidden" :value="bookedSeatInfo.booking_ref">
+                      <div class="form-group">
+                          <button class="btn btn-success btn-block" :disabled="!bookedSeatInfo.booking_ref">Pay Now</button>
+                      </div>
+                    </form>
+                  @endauth 
           </div>
             {{-- <div class="col-6 mb-2 auth-verify">               
             </div> --}}

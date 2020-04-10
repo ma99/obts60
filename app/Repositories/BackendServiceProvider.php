@@ -13,6 +13,10 @@ class BackendServiceProvider extends ServiceProvider
             //'App\Repositories\Sms\NexmoSms'
             'App\Repositories\Sms\AlphaSms'
         );
+        $this->app->bind(
+            'App\Repositories\Payment\PaymentInterface',
+            'App\Repositories\Payment\Sslcommerz\Sslcommerz'
+        );
     }
 
     public function boot()

@@ -195,7 +195,7 @@
         computed: {
           isValid() {
             return this.selectedCity != '' &&
-              this.selectedDistrict != ''
+              this.selectedDistrict != '' &&
               this.selectedDivision != ''
           },
         },

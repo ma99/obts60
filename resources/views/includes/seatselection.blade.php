@@ -39,7 +39,8 @@
       </div>
       <!-- {{-- card-footer --}} -->           
       <div class="card-footer">
-        <show-alert :show="showAlert" :type="alertType" @cancel="showAlert=false"> 
+        {{-- <show-alert :show="showAlert" :type="alertType" @cancel="showAlert=false">  --}}
+        <show-alert :show.sync="showAlert" :type="alertType"> 
         <!-- altert type can be info/warning/danger -->
           <strong>@{{ seatNo }} </strong> has been <strong>@{{ seatStatus }} </strong>
         </show-alert>
@@ -99,20 +100,14 @@
   </div>
 
   <div class="mb-4">
-    {{-- @if (auth()->check())
-      @if (auth()->user()->isNormalUser())
-        @include('includes.user')
-      @else
-        @include('includes.guest')
-      @endif                          
-    @else
-      @include('includes.guest')
-    @endif        --}}
+    @include('includes.errors')
     @auth
       @if ( auth()->user()->hasAnyRole(['admin', 'super_admin', 'operator']) )
-        @include('includes.guest')
-      @else        
+        @include('includes.operator')
+      @elseif ( auth()->user()->hasVerifiedPhone() )       
           @include('includes.user')        
+      @else
+          @include('includes.unverified.user')                
       @endif
     @endauth
     @guest
