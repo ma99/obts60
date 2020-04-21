@@ -1,5 +1,5 @@
 {{-- <div v-show="isSeatBooked" class="row justify-content-center"> --}}
-<div class="row justify-content-center mt-4">
+<div v-show="isSeatBooked" class="row justify-content-center mt-4">
   <div class="col-10">
     <div class="card w-75 shadow">
       <div class="icon-box success">        

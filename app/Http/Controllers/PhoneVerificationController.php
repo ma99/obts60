@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 
 class PhoneVerificationController extends Controller
@@ -17,14 +19,27 @@ class PhoneVerificationController extends Controller
     
     public function show(Request $request)
     {
-        return $request->user()->hasVerifiedPhone()
+        try {
+
+            return $request->user()->hasVerifiedPhone()
                         //? redirect()->route('home')
                         ? redirect($this->redirectPath())
                         : view('phone.verify');
+
+        } catch(\Throwable $e) {
+            //return $e->getMessage();
+            return view('errors.custom.500', ['message' => "You can't do this! Log in first."]);
+        } 
     }
 
     public function verify(Request $request)
     {
+        // if ($request->user()->verificationCodeExpired($request->user()->updated_at)) {
+        //   throw ValidationException::withMessages([
+        //         'code' => ['The code is expired! Please try again or request another call.'],
+        //     ]);
+        // }
+
         if ($request->user()->verification_code !== $request->code) {
             throw ValidationException::withMessages([
                 'code' => ['The code your provided is wrong. Please try again or request another call.'],

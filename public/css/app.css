@@ -11356,6 +11356,12 @@ a.text-dark:focus {
   }
 }
 
+/* Background */
+
+.bg-lightblue {
+  background-color: #E7E8FF;
+}
+
 body {
   color: #525252;
 }

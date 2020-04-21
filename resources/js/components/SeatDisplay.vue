@@ -779,9 +779,9 @@
     text-align: center;
   }
 
-  .form-control[disabled] {
-    background-color: #3097D1;
-  }
+  // .form-control[disabled] {
+  //   background-color: #3097D1;
+  // }
   
   /* The Modal (background) */
   // .modal {

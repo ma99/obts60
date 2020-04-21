@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 class User extends Authenticatable
 {
@@ -64,6 +65,11 @@ class User extends Authenticatable
             'password' => $data['password'], 
           ]
       );
+    }
+
+    public function getPhoneForPasswordReset()
+    {
+        return $this->phone;
     }
 
     // public function remove(array $data)
@@ -155,29 +161,41 @@ class User extends Authenticatable
         return $this->phone;
     }
 
+    public function clearPreviousVerification()
+    {
+      if ($this->hasVerifiedPhone()) {
+        return $this->forceFill([
+            'phone_verified_at' => null,
+        ])->save();
+      }
+    }
+
     public function smsToVerify()
     {
-        //$code = random_int(100000, 999999); // 6 digits
-        $code = random_int(1000, 9999); // 6 digits
+
+        $config = config('settings.phone');
+        //$code = random_int(1000, 9999); // 4 digits
+        $code = random_int(100000, 999999); // 6 digits
         
         $this->forceFill([
             'verification_code' => $code
         ])->save();
 
-        // $client = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
-
-        // $client->calls->create(
-        //     $this->phone,
-        //     "+15306658566", // REPLACE WITH YOUR TWILIO NUMBER
-        //     ["url" => "http://your-ngrok-url>/build-twiml/{$code}"]
-        // );
+        
         $data = [
             'to_numbers' => $this->phone,
-            'from_number' => '8801720310945',
+            'from_number' => $config['number'],
             'message' => 'Your Verfication Code:'.$code,
         ];
         //$sms->send($data);
         //app('App\Repositories\Sms\SmsInterface')->send($data); //wk
-        sendSms($data);
+
+        //sendSms($data);
+    }
+
+     public function verificationCodeExpired($updatedAt)
+    {
+        $config = config('settings.phone');
+        return Carbon::parse($updatedAt)->addSeconds($config['expire'])->isPast();
     }
 }

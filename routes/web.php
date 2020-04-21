@@ -80,6 +80,31 @@ Route::get('phone/verify', 'PhoneVerificationController@show')->name('phoneverif
 Route::post('phone/verify', 'PhoneVerificationController@verify')->name('phoneverification.verify');
 Route::post('phone/resend', 'PhoneVerificationController@resend')->name('phoneverification.resend');
 
+/** Reset Password by phone */
+/*
+|        | POST     | password/email         | password.email   | App\Http\Controllers\Auth\ForgotPasswordController@sendResetLinkEmail
+  | web        |                                                                                                                       
+|        | GET|HEAD | password/reset         | password.request | App\Http\Controllers\Auth\ForgotPasswordController@showLinkRequestFor
+m | web        |                                                                                                                       
+|        | POST     | password/reset         | password.update  | App\Http\Controllers\Auth\ResetPasswordController@reset              
+  | web        |                                                                                                                       
+|        | GET|HEAD | password/reset/{token} | password.reset   | App\Http\Controllers\Auth\ResetPasswordController@showResetForm      
+
+*/
+
+Route::get('password/reset/phone', 'Auth\ForgotPasswordController@showVerificationRequestForm')->name('password.request.phone');
+
+Route::post('password/reset/sms', 'Auth\ForgotPasswordController@sendVerificationCodeSms')->name('password.send.sms');
+
+// Route::get('password/verify/phone', 'Auth\ForgotPasswordController@showVerificationSubmitForm')->name('password.verify.show');
+Route::get('password/verify', 'Auth\ForgotPasswordController@showVerificationSubmitForm')->name('password.verify.show');
+Route::post('password/verify/phone', 'Auth\ForgotPasswordController@verify')->name('password.verify.phone');
+
+Route::get('password/reset/phone/{token}', 'Auth\ResetPasswordController@showPhoneResetForm')->name('password.reset.phone');
+Route::post('password/reset/phone', 'Auth\ResetPasswordController@resetByPhone')->name('password.update.phone');
+
+//Route::post('password/phone', 'Auth\ForgotPasswordController@showPhoneRequestForm')->name('phone.password.request');
+
 /*Payment*/
 //Route::post('/pay/{booking}', 'Payment\PaymentController@index')->name('make.payment');
 //Route::post('/pay', 'Payment\PaymentController@cash')->name('make.payment.cash'); //shifted to admin grps
