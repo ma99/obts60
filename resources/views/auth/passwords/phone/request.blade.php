@@ -18,7 +18,7 @@
                     <form method="POST" action="{{ route('password.send.sms') }}">
                         @csrf
 
-                        <div class="form-group row my-2">
+                        <div class="form-group row my-3">
                             <label for="phone" class="col-md-4 col-form-label text-md-right">{{ __('Phone Number') }}</label>
 
                             <div class="col-md-6">
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="form-group row mb-0">
-                            <div class="col-md-6 offset-md-4 my-2">
+                            <div class="col-md-6 offset-md-4 my-3">
                                 <button type="submit" class="btn btn-warning btn-block">
                                     {{ __('Send Verification Code') }}
                                 </button>

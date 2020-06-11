@@ -12,15 +12,6 @@
     <div class="col-12 mt-3">
       <seat-display inline-template>
           <div>              
-              {{-- @auth
-                <div v-show="{{ !auth()->user()->hasVerifiedPhone() }}" class="text-center alert alert-info fade show" role="alert">  
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                  Your phone is not verified. <a class="mx-2 btn btn-primary btn-sm" href="{{ route('phoneverification.notice') }}" role="button">Verify your phone please!</a>                  
-                </div>
-              @endauth --}}
-              
               <div v-show="!isSeatBooked" class="card border-0 bg-transparent">
                 {{-- <div class="card-heading">Search Schedule</div> --}}
                 <div class="card-body">                  
@@ -75,9 +66,9 @@
                                   <div> @{{ bus.fare }} </div>
                                 </td>
                                 <td class="table-text">
-                                  <div> 
+                                  {{-- <div>  --}}
                                    {{--  <button v-on:click.prevent="viewSeats(bus.schedule_id, bus.bus_id, bus.fare)" class="btn btn-success">View</button>  --}}
-                                  </div>
+                                  {{-- </div> --}}
                                   <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#staticBackdrop" v-on:click.prevent="viewSeats(bus.schedule_id, bus.bus_id, bus.fare)">    
                                       <i class="button-icon fas fa-eye"></i>View
                                   </button>   
@@ -101,6 +92,7 @@
               <modal :show.sync="modal" width="45" padding="0.5">
                 @include('includes.seatselection')
               </modal>              
+              {{-- @include('includes.modal') --}}
           </div>      
       </seat-display>              
     </div>      

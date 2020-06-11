@@ -84,7 +84,10 @@
           </tbody>
         </table>       
       </div>
-      <div class="card-footer total"><strong>Total Amount:</strong> @{{ totalFare }} </div>        
+      <div class="card-footer total">
+        {{-- <strong>Total Amount:</strong> @{{ totalFare }}  --}}
+        <strong>Total Amount:</strong> @{{ totalFare }} 
+      </div>        
     </div>
     {{-- </div>     --}}
   </div>

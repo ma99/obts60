@@ -48,7 +48,7 @@
                             </div>
                             <div class="col-md-6 offset-md-4">
                                 @if (Route::has('password.request.phone'))
-                                    <a class="btn btn-secondary btn-block btn-sm" href="{{ route('password.request.phone') }}">
+                                    <a class="btn btn-light text-primary btn-block btn-sm" href="{{ route('password.request.phone') }}">
                                         {{ __('Reset Password by Phone?') }}
                                     </a>
                                 @endif
